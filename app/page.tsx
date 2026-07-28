@@ -4,6 +4,7 @@ import {
   Users,
   MapPin,
   ArrowRight,
+  MonitorPlay,
 } from "lucide-react";
 import Hero from "@/components/Hero";
 import MissaCard from "@/components/MissaCard";
@@ -11,6 +12,12 @@ import AvisosSemana from "@/components/AvisosSemana";
 import { horariosMissas } from "@/lib/dados";
 
 const atalhos = [
+  {
+    href: "/missa-online",
+    titulo: "Missa Online",
+    descricao: "Assista à Santa Missa ao vivo pelo YouTube.",
+    Icone: MonitorPlay,
+  },
   {
     href: "/dizimo",
     titulo: "Dízimo e Doações",
@@ -61,7 +68,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="text-3xl text-terracota-escuro">Acesso rápido</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {atalhos.map(({ href, titulo, descricao, Icone }) => (
             <Link
               key={href}

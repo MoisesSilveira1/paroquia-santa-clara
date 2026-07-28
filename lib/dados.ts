@@ -1,15 +1,29 @@
-// Dados de demonstração da paróquia (placeholders realistas — confirmar com a secretaria)
+// Dados da paróquia — fonte: Arquidiocese de Brasília (arqbrasilia.com.br) e canal
+// oficial no YouTube, consultados em 27/07/2026. Confirmar com a secretaria antes
+// de publicar. Itens marcados como DEMO ainda são fictícios.
 
 export const paroquia = {
   nome: "Paróquia Santa Clara e São Francisco de Assis",
   endereco:
-    "SH Jardim Botânico Condomínio Parque — Jardim Botânico, Brasília - DF, CEP 71680-000",
-  telefone: "(61) 3366-0000",
-  whatsapp: "5561933660000",
-  email: "secretaria@paroquiasantaclarasf.com.br",
-  horarioSecretaria: "Terça a sexta, 9h às 18h · Sábado, 9h às 12h",
+    "SHJBS Etapa III, Av. Dom Bosco, Qd. 01 Lote A — Jardim Botânico, Brasília-DF, CEP 71.680-366",
+  telefone: "(61) 3427-3281",
+  whatsapp: "5561996218696",
+  email: "paroquiasantaclaradeassis@gmail.com",
+  horarioSecretaria:
+    "Terça a sexta, 9h–12h e 13h–18h · Sábado, 9h–12h e 13h–17h",
   mapaEmbedUrl:
-    "https://www.google.com/maps?q=Jardim+Bot%C3%A2nico+Condom%C3%ADnio+Parque,+Bras%C3%ADlia+-+DF&output=embed",
+    "https://www.google.com/maps?q=Par%C3%B3quia+Santa+Clara+e+S%C3%A3o+Francisco+de+Assis,+Av.+Dom+Bosco,+Jardim+Bot%C3%A2nico,+Bras%C3%ADlia+-+DF&output=embed",
+};
+
+export const youtube = {
+  canalId: "UCB14Q-4k6DoG2x3ZHm5m1Hg",
+  canalUrl: "https://www.youtube.com/@paroquiasantaclaraesaofran3560",
+  // Playlist automática de "uploads" do canal (últimas missas gravadas)
+  playlistUploads: "UUB14Q-4k6DoG2x3ZHm5m1Hg",
+  horariosTransmissao: [
+    "Domingo, 19h — Santa Missa",
+    "Quarta-feira, 20h — Missa da Saúde",
+  ],
 };
 
 export type Horario = {
@@ -20,57 +34,65 @@ export type Horario = {
 export const horariosMissas: Horario[] = [
   { dia: "Domingo", atividades: [
     { hora: "08h00", nome: "Santa Missa" },
-    { hora: "10h00", nome: "Santa Missa (com catequese infantil)" },
-    { hora: "19h00", nome: "Santa Missa" },
+    { hora: "11h00", nome: "Santa Missa" },
+    { hora: "19h00", nome: "Santa Missa (transmitida ao vivo no YouTube)" },
   ]},
   { dia: "Terça-feira", atividades: [
-    { hora: "19h30", nome: "Santa Missa" },
+    { hora: "07h00", nome: "Santa Missa" },
+    { hora: "19h30", nome: "Santa Missa, seguida de Adoração ao Santíssimo" },
   ]},
   { dia: "Quarta-feira", atividades: [
-    { hora: "19h30", nome: "Santa Missa e Novena de São Francisco" },
+    { hora: "07h00", nome: "Santa Missa" },
+    { hora: "19h00", nome: "Adoração ao Santíssimo" },
+    { hora: "20h00", nome: "Missa da Saúde (transmitida ao vivo no YouTube)" },
   ]},
   { dia: "Quinta-feira", atividades: [
-    { hora: "19h00", nome: "Adoração ao Santíssimo" },
-    { hora: "20h00", nome: "Santa Missa" },
+    { hora: "07h00", nome: "Santa Missa" },
+    { hora: "18h00", nome: "Confissões (até 19h)" },
+    { hora: "19h30", nome: "Santa Missa, seguida de Adoração ao Santíssimo" },
   ]},
   { dia: "Sexta-feira", atividades: [
-    { hora: "19h30", nome: "Santa Missa" },
+    { hora: "07h00", nome: "Santa Missa" },
+    { hora: "18h00", nome: "Confissões (até 19h)" },
+    { hora: "19h30", nome: "Santa Missa, seguida de Adoração ao Santíssimo" },
   ]},
   { dia: "Sábado", atividades: [
-    { hora: "16h00", nome: "Confissões" },
-    { hora: "18h00", nome: "Santa Missa (dominical antecipada)" },
+    { hora: "17h30", nome: "Santa Missa (Igreja Matriz)" },
+    { hora: "19h00", nome: "Confissões (Capela Rainha da Paz)" },
+    { hora: "19h30", nome: "Santa Missa (Capela Rainha da Paz)" },
   ]},
 ];
 
 export const sacramentos = [
   {
-    nome: "Batismo",
-    descricao:
-      "Preparação dos pais e padrinhos no 2º sábado do mês, às 15h. Celebração no 4º domingo, após a missa das 10h. Inscrições na secretaria.",
-  },
-  {
     nome: "Confissões",
     descricao:
-      "Sábados, das 16h às 17h30, ou mediante agendamento com o pároco pela secretaria.",
+      "Quinta e sexta-feira, das 18h às 19h, na Igreja Matriz; sábado, às 19h, na Capela Rainha da Paz. Também mediante agendamento na secretaria.",
+  },
+  {
+    nome: "Adoração ao Santíssimo",
+    descricao:
+      "Terça, quinta e sexta-feira após a missa das 19h30; quarta-feira às 19h.",
+  },
+  {
+    nome: "Batismo",
+    descricao:
+      "DEMO — Preparação dos pais e padrinhos e agendamento na secretaria paroquial. Confirmar dias e horários.",
   },
   {
     nome: "Catequese (1ª Eucaristia)",
     descricao:
-      "Encontros aos domingos, às 9h, para crianças a partir de 8 anos. Matrículas abertas no início de cada semestre.",
+      "DEMO — Encontros semanais para crianças. Matrículas na secretaria no início de cada semestre.",
   },
   {
     nome: "Crisma",
     descricao:
-      "Preparação para jovens a partir de 14 anos e adultos. Encontros aos sábados, às 16h.",
+      "DEMO — Preparação para jovens e adultos. Informações na secretaria.",
   },
   {
     nome: "Matrimônio",
     descricao:
-      "Agendar com pelo menos 6 meses de antecedência na secretaria. Curso de noivos trimestral.",
-  },
-  {
-    nome: "Adoração ao Santíssimo",
-    descricao: "Quintas-feiras, às 19h, antes da Santa Missa.",
+      "DEMO — Agendar com antecedência na secretaria. Curso de noivos periódico.",
   },
 ];
 
@@ -81,56 +103,58 @@ export type Pastoral = {
   reunioes: string;
 };
 
+// DEMO — nomes e contatos fictícios; substituir pelos coordenadores reais
 export const pastorais: Pastoral[] = [
   {
     nome: "Catequese",
     descricao: "Iniciação cristã de crianças, preparação para a 1ª Eucaristia.",
-    contato: "Maria Helena — (61) 99999-0001",
-    reunioes: "Domingos, 9h",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
     nome: "Crisma",
     descricao: "Formação de jovens e adultos para o sacramento da Confirmação.",
-    contato: "João Pedro — (61) 99999-0002",
-    reunioes: "Sábados, 16h",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
     nome: "Pastoral do Dízimo",
     descricao: "Conscientização sobre a partilha e acolhida dos dizimistas.",
-    contato: "Ana Lúcia — (61) 99999-0003",
-    reunioes: "1ª segunda do mês, 20h",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
     nome: "MESC",
     descricao:
       "Ministros Extraordinários da Sagrada Comunhão — serviço ao altar e aos enfermos.",
-    contato: "Carlos Alberto — (61) 99999-0004",
-    reunioes: "2ª quinta do mês, 20h30",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
     nome: "Liturgia",
     descricao: "Preparação das celebrações, leituras, música e ambientação.",
-    contato: "Fernanda — (61) 99999-0005",
-    reunioes: "Quartas, 20h30",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
     nome: "Pastoral da Caridade",
     descricao:
-      "Ação social franciscana: cestas básicas, visitas e campanhas solidárias.",
-    contato: "Irmã Regina — (61) 99999-0006",
-    reunioes: "Sábados, 9h",
+      "Ação social: cestas básicas, visitas e campanhas solidárias.",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
     nome: "Pastoral Familiar",
     descricao: "Acompanhamento de casais, curso de noivos e encontros de famílias.",
-    contato: "Rodrigo e Patrícia — (61) 99999-0007",
-    reunioes: "3º domingo do mês, 17h",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
   {
-    nome: "Juventude Franciscana",
-    descricao: "Grupo de jovens: oração, formação, missão e convivência.",
-    contato: "Beatriz — (61) 99999-0008",
-    reunioes: "Sextas, 20h30",
+    nome: "PASCOM",
+    descricao:
+      "Pastoral da Comunicação: transmissões das missas, redes sociais e este site.",
+    contato: "Secretaria — (61) 3427-3281",
+    reunioes: "Consultar secretaria",
   },
 ];
 
@@ -142,6 +166,7 @@ export type Noticia = {
   categoria: "Notícia" | "Evento";
 };
 
+// DEMO — mural de exemplo; o conteúdo real virá do painel administrativo
 export const noticias: Noticia[] = [
   {
     slug: "festa-sao-francisco-2026",
@@ -193,17 +218,19 @@ export const noticias: Noticia[] = [
   },
 ];
 
+// DEMO — os avisos reais virão do painel administrativo (Supabase)
 export const avisosSemana = [
-  "Nesta quinta-feira, Adoração ao Santíssimo às 19h, seguida da Santa Missa.",
-  "Matrículas da catequese abertas na secretaria até o fim do mês.",
-  "Sábado, às 9h, mutirão da Pastoral da Caridade para montagem de cestas básicas.",
+  "Quinta e sexta-feira, confissões das 18h às 19h na Igreja Matriz.",
+  "Quarta-feira, às 20h, Missa da Saúde — transmitida ao vivo pelo YouTube.",
+  "Acompanhe as missas de domingo às 19h também pela nossa página Missa Online.",
 ];
 
+// DEMO — substituir pelos dados bancários oficiais antes de publicar
 export const dizimo = {
-  chavePix: "dizimo@paroquiasantaclarasf.com.br",
-  banco: "Banco do Brasil",
-  agencia: "0000-1",
-  conta: "12.345-6",
+  chavePix: "A CONFIRMAR com a secretaria",
+  banco: "A confirmar",
+  agencia: "—",
+  conta: "—",
   titular: "Paróquia Santa Clara e São Francisco de Assis",
-  cnpj: "00.000.000/0001-00",
+  cnpj: "A confirmar",
 };

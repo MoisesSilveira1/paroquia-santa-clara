@@ -10,6 +10,7 @@ const links = [
   { href: "/horarios", label: "Horários" },
   { href: "/sobre", label: "A Paróquia" },
   { href: "/pastorais", label: "Pastorais" },
+  { href: "/missa-online", label: "Missa Online" },
   { href: "/noticias", label: "Notícias" },
   { href: "/galeria", label: "Galeria" },
   { href: "/dizimo", label: "Dízimo" },
@@ -30,7 +31,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden lg:block" aria-label="Navegação principal">
+        <nav className="hidden xl:block" aria-label="Navegação principal">
           <ul className="flex items-center gap-1">
             {links.map((link) => (
               <li key={link.href}>
@@ -49,7 +50,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="rounded-md p-2 hover:bg-marrom-claro lg:hidden"
+          className="rounded-md p-2 hover:bg-marrom-claro xl:hidden"
           aria-expanded={aberto}
           aria-label={aberto ? "Fechar menu" : "Abrir menu"}
           onClick={() => setAberto(!aberto)}
@@ -59,7 +60,7 @@ export default function Header() {
       </div>
 
       {aberto && (
-        <nav className="border-t border-marrom-claro lg:hidden" aria-label="Navegação móvel">
+        <nav className="border-t border-marrom-claro xl:hidden" aria-label="Navegação móvel">
           <ul className="flex flex-col px-4 py-2">
             {links.map((link) => (
               <li key={link.href}>
