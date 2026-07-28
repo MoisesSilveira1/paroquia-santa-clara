@@ -3,15 +3,17 @@
 Plano para dar e-mails próprios (`nome@dominio-da-paroquia`) aos membros da
 paróquia, integrado ao site. Preparado em 27/07/2026.
 
-## 1. Pré-requisito: domínio próprio
+## 1. Pré-requisito: domínio próprio (registrar do zero)
 
-O e-mail personalizado exige um domínio registrado. O antigo
-`paroquiasantaclaradf.com.br` **está fora do ar / não resolve mais** — verificar
-com a secretaria se o registro ainda pertence à paróquia (dá para checar e
-recuperar no [registro.br](https://registro.br)). Opções:
+O domínio antigo (`paroquiasantaclaradf.com.br`) **foi perdido**: estava em nome
+da empresa que fazia o site e a paróquia nunca recebeu o acesso. Portanto:
 
-- **Recuperar** `paroquiasantaclaradf.com.br` (melhor: já foi divulgado); ou
-- Registrar um novo, ex.: `paroquiasantaclarasf.org.br` (~R$ 40/ano no registro.br).
+- Registrar um domínio **novo** no [registro.br](https://registro.br)
+  (~R$ 40/ano), ex.: `paroquiasantaclarasf.org.br` ou
+  `santaclarasfrancisco.org.br`.
+- ⚠️ **Titular = CNPJ da paróquia/mitra** e e-mail de contato = conta
+  institucional (ver [continuidade.md](continuidade.md)). Nunca em nome de
+  voluntário ou empresa — foi assim que o domínio anterior se perdeu.
 
 O mesmo domínio servirá para o site (`www.`) e para os e-mails.
 
