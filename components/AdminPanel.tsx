@@ -16,6 +16,7 @@ import {
   ImagePlus,
 } from "lucide-react";
 import { supabase, fotoUrl, type Aviso, type Album } from "@/lib/supabase";
+import { avisosSemana, albunsDemo } from "@/lib/dados";
 
 const inputCls =
   "w-full rounded-lg border border-creme-escuro bg-creme px-3 py-2.5 text-base outline-none focus:border-dourado focus:ring-2 focus:ring-dourado/40";
@@ -42,15 +43,7 @@ export default function AdminPanel() {
   }, []);
 
   if (!supabase) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-3xl text-terracota-escuro">Administração</h1>
-        <p className="mt-4 text-marrom-claro">
-          O Supabase ainda não foi configurado (variáveis
-          NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY ausentes).
-        </p>
-      </div>
-    );
+    return <AdminDemo />;
   }
 
   if (carregando) {
@@ -157,6 +150,370 @@ function Painel({ emailUsuario }: { emailUsuario: string }) {
       <SecaoAvisos />
       <SecaoFotos />
     </div>
+  );
+}
+
+// ---------- Modo demonstração (sem Supabase): tudo em memória ----------
+
+type AvisoDemo = { id: string; texto: string; ativo: boolean };
+type FotoDemo = { id: string; url: string };
+type AlbumDemoLocal = { id: string; titulo: string; data: string; fotos: FotoDemo[] };
+
+function AdminDemo() {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [logado, setLogado] = useState(false);
+
+  if (!logado) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16">
+        <h1 className="text-center text-3xl text-terracota-escuro">Administração</h1>
+        <p className="mt-2 text-center text-sm text-marrom-claro">
+          Área restrita à equipe da paróquia.
+        </p>
+        <form
+          className="mt-8 space-y-4 rounded-xl border border-dourado-claro bg-white p-6 shadow-sm"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (email && senha) setLogado(true);
+          }}
+        >
+          <div>
+            <label htmlFor="demo-email" className="mb-1 block text-sm font-medium">
+              E-mail
+            </label>
+            <input
+              id="demo-email"
+              type="email"
+              required
+              className={inputCls}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="demo-senha" className="mb-1 block text-sm font-medium">
+              Senha
+            </label>
+            <input
+              id="demo-senha"
+              type="password"
+              required
+              className={inputCls}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
+          </div>
+          <button type="submit" className={`${botaoCls} w-full justify-center`}>
+            <LogIn className="h-5 w-5" aria-hidden />
+            Entrar
+          </button>
+          <p className="text-center text-xs text-marrom-claro">
+            Modo demonstração: qualquer e-mail e senha entram.
+          </p>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-10">
+      <div className="rounded-lg border-l-4 border-dourado bg-dourado-claro/40 p-4 text-sm">
+        <strong>Modo demonstração:</strong> o painel funciona de verdade, mas as
+        alterações não ficam salvas — servem para mostrar como a secretaria vai
+        usar o sistema no dia a dia.
+      </div>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl text-terracota-escuro">Administração</h1>
+          <p className="mt-1 text-sm text-marrom-claro">Conectado como {email}</p>
+        </div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-lg border border-marrom-claro px-4 py-2 text-sm font-semibold hover:bg-creme-escuro"
+          onClick={() => setLogado(false)}
+        >
+          <LogOut className="h-4 w-4" aria-hidden />
+          Sair
+        </button>
+      </div>
+      <SecaoAvisosDemo />
+      <SecaoFotosDemo />
+    </div>
+  );
+}
+
+function SecaoAvisosDemo() {
+  const [avisos, setAvisos] = useState<AvisoDemo[]>(
+    avisosSemana.map((texto, i) => ({ id: `a${i}`, texto, ativo: true }))
+  );
+  const [novoTexto, setNovoTexto] = useState("");
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [textoEdicao, setTextoEdicao] = useState("");
+
+  return (
+    <section className="mt-10" aria-labelledby="titulo-avisos-demo">
+      <h2 id="titulo-avisos-demo" className="flex items-center gap-2 text-2xl text-marrom">
+        <Megaphone className="h-6 w-6 text-dourado" aria-hidden />
+        Avisos da semana
+      </h2>
+      <p className="mt-1 text-sm text-marrom-claro">
+        Os avisos ativos aparecem na página inicial do site.
+      </p>
+
+      <form
+        className="mt-4 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!novoTexto.trim()) return;
+          setAvisos([
+            { id: crypto.randomUUID(), texto: novoTexto.trim(), ativo: true },
+            ...avisos,
+          ]);
+          setNovoTexto("");
+        }}
+      >
+        <label htmlFor="novo-aviso-demo" className="sr-only">
+          Novo aviso
+        </label>
+        <input
+          id="novo-aviso-demo"
+          type="text"
+          placeholder="Escreva um novo aviso…"
+          className={inputCls}
+          value={novoTexto}
+          onChange={(e) => setNovoTexto(e.target.value)}
+        />
+        <button type="submit" className={botaoCls}>
+          <Plus className="h-5 w-5" aria-hidden />
+          Adicionar
+        </button>
+      </form>
+
+      <ul className="mt-4 space-y-2">
+        {avisos.map((aviso) => (
+          <li
+            key={aviso.id}
+            className={`flex items-center gap-2 rounded-lg border border-dourado-claro bg-white p-3 ${
+              aviso.ativo ? "" : "opacity-60"
+            }`}
+          >
+            {editandoId === aviso.id ? (
+              <>
+                <label htmlFor={`ed-${aviso.id}`} className="sr-only">
+                  Editar aviso
+                </label>
+                <input
+                  id={`ed-${aviso.id}`}
+                  className={inputCls}
+                  value={textoEdicao}
+                  onChange={(e) => setTextoEdicao(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className={botaoCls}
+                  onClick={() => {
+                    setAvisos(avisos.map((a) =>
+                      a.id === aviso.id ? { ...a, texto: textoEdicao.trim() } : a
+                    ));
+                    setEditandoId(null);
+                  }}
+                >
+                  Salvar
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="flex-1 text-sm">{aviso.texto}</span>
+                <button
+                  type="button"
+                  title={aviso.ativo ? "Ocultar do site" : "Mostrar no site"}
+                  aria-label={aviso.ativo ? "Ocultar aviso do site" : "Mostrar aviso no site"}
+                  className="rounded p-2 text-marrom-claro hover:bg-creme-escuro"
+                  onClick={() =>
+                    setAvisos(avisos.map((a) =>
+                      a.id === aviso.id ? { ...a, ativo: !a.ativo } : a
+                    ))
+                  }
+                >
+                  {aviso.ativo ? (
+                    <Eye className="h-4 w-4" aria-hidden />
+                  ) : (
+                    <EyeOff className="h-4 w-4" aria-hidden />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  title="Editar"
+                  aria-label="Editar aviso"
+                  className="rounded p-2 text-marrom-claro hover:bg-creme-escuro"
+                  onClick={() => {
+                    setEditandoId(aviso.id);
+                    setTextoEdicao(aviso.texto);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  title="Excluir"
+                  aria-label="Excluir aviso"
+                  className="rounded p-2 text-terracota-escuro hover:bg-creme-escuro"
+                  onClick={() => {
+                    if (window.confirm("Excluir este aviso?"))
+                      setAvisos(avisos.filter((a) => a.id !== aviso.id));
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden />
+                </button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function SecaoFotosDemo() {
+  const [albuns, setAlbuns] = useState<AlbumDemoLocal[]>(
+    albunsDemo.map((album, i) => ({
+      id: `alb${i}`,
+      titulo: album.titulo,
+      data: album.data,
+      fotos: album.fotos.map((url, j) => ({ id: `f${i}-${j}`, url })),
+    }))
+  );
+  const [novoTitulo, setNovoTitulo] = useState("");
+
+  return (
+    <section className="mt-12" aria-labelledby="titulo-fotos-demo">
+      <h2 id="titulo-fotos-demo" className="flex items-center gap-2 text-2xl text-marrom">
+        <Camera className="h-6 w-6 text-dourado" aria-hidden />
+        Fotos de eventos
+      </h2>
+      <p className="mt-1 text-sm text-marrom-claro">
+        Crie um álbum para cada evento e envie as fotos. Elas aparecem na página
+        Galeria.
+      </p>
+
+      <form
+        className="mt-4 flex flex-wrap items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!novoTitulo.trim()) return;
+          setAlbuns([
+            { id: crypto.randomUUID(), titulo: novoTitulo.trim(), data: "", fotos: [] },
+            ...albuns,
+          ]);
+          setNovoTitulo("");
+        }}
+      >
+        <div className="min-w-48 flex-1">
+          <label htmlFor="novo-album-demo" className="mb-1 block text-sm font-medium">
+            Nome do evento
+          </label>
+          <input
+            id="novo-album-demo"
+            type="text"
+            placeholder="Ex.: Festa de Santa Clara 2026"
+            className={inputCls}
+            value={novoTitulo}
+            onChange={(e) => setNovoTitulo(e.target.value)}
+          />
+        </div>
+        <button type="submit" className={botaoCls}>
+          <Plus className="h-5 w-5" aria-hidden />
+          Criar álbum
+        </button>
+      </form>
+
+      <div className="mt-6 space-y-8">
+        {albuns.map((album) => (
+          <article
+            key={album.id}
+            className="rounded-xl border border-dourado-claro bg-white p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="text-lg text-marrom">{album.titulo}</h3>
+                <p className="text-xs text-marrom-claro">
+                  {album.data || "sem data"} · {album.fotos.length} foto(s)
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className={`${botaoCls} cursor-pointer`}>
+                  <ImagePlus className="h-5 w-5" aria-hidden />
+                  Enviar fotos
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="sr-only"
+                    onChange={(e) => {
+                      const arquivos = e.target.files;
+                      if (!arquivos?.length) return;
+                      const novas = Array.from(arquivos).map((arquivo) => ({
+                        id: crypto.randomUUID(),
+                        url: URL.createObjectURL(arquivo),
+                      }));
+                      setAlbuns(albuns.map((a) =>
+                        a.id === album.id ? { ...a, fotos: [...a.fotos, ...novas] } : a
+                      ));
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  title="Excluir álbum"
+                  aria-label={`Excluir álbum ${album.titulo}`}
+                  className="rounded p-2 text-terracota-escuro hover:bg-creme-escuro"
+                  onClick={() => {
+                    if (window.confirm(`Excluir o álbum "${album.titulo}"?`))
+                      setAlbuns(albuns.filter((a) => a.id !== album.id));
+                  }}
+                >
+                  <Trash2 className="h-5 w-5" aria-hidden />
+                </button>
+              </div>
+            </div>
+
+            {album.fotos.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">
+                {album.fotos.map((foto) => (
+                  <div key={foto.id} className="group relative aspect-square">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={foto.url}
+                      alt="Foto do álbum"
+                      loading="lazy"
+                      className="h-full w-full rounded-md object-cover"
+                    />
+                    <button
+                      type="button"
+                      title="Excluir foto"
+                      aria-label="Excluir foto"
+                      className="absolute right-1 top-1 rounded-full bg-marrom/80 p-1.5 text-creme opacity-0 transition-opacity hover:bg-terracota-escuro group-hover:opacity-100"
+                      onClick={() => {
+                        if (!window.confirm("Excluir esta foto?")) return;
+                        setAlbuns(albuns.map((a) =>
+                          a.id === album.id
+                            ? { ...a, fotos: a.fotos.filter((f) => f.id !== foto.id) }
+                            : a
+                        ));
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 

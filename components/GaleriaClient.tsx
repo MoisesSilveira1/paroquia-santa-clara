@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, Camera } from "lucide-react";
 import { supabase, fotoUrl, type Album } from "@/lib/supabase";
+import { albunsDemo } from "@/lib/dados";
 
 function formatarData(data: string | null): string {
   if (!data) return "";
@@ -10,12 +11,28 @@ function formatarData(data: string | null): string {
   return `${dia}/${mes}/${ano}`;
 }
 
+// Converte os álbuns locais (public/fotos) para o formato da galeria
+const albunsLocais: Album[] = albunsDemo.map((album, i) => ({
+  id: `local-${i}`,
+  titulo: album.titulo,
+  data_evento: album.data.split("/").reverse().join("-"),
+  created_at: "",
+  fotos: album.fotos.map((path, j) => ({
+    id: `local-${i}-${j}`,
+    album_id: `local-${i}`,
+    path,
+    legenda: null,
+    created_at: String(j),
+  })),
+}));
+
 export default function GaleriaClient() {
   const [albuns, setAlbuns] = useState<Album[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
     if (!supabase) {
+      setAlbuns(albunsLocais);
       setCarregando(false);
       return;
     }
@@ -61,7 +78,7 @@ export default function GaleriaClient() {
               .map((foto) => (
                 <a
                   key={foto.id}
-                  href={fotoUrl(foto.path)}
+                  href={foto.path.startsWith("/") ? foto.path : fotoUrl(foto.path)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative block aspect-square overflow-hidden rounded-lg border border-dourado-claro bg-creme-escuro"
@@ -69,7 +86,7 @@ export default function GaleriaClient() {
                   {/* Fotos vêm do Supabase Storage (domínio dinâmico) — img simples em vez de next/image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={fotoUrl(foto.path)}
+                    src={foto.path.startsWith("/") ? foto.path : fotoUrl(foto.path)}
                     alt={foto.legenda ?? `Foto do álbum ${album.titulo}`}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"

@@ -225,6 +225,27 @@ export const avisosSemana = [
   "Acompanhe as missas de domingo às 19h também pela nossa página Missa Online.",
 ];
 
+// Álbuns locais (fotos reais da PASCOM em /public) — usados na galeria e no
+// painel enquanto o Supabase não está configurado
+export type AlbumDemo = {
+  titulo: string;
+  data: string;
+  fotos: string[];
+};
+
+export const albunsDemo: AlbumDemo[] = [
+  {
+    titulo: "Celebração na Matriz — Janeiro de 2026",
+    data: "18/01/2026",
+    fotos: [1, 2, 3, 4, 5, 6].map((n) => `/fotos/galeria/jan-2026/foto-${n}.jpg`),
+  },
+  {
+    titulo: "Santa Missa em Família — Dezembro de 2025",
+    data: "15/12/2025",
+    fotos: [1, 2, 3, 4, 5, 6].map((n) => `/fotos/galeria/dez-2025/foto-${n}.jpg`),
+  },
+];
+
 // DEMO — substituir pelos dados bancários oficiais antes de publicar
 export const dizimo = {
   chavePix: "A CONFIRMAR com a secretaria",
