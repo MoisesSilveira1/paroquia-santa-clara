@@ -17,16 +17,16 @@ da empresa que fazia o site e a paróquia nunca recebeu o acesso. Portanto:
 
 O mesmo domínio servirá para o site (`www.`) e para os e-mails.
 
-## 2. Google Workspace — de preferência gratuito
+## 2. Google Workspace — licenças pagas (Business Starter)
 
-Igrejas com CNPJ próprio geralmente se qualificam para o
-**Google Workspace for Nonprofits (gratuito)**:
+Avaliado em 27/07/2026: a isenção do Google for Nonprofits **não se aplica ao
+nosso caso** — planejar com licenças pagas:
 
-1. Cadastrar a organização no [Google para ONGs](https://www.google.com/nonprofits/)
-   (validação via TechSoup/Ativa Brasil, usando o CNPJ da paróquia/mitra).
-2. Aprovado, ativar o Google Workspace for Nonprofits (até centenas de contas, R$ 0).
-3. Se não se qualificar: Workspace Business Starter (~US$ 6/usuário/mês) ou
-   começar só com grupos/aliases num plano mínimo.
+- **Business Starter** (recomendado): ~R$ 32,72/usuário/mês — e-mail no domínio,
+  30 GB, Meet e agenda.
+- Custo mensal exemplo: 3 contas ≈ R$ 98 · 6 contas ≈ R$ 196 · 12 contas ≈ R$ 393.
+- Dica: usar **grupos** (gratuitos, ex. `pastorais@`) como apelidos de
+  distribuição para não multiplicar licenças.
 
 ## 3. Contas sugeridas
 
@@ -65,5 +65,5 @@ No provedor de DNS do domínio (Cloudflare recomendado, gratuito):
 | Item | Custo |
 | --- | --- |
 | Domínio .org.br / .com.br | ~R$ 40/ano |
-| Google Workspace (nonprofit) | R$ 0 |
+| Google Workspace Business Starter | ~R$ 32,72/usuário/mês |
 | DNS (Cloudflare) | R$ 0 |
