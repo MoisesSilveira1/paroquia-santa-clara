@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  Megaphone,
   HeartHandshake,
   Users,
   MapPin,
@@ -8,7 +7,8 @@ import {
 } from "lucide-react";
 import Hero from "@/components/Hero";
 import MissaCard from "@/components/MissaCard";
-import { horariosMissas, avisosSemana, paroquia } from "@/lib/dados";
+import AvisosSemana from "@/components/AvisosSemana";
+import { horariosMissas } from "@/lib/dados";
 
 const atalhos = [
   {
@@ -55,23 +55,7 @@ export default function Home() {
 
       <section className="bg-creme-escuro py-14">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="rounded-2xl border-l-4 border-dourado bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="flex items-center gap-3 text-2xl text-terracota-escuro">
-              <Megaphone className="h-7 w-7 text-dourado" aria-hidden />
-              Avisos da Semana — Secretaria
-            </h2>
-            <ul className="mt-4 space-y-3">
-              {avisosSemana.map((aviso) => (
-                <li key={aviso} className="flex items-start gap-3 text-base">
-                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-terracota" aria-hidden />
-                  {aviso}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 text-sm text-marrom-claro">
-              Secretaria: {paroquia.horarioSecretaria} · {paroquia.telefone}
-            </p>
-          </div>
+          <AvisosSemana />
         </div>
       </section>
 

@@ -45,6 +45,7 @@ export default function Footer() {
             <li><Link className="hover:text-dourado" href="/sobre">A Paróquia</Link></li>
             <li><Link className="hover:text-dourado" href="/pastorais">Pastorais</Link></li>
             <li><Link className="hover:text-dourado" href="/noticias">Notícias</Link></li>
+            <li><Link className="hover:text-dourado" href="/galeria">Galeria de Fotos</Link></li>
             <li><Link className="hover:text-dourado" href="/dizimo">Dízimo e Doações</Link></li>
             <li><Link className="hover:text-dourado" href="/contato">Contato</Link></li>
           </ul>

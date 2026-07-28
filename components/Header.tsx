@@ -11,6 +11,7 @@ const links = [
   { href: "/sobre", label: "A Paróquia" },
   { href: "/pastorais", label: "Pastorais" },
   { href: "/noticias", label: "Notícias" },
+  { href: "/galeria", label: "Galeria" },
   { href: "/dizimo", label: "Dízimo" },
   { href: "/contato", label: "Contato" },
 ];
