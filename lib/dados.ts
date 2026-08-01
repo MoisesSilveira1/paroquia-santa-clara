@@ -237,12 +237,12 @@ export const albunsDemo: AlbumDemo[] = [
   {
     titulo: "Celebração na Matriz — Janeiro de 2026",
     data: "18/01/2026",
-    fotos: [1, 2, 3, 4, 5, 6].map((n) => `/fotos/galeria/jan-2026/foto-${n}.jpg`),
+    fotos: [1, 2, 3, 4, 5, 6].map((n) => `/fotos/galeria/jan-2026/foto-${n}.webp`),
   },
   {
     titulo: "Santa Missa em Família — Dezembro de 2025",
     data: "15/12/2025",
-    fotos: [1, 2, 3, 4, 5, 6].map((n) => `/fotos/galeria/dez-2025/foto-${n}.jpg`),
+    fotos: [1, 2, 3, 4, 5, 6].map((n) => `/fotos/galeria/dez-2025/foto-${n}.webp`),
   },
 ];
 

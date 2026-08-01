@@ -16,13 +16,46 @@ const merriweather = Merriweather({
   subsets: ["latin"],
 });
 
+const TITULO =
+  "Paróquia Santa Clara e São Francisco de Assis — Jardim Botânico, Brasília-DF";
+const DESCRICAO =
+  "Site oficial da Paróquia Santa Clara e São Francisco de Assis, Jardim Botânico, Brasília-DF. Horários de missas, confissões, pastorais, notícias, dízimo e contato.";
+
 export const metadata: Metadata = {
+  // Define o endereço usado nos links de compartilhamento. Ao publicar,
+  // configurar NEXT_PUBLIC_SITE_URL com o domínio definitivo.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  ),
   title: {
-    default: "Paróquia Santa Clara e São Francisco de Assis — Jardim Botânico, Brasília-DF",
+    default: TITULO,
     template: "%s | Paróquia Santa Clara e São Francisco de Assis",
   },
-  description:
-    "Site oficial da Paróquia Santa Clara e São Francisco de Assis, Jardim Botânico, Brasília-DF. Horários de missas, confissões, pastorais, notícias, dízimo e contato.",
+  description: DESCRICAO,
+  keywords: [
+    "paróquia",
+    "igreja católica",
+    "Jardim Botânico",
+    "Brasília",
+    "missa",
+    "Santa Clara",
+    "São Francisco de Assis",
+    "Arquidiocese de Brasília",
+  ],
+  // Cartão exibido ao compartilhar o link (WhatsApp, Facebook, Instagram).
+  // A imagem vem de app/opengraph-image.jpg pela convenção do Next.
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Paróquia Santa Clara e São Francisco de Assis",
+    title: TITULO,
+    description: DESCRICAO,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITULO,
+    description: DESCRICAO,
+  },
 };
 
 export default function RootLayout({

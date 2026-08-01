@@ -6,7 +6,7 @@ export default function Hero() {
   return (
     <section className="relative overflow-hidden text-creme">
       <Image
-        src="/fotos/hero.jpg"
+        src="/fotos/hero.webp"
         alt="Interior da igreja da Paróquia Santa Clara e São Francisco de Assis durante a missa"
         fill
         priority

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { CalendarDays, Camera } from "lucide-react";
 import { supabase, fotoUrl, type Album } from "@/lib/supabase";
 import { albunsDemo } from "@/lib/dados";
@@ -75,24 +76,36 @@ export default function GaleriaClient() {
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {album.fotos
               .sort((a, b) => a.created_at.localeCompare(b.created_at))
-              .map((foto) => (
-                <a
-                  key={foto.id}
-                  href={foto.path.startsWith("/") ? foto.path : fotoUrl(foto.path)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-lg border border-dourado-claro bg-creme-escuro"
-                >
-                  {/* Fotos vêm do Supabase Storage (domínio dinâmico) — img simples em vez de next/image */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={foto.path.startsWith("/") ? foto.path : fotoUrl(foto.path)}
-                    alt={foto.legenda ?? `Foto do álbum ${album.titulo}`}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </a>
-              ))}
+              .map((foto) => {
+                const local = foto.path.startsWith("/");
+                const url = local ? foto.path : fotoUrl(foto.path);
+                const alt = foto.legenda ?? `Foto do álbum ${album.titulo}`;
+                const estilo =
+                  "h-full w-full object-cover transition-transform duration-300 group-hover:scale-105";
+                return (
+                  <a
+                    key={foto.id}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative block aspect-square overflow-hidden rounded-lg border border-dourado-claro bg-creme-escuro"
+                  >
+                    {local ? (
+                      <Image
+                        src={url}
+                        alt={alt}
+                        fill
+                        sizes="(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw"
+                        className={estilo}
+                      />
+                    ) : (
+                      // Fotos do Supabase Storage têm domínio dinâmico — img simples
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={url} alt={alt} loading="lazy" className={estilo} />
+                    )}
+                  </a>
+                );
+              })}
           </div>
         </section>
       ))}
