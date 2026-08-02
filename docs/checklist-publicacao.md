@@ -49,6 +49,7 @@ Nesta ordem, porque uma depende da outra.
 ## Etapa 4 — Trabalho técnico
 
 Feito por quem cuida do site, depois que as etapas acima estiverem prontas.
+O passo a passo detalhado está em [publicar.md](publicar.md).
 
 - [ ] Substituir todos os itens `DEMO` em `lib/dados.ts` pelos dados reais.
 - [ ] Aplicar [`supabase/schema.sql`](../supabase/schema.sql) no projeto Supabase
@@ -58,12 +59,12 @@ Feito por quem cuida do site, depois que as etapas acima estiverem prontas.
       **`NEXT_PUBLIC_SITE_URL`** (sem esta última, o cartão de compartilhamento
       do WhatsApp aponta para `localhost` e não carrega).
 - [ ] Subir as fotos reais pelo painel `/admin` (as atuais são de demonstração).
-- [ ] **Fazer o formulário de contato funcionar de verdade** — hoje ele só
-      exibe "Mensagem recebida!" e não envia nada
-      (`components/ContactForm.tsx`). Integrar com Resend ou SMTP do Workspace
-      assim que o e-mail da secretaria existir.
-- [ ] **Criar `sitemap.xml` e `robots.txt`** (ainda não existem) para o Google
-      encontrar e indexar o site.
+- [x] ~~Formulário de contato~~ — **pronto**: já valida e envia de verdade.
+      Falta só preencher `RESEND_API_KEY`, `CONTATO_EMAIL_DESTINO` e
+      `CONTATO_EMAIL_REMETENTE` quando o e-mail existir. Sem elas, o formulário
+      avisa que está em demonstração em vez de fingir envio.
+- [x] ~~`sitemap.xml` e `robots.txt`~~ — **prontos**, gerados automaticamente a
+      partir de `NEXT_PUBLIC_SITE_URL`.
 - [ ] Configurar o DNS: apontar o domínio para a hospedagem e adicionar os
       registros MX, SPF, DKIM e DMARC do Workspace
       (ver [email-google-workspace.md](email-google-workspace.md)).

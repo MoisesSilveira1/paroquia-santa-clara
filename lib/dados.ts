@@ -13,6 +13,16 @@ export const paroquia = {
     "Terça a sexta, 9h–12h e 13h–18h · Sábado, 9h–12h e 13h–17h",
   mapaEmbedUrl:
     "https://www.google.com/maps?q=Par%C3%B3quia+Santa+Clara+e+S%C3%A3o+Francisco+de+Assis,+Av.+Dom+Bosco,+Jardim+Bot%C3%A2nico,+Bras%C3%ADlia+-+DF&output=embed",
+  // Mesmo endereço, em campos separados — usado nos dados estruturados que o
+  // Google lê para exibir a paróquia na busca e no Maps.
+  enderecoEstruturado: {
+    logradouro: "SHJBS Etapa III, Av. Dom Bosco, Qd. 01 Lote A",
+    bairro: "Jardim Botânico",
+    cidade: "Brasília",
+    estado: "DF",
+    cep: "71680-366",
+    pais: "BR",
+  },
 };
 
 export const youtube = {

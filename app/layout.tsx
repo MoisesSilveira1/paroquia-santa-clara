@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import DadosEstruturados from "@/components/DadosEstruturados";
+import { URL_DO_SITE } from "@/lib/site";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,11 +24,8 @@ const DESCRICAO =
   "Site oficial da Paróquia Santa Clara e São Francisco de Assis, Jardim Botânico, Brasília-DF. Horários de missas, confissões, pastorais, notícias, dízimo e contato.";
 
 export const metadata: Metadata = {
-  // Define o endereço usado nos links de compartilhamento. Ao publicar,
-  // configurar NEXT_PUBLIC_SITE_URL com o domínio definitivo.
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-  ),
+  // Endereço usado nos links de compartilhamento (ver lib/site.ts).
+  metadataBase: new URL(URL_DO_SITE),
   title: {
     default: TITULO,
     template: "%s | Paróquia Santa Clara e São Francisco de Assis",
@@ -69,6 +68,7 @@ export default function RootLayout({
       className={`${inter.variable} ${merriweather.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <DadosEstruturados />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
