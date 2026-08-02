@@ -1,25 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta franciscana: creme, marrom/avelã, terracota, dourado e azul litúrgico */
-  --color-creme: #faf6ef;
-  --color-creme-escuro: #f1e9db;
-  --color-marrom: #5c4433;
-  --color-marrom-claro: #7a5c44;
-  --color-terracota: #a9683f;
-  --color-terracota-escuro: #8a4f2d;
-  --color-dourado: #c6a15b;
-  --color-dourado-claro: #e8d9b8;
-  --color-azul: #34506b;
-  --color-azul-escuro: #263c52;
+  /* Paleta: azul mariano + dourado litúrgico.
+     Os nomes descrevem o PAPEL de cada cor, não o tom — trocar a paleta do
+     site inteiro significa mudar apenas os valores abaixo. */
+
+  /* superfícies */
+  --color-fundo: #f7f9fc;
+  --color-fundo-suave: #e8eef7;
+
+  /* cor institucional (cabeçalho, rodapé, botões, títulos) */
+  --color-principal: #24466f;
+  --color-principal-claro: #4a6b96;
+  --color-principal-escuro: #17304d;
+
+  /* dourado de destaque (ícones, chamadas para ação) */
+  --color-destaque: #c9a227;
+  --color-destaque-claro: #f1e4b8;
+
+  /* textos */
+  --color-texto: #1f3350;
+  --color-texto-suave: #55708f;
+
+  /* avisos de erro e ações destrutivas */
+  --color-perigo: #a3282f;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-merriweather), ui-serif, Georgia, serif;
 }
 
 body {
-  background-color: var(--color-creme);
-  color: var(--color-marrom);
+  background-color: var(--color-fundo);
+  color: var(--color-texto);
   font-family: var(--font-sans);
 }
 

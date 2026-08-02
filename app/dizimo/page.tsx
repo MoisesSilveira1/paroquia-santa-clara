@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 export default function DizimoPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-4xl text-terracota-escuro">Dízimo e Doações</h1>
+      <h1 className="text-4xl text-principal-escuro">Dízimo e Doações</h1>
 
       <section className="mt-8 grid gap-8 lg:grid-cols-2">
         <div>
-          <h2 className="flex items-center gap-2 text-2xl text-marrom">
-            <HeartHandshake className="h-6 w-6 text-dourado" aria-hidden />
+          <h2 className="flex items-center gap-2 text-2xl text-texto">
+            <HeartHandshake className="h-6 w-6 text-destaque" aria-hidden />
             Por que ser dizimista?
           </h2>
           <div className="mt-4 space-y-4 leading-relaxed">
@@ -35,7 +35,7 @@ export default function DizimoPage() {
               ou pequena — é semente de fraternidade. Deus ama quem dá com
               alegria (2Cor 9,7).
             </p>
-            <p className="rounded-lg bg-dourado-claro/50 p-4 text-sm">
+            <p className="rounded-lg bg-destaque-claro/50 p-4 text-sm">
               Para se cadastrar como dizimista, procure a equipe do Dízimo após
               as missas ou a secretaria: {paroquia.telefone}.
             </p>
@@ -43,16 +43,16 @@ export default function DizimoPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl border border-dourado-claro bg-white p-6 shadow-sm">
-            <h2 className="flex items-center gap-2 text-xl text-marrom">
-              <QrCode className="h-6 w-6 text-dourado" aria-hidden />
+          <div className="rounded-2xl border border-destaque-claro bg-white p-6 shadow-sm">
+            <h2 className="flex items-center gap-2 text-xl text-texto">
+              <QrCode className="h-6 w-6 text-destaque" aria-hidden />
               Contribua pelo Pix
             </h2>
             <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
               {/* QR Code de demonstração — substituir pelo QR real gerado pelo banco */}
               <svg
                 viewBox="0 0 100 100"
-                className="h-40 w-40 shrink-0 rounded-lg border border-creme-escuro p-2"
+                className="h-40 w-40 shrink-0 rounded-lg border border-fundo-suave p-2"
                 role="img"
                 aria-label="QR Code de demonstração para pagamento Pix"
               >
@@ -85,12 +85,12 @@ export default function DizimoPage() {
                 </g>
               </svg>
               <div className="text-center sm:text-left">
-                <p className="text-sm text-marrom-claro">Chave Pix (e-mail):</p>
-                <p className="mt-1 flex items-center gap-2 break-all font-mono text-sm font-semibold text-marrom">
+                <p className="text-sm text-texto-suave">Chave Pix (e-mail):</p>
+                <p className="mt-1 flex items-center gap-2 break-all font-mono text-sm font-semibold text-texto">
                   {dizimo.chavePix}
-                  <Copy className="h-4 w-4 shrink-0 text-dourado" aria-hidden />
+                  <Copy className="h-4 w-4 shrink-0 text-destaque" aria-hidden />
                 </p>
-                <p className="mt-3 text-xs text-marrom-claro">
+                <p className="mt-3 text-xs text-texto-suave">
                   Confira sempre o nome do favorecido:{" "}
                   <strong>{dizimo.titular}</strong>
                 </p>
@@ -98,9 +98,9 @@ export default function DizimoPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-dourado-claro bg-white p-6 shadow-sm">
-            <h2 className="flex items-center gap-2 text-xl text-marrom">
-              <Landmark className="h-6 w-6 text-dourado" aria-hidden />
+          <div className="rounded-2xl border border-destaque-claro bg-white p-6 shadow-sm">
+            <h2 className="flex items-center gap-2 text-xl text-texto">
+              <Landmark className="h-6 w-6 text-destaque" aria-hidden />
               Depósito ou transferência
             </h2>
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -115,7 +115,7 @@ export default function DizimoPage() {
               <dt className="font-semibold">CNPJ</dt>
               <dd>{dizimo.cnpj}</dd>
             </dl>
-            <p className="mt-4 text-xs text-marrom-claro">
+            <p className="mt-4 text-xs text-texto-suave">
               Dados de demonstração — substituir pelos dados oficiais da
               paróquia antes da publicação.
             </p>

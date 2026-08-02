@@ -9,6 +9,7 @@ import {
   BOTAO_PRIMARIO,
   BOTAO_SECUNDARIO,
   CAMPO,
+  TEXTO_ERRO,
 } from "@/components/ui/estilos";
 
 export default function SecaoAvisos() {
@@ -45,11 +46,11 @@ export default function SecaoAvisos() {
 
   return (
     <section className="mt-10" aria-labelledby="titulo-avisos">
-      <h2 id="titulo-avisos" className="flex items-center gap-2 text-2xl text-marrom">
-        <Megaphone className="h-6 w-6 text-dourado" aria-hidden />
+      <h2 id="titulo-avisos" className="flex items-center gap-2 text-2xl text-texto">
+        <Megaphone className="h-6 w-6 text-destaque" aria-hidden />
         Avisos da semana
       </h2>
-      <p className="mt-1 text-sm text-marrom-claro">
+      <p className="mt-1 text-sm text-texto-suave">
         Os avisos ativos aparecem na página inicial do site, do mais recente para
         o mais antigo.
       </p>
@@ -73,7 +74,7 @@ export default function SecaoAvisos() {
       </form>
 
       {erro && (
-        <p role="alert" className="mt-2 text-sm font-medium text-terracota-escuro">
+        <p role="alert" className={`mt-2 ${TEXTO_ERRO}`}>
           {erro}
         </p>
       )}
@@ -91,7 +92,7 @@ export default function SecaoAvisos() {
           />
         ))}
         {avisos.length === 0 && (
-          <li className="text-sm text-marrom-claro">Nenhum aviso cadastrado ainda.</li>
+          <li className="text-sm text-texto-suave">Nenhum aviso cadastrado ainda.</li>
         )}
       </ul>
     </section>
@@ -109,7 +110,7 @@ function ItemAviso({ aviso, aoSalvar, aoAlternar, aoExcluir }: ItemAvisoProps) {
   const [editando, setEditando] = useState(false);
   const [texto, setTexto] = useState(aviso.texto);
 
-  const classes = `flex items-center gap-2 rounded-lg border border-dourado-claro bg-white p-3 ${
+  const classes = `flex items-center gap-2 rounded-lg border border-destaque-claro bg-white p-3 ${
     aviso.ativo ? "" : "opacity-60"
   }`;
 

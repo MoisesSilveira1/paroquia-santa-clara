@@ -7,6 +7,7 @@ import {
   BOTAO_ICONE_PERIGO,
   BOTAO_PRIMARIO,
   CAMPO,
+  TEXTO_ERRO,
 } from "@/components/ui/estilos";
 
 const FORMATOS_ACEITOS = "image/jpeg,image/png,image/webp";
@@ -53,11 +54,11 @@ export default function SecaoFotos() {
 
   return (
     <section className="mt-12" aria-labelledby="titulo-fotos">
-      <h2 id="titulo-fotos" className="flex items-center gap-2 text-2xl text-marrom">
-        <Camera className="h-6 w-6 text-dourado" aria-hidden />
+      <h2 id="titulo-fotos" className="flex items-center gap-2 text-2xl text-texto">
+        <Camera className="h-6 w-6 text-destaque" aria-hidden />
         Fotos de eventos
       </h2>
-      <p className="mt-1 text-sm text-marrom-claro">
+      <p className="mt-1 text-sm text-texto-suave">
         Crie um álbum para cada evento e envie as fotos (JPG, PNG ou WebP). Elas
         aparecem na página Galeria.
       </p>
@@ -95,7 +96,7 @@ export default function SecaoFotos() {
       </form>
 
       {erro && (
-        <p role="alert" className="mt-2 text-sm font-medium text-terracota-escuro">
+        <p role="alert" className={`mt-2 ${TEXTO_ERRO}`}>
           {erro}
         </p>
       )}
@@ -113,7 +114,7 @@ export default function SecaoFotos() {
           />
         ))}
         {albuns.length === 0 && (
-          <p className="text-sm text-marrom-claro">Nenhum álbum criado ainda.</p>
+          <p className="text-sm text-texto-suave">Nenhum álbum criado ainda.</p>
         )}
       </div>
     </section>
@@ -138,11 +139,11 @@ function CartaoAlbum({
   aoExcluirFoto,
 }: CartaoAlbumProps) {
   return (
-    <article className="rounded-xl border border-dourado-claro bg-white p-5">
+    <article className="rounded-xl border border-destaque-claro bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg text-marrom">{album.titulo}</h3>
-          <p className="text-xs text-marrom-claro">
+          <h3 className="text-lg text-texto">{album.titulo}</h3>
+          <p className="text-xs text-texto-suave">
             {formatarData(album.data)} · {album.fotos.length} foto(s)
           </p>
         </div>
@@ -203,7 +204,7 @@ function CartaoAlbum({
                 type="button"
                 title="Excluir foto"
                 aria-label="Excluir foto"
-                className="absolute right-1 top-1 rounded-full bg-marrom/80 p-1.5 text-creme opacity-0 transition-opacity hover:bg-terracota-escuro group-hover:opacity-100 focus:opacity-100"
+                className="absolute right-1 top-1 rounded-full bg-principal/80 p-1.5 text-fundo opacity-0 transition-opacity hover:bg-perigo group-hover:opacity-100 focus:opacity-100"
                 onClick={() => {
                   if (window.confirm("Excluir esta foto?")) aoExcluirFoto(foto);
                 }}

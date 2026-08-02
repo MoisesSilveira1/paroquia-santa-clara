@@ -32,14 +32,14 @@ export default function GaleriaClient() {
   }, []);
 
   if (carregando) {
-    return <p className="mt-8 text-marrom-claro">Carregando álbuns…</p>;
+    return <p className="mt-8 text-texto-suave">Carregando álbuns…</p>;
   }
 
   if (albuns.length === 0) {
     return (
-      <div className="mt-8 flex flex-col items-center gap-3 rounded-xl border border-dashed border-dourado bg-white p-12 text-center">
-        <Camera className="h-10 w-10 text-dourado" aria-hidden />
-        <p className="text-marrom-claro">
+      <div className="mt-8 flex flex-col items-center gap-3 rounded-xl border border-dashed border-destaque bg-white p-12 text-center">
+        <Camera className="h-10 w-10 text-destaque" aria-hidden />
+        <p className="text-texto-suave">
           As fotos dos eventos da paróquia aparecerão aqui em breve.
         </p>
       </div>
@@ -50,10 +50,10 @@ export default function GaleriaClient() {
     <div className="mt-8 space-y-12">
       {albuns.map((album) => (
         <section key={album.id} aria-label={`Álbum ${album.titulo}`}>
-          <h2 className="text-2xl text-marrom">{album.titulo}</h2>
+          <h2 className="text-2xl text-texto">{album.titulo}</h2>
           {album.data && (
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-marrom-claro">
-              <CalendarDays className="h-4 w-4 text-dourado" aria-hidden />
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-texto-suave">
+              <CalendarDays className="h-4 w-4 text-destaque" aria-hidden />
               {formatarData(album.data)}
             </p>
           )}
@@ -91,7 +91,7 @@ function Miniatura({
       href={foto.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block aspect-square overflow-hidden rounded-lg border border-dourado-claro bg-creme-escuro"
+      className="group relative block aspect-square overflow-hidden rounded-lg border border-destaque-claro bg-fundo-suave"
     >
       {doProprioSite ? (
         <Image

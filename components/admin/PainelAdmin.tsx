@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { LogIn, LogOut, Loader2 } from "lucide-react";
 import { repositorio, type Sessao } from "@/lib/conteudo";
-import { BOTAO_PRIMARIO, BOTAO_SECUNDARIO, CAMPO } from "@/components/ui/estilos";
+import {
+  BOTAO_PRIMARIO,
+  BOTAO_SECUNDARIO,
+  CAMPO,
+  TEXTO_ERRO,
+} from "@/components/ui/estilos";
 import SecaoAvisos from "./SecaoAvisos";
 import SecaoFotos from "./SecaoFotos";
 
@@ -22,7 +27,7 @@ export default function PainelAdmin() {
   if (carregando) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-dourado" aria-label="Carregando" />
+        <Loader2 className="h-8 w-8 animate-spin text-destaque" aria-label="Carregando" />
       </div>
     );
   }
@@ -47,13 +52,13 @@ function Login() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-3xl text-terracota-escuro">Administração</h1>
-      <p className="mt-2 text-center text-sm text-marrom-claro">
+      <h1 className="text-center text-3xl text-principal-escuro">Administração</h1>
+      <p className="mt-2 text-center text-sm text-texto-suave">
         Área restrita à equipe da paróquia.
       </p>
 
       <form
-        className="mt-8 space-y-4 rounded-xl border border-dourado-claro bg-white p-6 shadow-sm"
+        className="mt-8 space-y-4 rounded-xl border border-destaque-claro bg-white p-6 shadow-sm"
         onSubmit={aoEnviar}
       >
         <div>
@@ -87,7 +92,7 @@ function Login() {
         </div>
 
         {erro && (
-          <p role="alert" className="text-sm font-medium text-terracota-escuro">
+          <p role="alert" className={TEXTO_ERRO}>
             {erro}
           </p>
         )}
@@ -106,7 +111,7 @@ function Login() {
         </button>
 
         {repositorio.modoDemonstracao && (
-          <p className="text-center text-xs text-marrom-claro">
+          <p className="text-center text-xs text-texto-suave">
             Modo demonstração: qualquer e-mail e senha entram.
           </p>
         )}
@@ -122,8 +127,8 @@ function AreaLogada({ sessao }: { sessao: Sessao }) {
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl text-terracota-escuro">Administração</h1>
-          <p className="mt-1 text-sm text-marrom-claro">
+          <h1 className="text-3xl text-principal-escuro">Administração</h1>
+          <p className="mt-1 text-sm text-texto-suave">
             Conectado como {sessao.email}
           </p>
         </div>
@@ -145,7 +150,7 @@ function AreaLogada({ sessao }: { sessao: Sessao }) {
 
 function AvisoDemonstracao() {
   return (
-    <div className="rounded-lg border-l-4 border-dourado bg-dourado-claro/40 p-4 text-sm">
+    <div className="rounded-lg border-l-4 border-destaque bg-destaque-claro/40 p-4 text-sm">
       <strong>Modo demonstração:</strong> o painel funciona de verdade, mas as
       alterações não ficam salvas — servem para mostrar como a secretaria vai
       usar o sistema no dia a dia.

@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 export default function ContatoPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-4xl text-terracota-escuro">Contato e Localização</h1>
-      <p className="mt-3 max-w-2xl text-marrom-claro">
+      <h1 className="text-4xl text-principal-escuro">Contato e Localização</h1>
+      <p className="mt-3 max-w-2xl text-texto-suave">
         Envie sua dúvida, sugestão ou pedido de oração. A secretaria terá
         alegria em atender você.
       </p>
@@ -24,23 +24,23 @@ export default function ContatoPage() {
         </section>
 
         <section aria-label="Endereço e canais de atendimento" className="space-y-6">
-          <div className="rounded-xl border border-dourado-claro bg-white p-6 shadow-sm">
-            <h2 className="text-xl text-marrom">Secretaria paroquial</h2>
+          <div className="rounded-xl border border-destaque-claro bg-white p-6 shadow-sm">
+            <h2 className="text-xl text-texto">Secretaria paroquial</h2>
             <ul className="mt-4 space-y-3 text-sm">
               <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-dourado" aria-hidden />
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-destaque" aria-hidden />
                 {paroquia.endereco}
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-dourado" aria-hidden />
+                <Phone className="h-5 w-5 text-destaque" aria-hidden />
                 {paroquia.telefone}
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-dourado" aria-hidden />
+                <Mail className="h-5 w-5 text-destaque" aria-hidden />
                 {paroquia.email}
               </li>
               <li className="flex items-start gap-3">
-                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-dourado" aria-hidden />
+                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-destaque" aria-hidden />
                 {paroquia.horarioSecretaria}
               </li>
             </ul>
@@ -55,7 +55,7 @@ export default function ContatoPage() {
             </a>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-dourado-claro shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-destaque-claro shadow-sm">
             <iframe
               src={paroquia.mapaEmbedUrl}
               title="Mapa — Jardim Botânico, Brasília-DF"

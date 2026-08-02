@@ -9,8 +9,9 @@ ORIGEM = Path(r"C:\Users\msilv\Documents\PASCOM\fotos site\IMG-20251215-WA0055.j
 DESTINO = Path("app/opengraph-image.jpg")
 L, A = 1200, 630  # tamanho padrão de cartão de link
 
-MARROM = (92, 68, 51)
-DOURADO = (232, 217, 184)  # dourado claro: contraste bom sobre o véu marrom
+# Mesmas cores de app/globals.css (azul mariano + dourado)
+AZUL = (36, 70, 111)
+DOURADO = (241, 228, 184)  # dourado claro: contraste bom sobre o véu azul
 
 # --- foto: recorta uma faixa horizontal na altura do altar -----------------
 foto = Image.open(ORIGEM).convert("RGB")
@@ -37,7 +38,7 @@ mascara = ImageChops.add(
     vertical.resize((L, A)), horizontal.resize((L, A))
 ).point(lambda v: min(v, 238))
 
-veu = Image.new("RGBA", (L, A), MARROM + (255,))
+veu = Image.new("RGBA", (L, A), AZUL + (255,))
 veu.putalpha(mascara)
 cartao = Image.alpha_composite(foto.convert("RGBA"), veu)
 d = ImageDraw.Draw(cartao)

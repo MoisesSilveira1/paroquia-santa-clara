@@ -22,10 +22,10 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 bg-marrom text-creme shadow-md">
+    <header className="sticky top-0 z-40 bg-principal text-fundo shadow-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3" onClick={() => setAberto(false)}>
-          <Church className="h-8 w-8 text-dourado" aria-hidden />
+          <Church className="h-8 w-8 text-destaque" aria-hidden />
           <span className="font-serif text-lg leading-tight sm:text-xl">
             Paróquia Santa Clara e<br className="sm:hidden" /> São Francisco de Assis
           </span>
@@ -37,8 +37,8 @@ export default function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-marrom-claro hover:text-white ${
-                    pathname === link.href ? "bg-terracota text-white" : ""
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-principal-claro hover:text-white ${
+                    pathname === link.href ? "bg-destaque font-semibold text-principal-escuro" : ""
                   }`}
                 >
                   {link.label}
@@ -50,7 +50,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="rounded-md p-2 hover:bg-marrom-claro xl:hidden"
+          className="rounded-md p-2 hover:bg-principal-claro xl:hidden"
           aria-expanded={aberto}
           aria-label={aberto ? "Fechar menu" : "Abrir menu"}
           onClick={() => setAberto(!aberto)}
@@ -60,15 +60,15 @@ export default function Header() {
       </div>
 
       {aberto && (
-        <nav className="border-t border-marrom-claro xl:hidden" aria-label="Navegação móvel">
+        <nav className="border-t border-principal-claro xl:hidden" aria-label="Navegação móvel">
           <ul className="flex flex-col px-4 py-2">
             {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => setAberto(false)}
-                  className={`block rounded-md px-3 py-3 text-base font-medium transition-colors hover:bg-marrom-claro ${
-                    pathname === link.href ? "bg-terracota text-white" : ""
+                  className={`block rounded-md px-3 py-3 text-base font-medium transition-colors hover:bg-principal-claro ${
+                    pathname === link.href ? "bg-destaque font-semibold text-principal-escuro" : ""
                   }`}
                 >
                   {link.label}

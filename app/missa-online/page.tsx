@@ -11,18 +11,18 @@ export const metadata: Metadata = {
 export default function MissaOnlinePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-4xl text-terracota-escuro">Missa Online</h1>
-      <p className="mt-3 max-w-2xl text-marrom-claro">
+      <h1 className="text-4xl text-principal-escuro">Missa Online</h1>
+      <p className="mt-3 max-w-2xl text-texto-suave">
         Não pôde vir à igreja? Participe da Santa Missa ao vivo pelo nosso canal
         no YouTube — ou reveja as últimas celebrações quando quiser.
       </p>
 
       <section className="mt-8" aria-labelledby="ao-vivo">
-        <h2 id="ao-vivo" className="flex items-center gap-2 text-2xl text-marrom">
-          <Radio className="h-6 w-6 text-terracota" aria-hidden />
+        <h2 id="ao-vivo" className="flex items-center gap-2 text-2xl text-texto">
+          <Radio className="h-6 w-6 text-principal" aria-hidden />
           Transmissão ao vivo
         </h2>
-        <div className="mt-4 overflow-hidden rounded-2xl border border-dourado-claro bg-black shadow-md">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-destaque-claro bg-black shadow-md">
           <iframe
             src={`https://www.youtube.com/embed/live_stream?channel=${youtube.canalId}`}
             title="Transmissão ao vivo da Santa Missa"
@@ -31,18 +31,18 @@ export default function MissaOnlinePage() {
             allowFullScreen
           />
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-dourado-claro bg-white p-5">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-destaque-claro bg-white p-5">
           <div>
-            <h3 className="flex items-center gap-2 text-base font-semibold text-marrom">
-              <CalendarClock className="h-5 w-5 text-dourado" aria-hidden />
+            <h3 className="flex items-center gap-2 text-base font-semibold text-texto">
+              <CalendarClock className="h-5 w-5 text-destaque" aria-hidden />
               Horários das transmissões
             </h3>
-            <ul className="mt-2 space-y-1 text-sm text-marrom-claro">
+            <ul className="mt-2 space-y-1 text-sm text-texto-suave">
               {youtube.horariosTransmissao.map((h) => (
                 <li key={h}>{h}</li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-marrom-claro">
+            <p className="mt-2 text-xs text-texto-suave">
               Fora dos horários de transmissão, o player acima pode aparecer
               indisponível — é normal.
             </p>
@@ -60,11 +60,11 @@ export default function MissaOnlinePage() {
       </section>
 
       <section className="mt-12" aria-labelledby="ultimas-missas">
-        <h2 id="ultimas-missas" className="flex items-center gap-2 text-2xl text-marrom">
-          <MonitorPlay className="h-6 w-6 text-terracota" aria-hidden />
+        <h2 id="ultimas-missas" className="flex items-center gap-2 text-2xl text-texto">
+          <MonitorPlay className="h-6 w-6 text-principal" aria-hidden />
           Últimas missas e homilias
         </h2>
-        <div className="mt-4 overflow-hidden rounded-2xl border border-dourado-claro bg-black shadow-md">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-destaque-claro bg-black shadow-md">
           <iframe
             src={`https://www.youtube.com/embed/videoseries?list=${youtube.playlistUploads}`}
             title="Últimas missas gravadas do canal da paróquia"
@@ -73,7 +73,7 @@ export default function MissaOnlinePage() {
             allowFullScreen
           />
         </div>
-        <p className="mt-3 text-sm text-marrom-claro">
+        <p className="mt-3 text-sm text-texto-suave">
           Use o ícone de lista no canto do player para escolher entre as últimas
           celebrações gravadas.
         </p>

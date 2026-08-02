@@ -11,11 +11,11 @@ export default function ContactForm() {
     return (
       <div
         role="status"
-        className="flex flex-col items-center gap-3 rounded-xl border border-dourado-claro bg-white p-10 text-center shadow-sm"
+        className="flex flex-col items-center gap-3 rounded-xl border border-destaque-claro bg-white p-10 text-center shadow-sm"
       >
-        <CheckCircle2 className="h-12 w-12 text-dourado" aria-hidden />
-        <h3 className="text-xl text-terracota-escuro">Mensagem recebida!</h3>
-        <p className="text-sm text-marrom-claro">
+        <CheckCircle2 className="h-12 w-12 text-destaque" aria-hidden />
+        <h3 className="text-xl text-principal-escuro">Mensagem recebida!</h3>
+        <p className="text-sm text-texto-suave">
           Obrigado pelo contato. A secretaria responderá em breve. Paz e bem!
         </p>
       </div>
@@ -24,7 +24,7 @@ export default function ContactForm() {
 
   return (
     <form
-      className="space-y-4 rounded-xl border border-dourado-claro bg-white p-6 shadow-sm"
+      className="space-y-4 rounded-xl border border-destaque-claro bg-white p-6 shadow-sm"
       onSubmit={(e) => {
         e.preventDefault();
         // Demonstração: integrar com e-mail/API da secretaria antes de publicar
@@ -101,7 +101,7 @@ export default function ContactForm() {
       </div>
       <button
         type="submit"
-        className="inline-flex items-center gap-2 rounded-lg bg-terracota px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-terracota-escuro"
+        className="inline-flex items-center gap-2 rounded-lg bg-principal px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-principal-escuro"
       >
         <Send className="h-5 w-5" aria-hidden />
         Enviar mensagem
