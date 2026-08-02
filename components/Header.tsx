@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Church, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const links = [
   { href: "/", label: "Início" },
@@ -25,7 +26,16 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-principal text-fundo shadow-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3" onClick={() => setAberto(false)}>
-          <Church className="h-8 w-8 text-destaque" aria-hidden />
+          {/* Escudo do brasão oficial. O nome vem escrito ao lado, então a
+              imagem é decorativa (alt vazio) para não repetir no leitor de tela. */}
+          <Image
+            src="/fotos/brasao-escudo.webp"
+            alt=""
+            width={443}
+            height={562}
+            priority
+            className="h-11 w-auto drop-shadow-sm sm:h-12"
+          />
           <span className="font-serif text-lg leading-tight sm:text-xl">
             Paróquia Santa Clara e<br className="sm:hidden" /> São Francisco de Assis
           </span>

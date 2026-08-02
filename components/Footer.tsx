@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Church, MapPin, Phone, Mail, Clock } from "lucide-react";
+import Image from "next/image";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { paroquia } from "@/lib/dados";
 
 export default function Footer() {
@@ -7,8 +8,14 @@ export default function Footer() {
     <footer className="bg-principal text-fundo">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2">
-            <Church className="h-6 w-6 text-destaque" aria-hidden />
+          <div className="flex items-center gap-3">
+            <Image
+              src="/fotos/brasao-escudo.webp"
+              alt=""
+              width={443}
+              height={562}
+              className="h-12 w-auto"
+            />
             <h2 className="font-serif text-lg">{paroquia.nome}</h2>
           </div>
           <p className="mt-3 flex items-start gap-2 text-sm text-fundo-suave">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Church, Sparkles, Users } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -10,9 +11,24 @@ export const metadata: Metadata = {
 export default function SobrePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-4xl text-principal-escuro">A Paróquia</h1>
+      <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:text-left">
+        <Image
+          src="/fotos/brasao.webp"
+          alt="Brasão da Paróquia Santa Clara e São Francisco de Assis"
+          width={837}
+          height={1028}
+          className="h-40 w-auto shrink-0 drop-shadow sm:h-48"
+        />
+        <div>
+          <h1 className="text-4xl text-principal-escuro">A Paróquia</h1>
+          <p className="mt-2 max-w-xl text-texto-suave">
+            Brasão oficial da Paróquia Santa Clara e São Francisco de Assis,
+            Jardim Botânico — Brasília-DF.
+          </p>
+        </div>
+      </div>
 
-      <section className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]" aria-labelledby="historia">
+      <section className="mt-10 grid gap-8 lg:grid-cols-[2fr_1fr]" aria-labelledby="historia">
         <div>
           <h2 id="historia" className="flex items-center gap-2 text-2xl text-texto">
             <Church className="h-6 w-6 text-destaque" aria-hidden />
