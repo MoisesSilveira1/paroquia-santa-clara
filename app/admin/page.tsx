@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AdminPanel from "@/components/AdminPanel";
+import PainelAdmin from "@/components/admin/PainelAdmin";
 
 export const metadata: Metadata = {
   title: "Administração",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminPage() {
-  return <AdminPanel />;
+  return <PainelAdmin />;
 }

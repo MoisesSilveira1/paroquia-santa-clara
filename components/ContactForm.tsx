@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, CheckCircle2 } from "lucide-react";
+import { CAMPO } from "@/components/ui/estilos";
 
 export default function ContactForm() {
   const [enviado, setEnviado] = useState(false);
@@ -41,7 +42,7 @@ export default function ContactForm() {
             type="text"
             required
             autoComplete="name"
-            className="w-full rounded-lg border border-creme-escuro bg-creme px-3 py-2.5 text-base outline-none focus:border-dourado focus:ring-2 focus:ring-dourado/40"
+            className={CAMPO}
           />
         </div>
         <div>
@@ -53,7 +54,7 @@ export default function ContactForm() {
             name="telefone"
             type="tel"
             autoComplete="tel"
-            className="w-full rounded-lg border border-creme-escuro bg-creme px-3 py-2.5 text-base outline-none focus:border-dourado focus:ring-2 focus:ring-dourado/40"
+            className={CAMPO}
           />
         </div>
       </div>
@@ -67,7 +68,7 @@ export default function ContactForm() {
           type="email"
           required
           autoComplete="email"
-          className="w-full rounded-lg border border-creme-escuro bg-creme px-3 py-2.5 text-base outline-none focus:border-dourado focus:ring-2 focus:ring-dourado/40"
+          className={CAMPO}
         />
       </div>
       <div>
@@ -77,7 +78,7 @@ export default function ContactForm() {
         <select
           id="assunto"
           name="assunto"
-          className="w-full rounded-lg border border-creme-escuro bg-creme px-3 py-2.5 text-base outline-none focus:border-dourado focus:ring-2 focus:ring-dourado/40"
+          className={CAMPO}
         >
           <option>Dúvida geral</option>
           <option>Pedido de oração</option>
@@ -95,7 +96,7 @@ export default function ContactForm() {
           name="mensagem"
           rows={5}
           required
-          className="w-full rounded-lg border border-creme-escuro bg-creme px-3 py-2.5 text-base outline-none focus:border-dourado focus:ring-2 focus:ring-dourado/40"
+          className={CAMPO}
         />
       </div>
       <button

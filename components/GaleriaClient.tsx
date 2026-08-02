@@ -3,48 +3,32 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { CalendarDays, Camera } from "lucide-react";
-import { supabase, fotoUrl, type Album } from "@/lib/supabase";
-import { albunsDemo } from "@/lib/dados";
+import { repositorio, type Album, type Foto } from "@/lib/conteudo";
 
-function formatarData(data: string | null): string {
-  if (!data) return "";
-  const [ano, mes, dia] = data.split("-");
-  return `${dia}/${mes}/${ano}`;
-}
-
-// Converte os álbuns locais (public/fotos) para o formato da galeria
-const albunsLocais: Album[] = albunsDemo.map((album, i) => ({
-  id: `local-${i}`,
-  titulo: album.titulo,
-  data_evento: album.data.split("/").reverse().join("-"),
-  created_at: "",
-  fotos: album.fotos.map((path, j) => ({
-    id: `local-${i}-${j}`,
-    album_id: `local-${i}`,
-    path,
-    legenda: null,
-    created_at: String(j),
-  })),
-}));
+/** Tamanho que cada miniatura ocupa, para o navegador baixar só o necessário. */
+const TAMANHOS_MINIATURA =
+  "(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw";
 
 export default function GaleriaClient() {
   const [albuns, setAlbuns] = useState<Album[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    if (!supabase) {
-      setAlbuns(albunsLocais);
-      setCarregando(false);
-      return;
-    }
-    supabase
-      .from("albuns")
-      .select("*, fotos(*)")
-      .order("data_evento", { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) setAlbuns(data as Album[]);
-        setCarregando(false);
+    let ativo = true;
+    repositorio
+      .listarAlbuns()
+      .then((lista) => {
+        if (ativo) setAlbuns(lista);
+      })
+      .catch(() => {
+        /* mostra o estado vazio */
+      })
+      .finally(() => {
+        if (ativo) setCarregando(false);
       });
+    return () => {
+      ativo = false;
+    };
   }, []);
 
   if (carregando) {
@@ -67,48 +51,65 @@ export default function GaleriaClient() {
       {albuns.map((album) => (
         <section key={album.id} aria-label={`Álbum ${album.titulo}`}>
           <h2 className="text-2xl text-marrom">{album.titulo}</h2>
-          {album.data_evento && (
+          {album.data && (
             <p className="mt-1 flex items-center gap-1.5 text-sm text-marrom-claro">
               <CalendarDays className="h-4 w-4 text-dourado" aria-hidden />
-              {formatarData(album.data_evento)}
+              {formatarData(album.data)}
             </p>
           )}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {album.fotos
-              .sort((a, b) => a.created_at.localeCompare(b.created_at))
-              .map((foto) => {
-                const local = foto.path.startsWith("/");
-                const url = local ? foto.path : fotoUrl(foto.path);
-                const alt = foto.legenda ?? `Foto do álbum ${album.titulo}`;
-                const estilo =
-                  "h-full w-full object-cover transition-transform duration-300 group-hover:scale-105";
-                return (
-                  <a
-                    key={foto.id}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative block aspect-square overflow-hidden rounded-lg border border-dourado-claro bg-creme-escuro"
-                  >
-                    {local ? (
-                      <Image
-                        src={url}
-                        alt={alt}
-                        fill
-                        sizes="(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw"
-                        className={estilo}
-                      />
-                    ) : (
-                      // Fotos do Supabase Storage têm domínio dinâmico — img simples
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={url} alt={alt} loading="lazy" className={estilo} />
-                    )}
-                  </a>
-                );
-              })}
+            {album.fotos.map((foto) => (
+              <Miniatura
+                key={foto.id}
+                foto={foto}
+                descricaoPadrao={`Foto do álbum ${album.titulo}`}
+              />
+            ))}
           </div>
         </section>
       ))}
     </div>
   );
+}
+
+function Miniatura({
+  foto,
+  descricaoPadrao,
+}: {
+  foto: Foto;
+  descricaoPadrao: string;
+}) {
+  const descricao = foto.legenda ?? descricaoPadrao;
+  const estilo =
+    "h-full w-full object-cover transition-transform duration-300 group-hover:scale-105";
+  // Fotos guardadas no próprio site passam pelo otimizador do Next; as que vêm
+  // do Storage têm domínio dinâmico e são exibidas direto.
+  const doProprioSite = foto.url.startsWith("/");
+
+  return (
+    <a
+      href={foto.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative block aspect-square overflow-hidden rounded-lg border border-dourado-claro bg-creme-escuro"
+    >
+      {doProprioSite ? (
+        <Image
+          src={foto.url}
+          alt={descricao}
+          fill
+          sizes={TAMANHOS_MINIATURA}
+          className={estilo}
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={foto.url} alt={descricao} loading="lazy" className={estilo} />
+      )}
+    </a>
+  );
+}
+
+function formatarData(data: string) {
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}/${mes}/${ano}`;
 }

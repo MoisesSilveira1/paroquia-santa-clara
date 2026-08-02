@@ -2,26 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { Megaphone } from "lucide-react";
-import { supabase, type Aviso } from "@/lib/supabase";
-import { avisosSemana, paroquia } from "@/lib/dados";
+import { repositorio } from "@/lib/conteudo";
+import { paroquia } from "@/lib/dados";
 
 export default function AvisosSemana() {
-  // Começa com os avisos estáticos; troca pelos do Supabase quando disponíveis
-  const [avisos, setAvisos] = useState<string[]>(avisosSemana);
+  const [avisos, setAvisos] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!supabase) return;
-    supabase
-      .from("avisos")
-      .select("*")
-      .eq("ativo", true)
-      .order("created_at", { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          setAvisos((data as Aviso[]).map((a) => a.texto));
-        }
+    let ativo = true;
+    repositorio
+      .listarAvisos({ somenteAtivos: true })
+      .then((lista) => {
+        if (ativo) setAvisos(lista.map((aviso) => aviso.texto));
+      })
+      .catch(() => {
+        // A página inicial não deve quebrar por causa dos avisos: se a consulta
+        // falhar, a seção simplesmente não aparece.
       });
+    return () => {
+      ativo = false;
+    };
   }, []);
+
+  if (avisos.length === 0) return null;
 
   return (
     <div className="rounded-2xl border-l-4 border-dourado bg-white p-6 shadow-sm sm:p-8">
