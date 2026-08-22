@@ -12,8 +12,8 @@ export default function Footer() {
             <Image
               src="/fotos/brasao-escudo.webp"
               alt=""
-              width={443}
-              height={562}
+              width={480}
+              height={600}
               className="h-12 w-auto"
             />
             <h2 className="font-serif text-lg">{paroquia.nome}</h2>

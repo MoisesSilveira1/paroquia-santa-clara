@@ -31,8 +31,8 @@ export default function Header() {
           <Image
             src="/fotos/brasao-escudo.webp"
             alt=""
-            width={443}
-            height={562}
+            width={480}
+            height={600}
             priority
             className="h-11 w-auto drop-shadow-sm sm:h-12"
           />
@@ -42,12 +42,12 @@ export default function Header() {
         </Link>
 
         <nav className="hidden xl:block" aria-label="Navegação principal">
-          <ul className="flex items-center gap-1">
+          <ul className="flex items-center gap-0.5">
             {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-principal-claro hover:text-white ${
+                  className={`block whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-medium transition-colors hover:bg-principal-claro hover:text-white ${
                     pathname === link.href ? "bg-destaque font-semibold text-principal-escuro" : ""
                   }`}
                 >
