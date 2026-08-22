@@ -8,6 +8,11 @@ Por isso removemos o fundo por preenchimento a partir das bordas, capturando
 as duas tonalidades do quadriculado, e preservamos os brancos internos do
 desenho (fita, base do escudo) que não tocam a borda da imagem.
 
+Sobram as bolsas de xadrez cercadas pelo próprio desenho — a maior fica entre
+a base do escudo e a fita, fechada pelo contorno dourado em cima e pela fita
+embaixo, onde o preenchimento vindo da borda nunca chega. Uma segunda passada
+cuida delas (ver `remover_bolsas_de_xadrez`).
+
 Gera duas versões em public/fotos/:
   brasao.webp        — brasão completo (página "A Paróquia")
   brasao-escudo.webp — só o escudo, que continua legível em tamanho pequeno
@@ -29,6 +34,17 @@ def eh_fundo(r: int, g: int, b: int) -> bool:
     # tons de cinza claro (quadriculado ~198 e ~255), tolerando leve variação
     cinza = max(r, g, b) - min(r, g, b) <= 10
     return cinza and min(r, g, b) >= 175
+
+
+# Um trecho de xadrez tem os DOIS tons em quantidade parecida; um trecho do
+# desenho, não. A prata do escudo e a fita ficam em tons médios (~211 a ~234)
+# e quase não tocam o 198; a hóstia do IHS é branco puro. Medido no brasão
+# real: as bolsas de xadrez têm 33% a 44% de cada tom, e nenhuma outra região
+# passa de 0,7% no tom escuro. O corte em 15% fica folgado dos dois lados.
+TOM_ESCURO, TOM_CLARO = 198, 255
+TOLERANCIA_TOM = 6
+FRACAO_MINIMA_DE_CADA_TOM = 0.15
+MENOR_BOLSA = 200  # em pixels; abaixo disso é ruído de borda, não bolsa
 
 
 def remover_fundo(imagem_rgb: Image.Image) -> Image.Image:
@@ -63,10 +79,78 @@ def remover_fundo(imagem_rgb: Image.Image) -> Image.Image:
             if 0 <= nx < w and 0 <= ny < h:
                 enfileirar(nx, ny)
 
+    remover_bolsas_de_xadrez(px, ap, w, h)
+
     saida = imagem_rgb.convert("RGBA")
+    # O desfoque vem depois das duas passadas, para suavizar também a borda
+    # das bolsas removidas.
     alfa = alfa.filter(ImageFilter.GaussianBlur(0.7))
     saida.putalpha(alfa)
     return saida
+
+
+def remover_bolsas_de_xadrez(px, ap, w: int, h: int) -> None:
+    """Apaga o xadrez que ficou cercado pelo desenho e o preenchimento vindo
+    da borda não alcançou.
+
+    Não basta procurar "cinza claro": a metade de baixo do escudo é prateada
+    e cairia na mesma peneira. O que distingue o quadriculado é ser bimodal —
+    ele alterna dois tons fixos, enquanto o desenho é degradê. Por isso a
+    decisão é por região inteira, e não pixel a pixel.
+    """
+    visitado = bytearray(w * h)
+    removidas = 0
+
+    for inicio_y in range(h):
+        for inicio_x in range(w):
+            if visitado[inicio_y * w + inicio_x]:
+                continue
+            if ap[inicio_x, inicio_y] == 0 or not eh_fundo(*px[inicio_x, inicio_y][:3]):
+                continue
+
+            # Junta a região conectada. Casas claras e escuras do xadrez se
+            # tocam pelas laterais, então a bolsa inteira vem numa peça só.
+            fila = deque([(inicio_x, inicio_y)])
+            visitado[inicio_y * w + inicio_x] = 1
+            regiao = []
+            escuros = claros = 0
+
+            while fila:
+                x, y = fila.popleft()
+                regiao.append((x, y))
+
+                tom = min(px[x, y][:3])
+                if abs(tom - TOM_ESCURO) <= TOLERANCIA_TOM:
+                    escuros += 1
+                elif tom >= TOM_CLARO - TOLERANCIA_TOM:
+                    claros += 1
+
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < w and 0 <= ny < h:
+                        i = ny * w + nx
+                        if visitado[i] or ap[nx, ny] == 0:
+                            continue
+                        if eh_fundo(*px[nx, ny][:3]):
+                            visitado[i] = 1
+                            fila.append((nx, ny))
+
+            total = len(regiao)
+            if total < MENOR_BOLSA:
+                continue
+
+            limite = FRACAO_MINIMA_DE_CADA_TOM * total
+            if escuros >= limite and claros >= limite:
+                for x, y in regiao:
+                    ap[x, y] = 0
+                removidas += 1
+                print(
+                    f"  bolsa de xadrez removida: {total} px "
+                    f"({escuros / total:.0%} escuro, {claros / total:.0%} claro)"
+                )
+
+    if not removidas:
+        print("  nenhuma bolsa de xadrez encontrada")
 
 
 def recortar_conteudo(imagem: Image.Image, margem: int = 8) -> Image.Image:
