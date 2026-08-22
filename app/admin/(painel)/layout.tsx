@@ -1,21 +1,24 @@
 import CascaAdmin from "@/components/admin/CascaAdmin";
+import { exigirSessao } from "@/lib/auth/guardas";
+import { acaoSair } from "../acoes";
 
 /**
  * Moldura das telas logadas.
  *
- * FASE 2 substitui o usuário fixo abaixo pela sessão real e redireciona quem
- * não estiver autenticado para `/admin/entrar`.
+ * A checagem de sessão aqui garante que nenhuma página do grupo renderize
+ * para quem não entrou. Não substitui a checagem dentro de cada ação: um
+ * layout protege o que é *exibido*, não o que pode ser *enviado* ao servidor.
  */
-export default function LayoutPainel({
+export default async function LayoutPainel({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const usuario = {
-    nome: "Secretaria",
-    email: "secretaria@exemplo.org.br",
-    papel: "SUPER_ADMIN" as const,
-  };
+  const usuario = await exigirSessao();
 
-  return <CascaAdmin usuario={usuario}>{children}</CascaAdmin>;
+  return (
+    <CascaAdmin usuario={usuario} aoSair={acaoSair}>
+      {children}
+    </CascaAdmin>
+  );
 }

@@ -46,6 +46,8 @@ next-env.d.ts
 # Banco local de desenvolvimento — cada máquina tem o seu, populado pelo seed.
 /prisma/*.db
 /prisma/*.db-journal
+/prisma/*.db-wal
+/prisma/*.db-shm
 
 # Skills de referência do Prisma (docs da v7 lidas por assistentes de código).
 # A cópia versionada é a de .claude/skills; .agents é a mesma coisa duplicada

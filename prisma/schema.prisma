@@ -1,7 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Modelo de dados do site da paróquia.
+//
+// Nota sobre SQLite: este provider não tem `enum`. Os campos de situação
+// (status, categoria, papel) são texto, com os valores válidos definidos e
+// checados em lib/validacao/esquemas.ts. Ao migrar para Postgres, eles podem
+// virar enums de verdade sem que as telas mudem.
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +12,176 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+}
+
+// ---------------------------------------------------------------------------
+// Acesso ao painel
+// ---------------------------------------------------------------------------
+
+model Usuario {
+  id           String   @id @default(cuid())
+  nome         String
+  email        String   @unique
+  /// Nunca guarda a senha em si — ver lib/auth/senha.ts.
+  senhaHash    String
+  /// "SECRETARIA" | "SUPER_ADMIN"
+  papel        String   @default("SECRETARIA")
+  /// Desligar o acesso sem apagar o histórico de quem publicou o quê.
+  ativo        Boolean  @default(true)
+  ultimoAcesso DateTime?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  sessoes  Sessao[]
+  noticias Noticia[]
+
+  @@map("usuarios")
+}
+
+model Sessao {
+  id        String   @id @default(cuid())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId String
+  /// Guarda o resumo do token, não o token: quem lê o banco não consegue
+  /// se passar por ninguém.
+  tokenHash String   @unique
+  expiraEm  DateTime
+  criadoEm  DateTime @default(now())
+
+  @@index([usuarioId])
+  @@map("sessoes")
+}
+
+// ---------------------------------------------------------------------------
+// Conteúdo publicado
+// ---------------------------------------------------------------------------
+
+/// Recados curtos da secretaria, exibidos na página inicial.
+model Aviso {
+  id           String   @id @default(cuid())
+  texto        String
+  ativo        Boolean  @default(true)
+  /// Menor aparece primeiro.
+  ordem        Int      @default(0)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([ativo, ordem])
+  @@map("avisos")
+}
+
+model Noticia {
+  id     String @id @default(cuid())
+  /// Endereço da notícia no site (/noticias/festa-de-santa-clara-2026).
+  slug   String @unique
+  titulo String
+  resumo String
+  corpo  String?
+  /// "NOTICIA" | "EVENTO"
+  categoria String @default("NOTICIA")
+  /// "RASCUNHO" | "PUBLICADA" | "ARQUIVADA"
+  status    String @default("RASCUNHO")
+  destaque  Boolean @default(false)
+  /// Data em que passou a valer no site. Fica nula enquanto é rascunho.
+  publicadaEm DateTime?
+
+  autor   Usuario? @relation(fields: [autorId], references: [id], onDelete: SetNull)
+  autorId String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([status, publicadaEm])
+  @@index([autorId])
+  @@map("noticias")
+}
+
+/// Uma linha da grade de horários: missa, confissão, adoração.
+model Celebracao {
+  id String @id @default(cuid())
+  /// 0 = domingo ... 6 = sábado. Número para ordenar sem depender do idioma.
+  diaSemana Int
+  /// "19:30" — texto porque é hora do calendário, não instante no tempo.
+  hora        String
+  nome        String
+  local       String  @default("Igreja Matriz")
+  transmitida Boolean @default(false)
+  observacao  String?
+  ativo       Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([ativo, diaSemana, hora])
+  @@map("celebracoes")
+}
+
+model Pastoral {
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  nome      String
+  descricao String
+  contato   String
+  reunioes  String
+  ativa     Boolean @default(true)
+  ordem     Int     @default(0)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([ativa, ordem])
+  @@map("pastorais")
+}
+
+model Album {
+  id        String    @id @default(cuid())
+  titulo    String
+  /// Data do evento retratado, não a do envio das fotos.
+  data      DateTime?
+  publicado Boolean   @default(false)
+
+  fotos Foto[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([publicado, data])
+  @@map("albuns")
+}
+
+model Foto {
+  id      String @id @default(cuid())
+  album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  albumId String
+  /// Caminho pronto para o `src` da imagem.
+  url     String
+  legenda String?
+  ordem   Int    @default(0)
+
+  criadoEm DateTime @default(now())
+
+  @@index([albumId, ordem])
+  @@map("fotos")
+}
+
+// ---------------------------------------------------------------------------
+// Recebido do site
+// ---------------------------------------------------------------------------
+
+/// Mensagem enviada pelo formulário de contato.
+model Mensagem {
+  id       String  @id @default(cuid())
+  nome     String
+  email    String
+  telefone String?
+  assunto  String
+  corpo    String
+  /// "NOVA" | "LIDA" | "RESPONDIDA" | "ARQUIVADA"
+  status   String  @default("NOVA")
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([status, criadoEm])
+  @@map("mensagens")
 }
