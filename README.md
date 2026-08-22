@@ -21,76 +21,103 @@ gerenciado por um painel simples, sem mexer em código.
 | `/galeria` | Álbuns de fotos dos eventos |
 | `/dizimo` | Orientações sobre o dízimo, Pix e dados bancários |
 | `/contato` | Formulário, mapa, WhatsApp e telefones |
-| `/admin` | **Painel restrito**: edita avisos e sobe fotos (exige login) |
+| `/admin` | **Painel da secretaria** (exige login): avisos, notícias, horários, pastorais, galeria, mensagens e usuários |
 
 ## Tecnologia
 
 - [Next.js](https://nextjs.org) (App Router, TypeScript) + [Tailwind CSS](https://tailwindcss.com)
-- [Supabase](https://supabase.com) (plano gratuito): banco de dados dos avisos,
-  álbuns e fotos + login do painel administrativo
+- [Prisma](https://prisma.io) sobre SQLite: banco de tudo que a secretaria publica
+- [Zod](https://zod.dev): confere tudo que entra pelos formulários
 - Ícones [Lucide](https://lucide.dev)
+- Login próprio, sem serviço externo: senha derivada com `scrypt` e sessão em
+  cookie assinado
 
 ## Rodar no computador
 
-Pré-requisito: [Node.js](https://nodejs.org) 20 ou superior.
+Pré-requisito: [Node.js](https://nodejs.org) 20.19 ou superior (o Prisma recusa
+versões anteriores).
 
 ```bash
 npm install
+cp .env.example .env
+npm run db:migrar
+npm run db:semear
 npm run dev
 ```
 
-Abra <http://localhost:3000>. Sem o Supabase configurado o site funciona normalmente
-com conteúdo de demonstração (só o painel `/admin` fica desativado).
+Abra <http://localhost:3000>. Antes de rodar, preencha `SEGREDO_SESSAO` no `.env`
+com o valor que este comando imprime:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+O `db:semear` cria dois acessos de desenvolvimento e imprime as senhas no
+terminal. **Troque-as antes de publicar o site.**
+
+### Comandos do banco
+
+| Comando | O que faz |
+| --- | --- |
+| `npm run db:migrar` | Aplica mudanças do schema e cria o arquivo do banco |
+| `npm run db:semear` | Popula com o conteúdo real da paróquia (pode repetir) |
+| `npm run db:estudio` | Abre uma janela para ver e editar as tabelas |
+| `npm run db:recriar` | **Apaga tudo** e refaz o banco do zero |
 
 ## Onde editar cada coisa
 
 | Quero mudar… | Onde |
 | --- | --- |
-| Avisos da semana e fotos de eventos | Painel `/admin` (não precisa de código) |
-| Telefones, horários de missa, textos fixos | [`lib/dados.ts`](lib/dados.ts) |
+| Avisos, notícias, horários de missa, pastorais e fotos | Painel `/admin` (não precisa de código) |
+| Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
 | Estrutura das páginas | `app/<pagina>/page.tsx` |
 | Canal do YouTube das missas | objeto `youtube` em [`lib/dados.ts`](lib/dados.ts) |
 | Fotos novas (otimizar) | `node scripts/otimizar-fotos.mjs` |
 
-## Como o conteúdo editável é organizado
+## Como o código está organizado
 
-As telas nunca falam com o Supabase diretamente. Elas usam o contrato definido
-em [`lib/conteudo/porta.ts`](lib/conteudo/porta.ts), e
-[`lib/conteudo/index.ts`](lib/conteudo/index.ts) decide qual implementação
-entregar:
+O painel é dividido em três camadas, e cada uma só conhece a de baixo:
 
-| Situação | Implementação usada |
-| --- | --- |
-| `.env.local` configurado | `repositorio-supabase.ts` (grava de verdade) |
-| Sem configuração | `repositorio-memoria.ts` (modo demonstração) |
+| Camada | Onde | Responsabilidade |
+| --- | --- | --- |
+| Telas | `app/admin/(painel)/*/page.tsx` | Mostrar. Não sabem consultar o banco. |
+| Ações | `app/admin/**/acoes.ts` | Receber formulários, conferir sessão e permissão |
+| Serviços | [`lib/servicos/`](lib/servicos) | Falar com o banco. Não sabem o que é um formulário. |
 
-Isso permite apresentar o site funcionando antes de existir banco, mantém o
-painel escrito uma única vez e deixa a troca de tecnologia (se um dia sair do
-Supabase) restrita a um arquivo só.
+O formato de tudo que entra está em
+[`lib/validacao/esquemas.ts`](lib/validacao/esquemas.ts), inclusive a lista
+fechada de valores de situação (`RASCUNHO`, `PUBLICADA`…). Como o SQLite não
+tem `enum`, é esse arquivo — e não o banco — que garante que só valores
+válidos sejam gravados.
 
-> Configuração pela metade — só uma das duas variáveis — para a aplicação com
-> uma mensagem explicando o que falta, em vez de cair silenciosamente no modo
-> demonstração.
+**Toda ação confere sessão e permissão por conta própria.** Esconder um botão
+na tela não protege nada: qualquer pessoa pode enviar ao servidor a mesma
+requisição que o botão enviaria, sem passar pela interface.
+
+### Sobre o banco em produção
+
+O SQLite é um arquivo. Em hospedagem serverless (Vercel, Cloudflare) o disco é
+descartado a cada publicação, e esse arquivo se perderia junto — **lá é preciso
+usar Postgres ou Turso**. A troca é o `provider` em
+[`prisma/schema.prisma`](prisma/schema.prisma) mais a variável `DATABASE_URL`;
+nenhuma tela muda. Migrando para Postgres, os campos de situação também podem
+virar `enum` de verdade no banco.
 
 Itens marcados com `DEMO` em `lib/dados.ts` ainda são fictícios e precisam ser
 confirmados com a secretaria antes da publicação.
 
-## Supabase (avisos, fotos e login do /admin)
+## Quem pode entrar no painel
 
-1. Criar projeto no [supabase.com](https://supabase.com) **com a conta
-   institucional da paróquia** (ver [docs/continuidade.md](docs/continuidade.md)).
-2. Executar [`supabase/schema.sql`](supabase/schema.sql) no SQL Editor.
-3. Criar o(s) usuário(s) do painel em Authentication → Users.
-4. Criar o arquivo `.env.local` na raiz:
+| Nível | Pode |
+| --- | --- |
+| Secretaria | Avisos, notícias, horários, pastorais, galeria e mensagens |
+| Administrador | Tudo isso **mais** cadastrar e remover quem acessa o painel |
 
-```
-NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=chave-anon-do-projeto
-```
-
-(As mesmas variáveis devem ser configuradas no serviço de hospedagem.)
+O sistema não deixa a paróquia ficar sem nenhum administrador ativo, nem
+permite que alguém retire o próprio acesso — seria uma porta trancada por
+dentro.
 
 ## Documentação
 

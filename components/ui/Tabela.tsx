@@ -17,7 +17,10 @@ export function Tabela({
 }) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
+      {/* A largura mínima é o que faz o invólucro rolar em vez de espremer as
+          colunas: sem ela, numa tela média as células viram uma palavra por
+          linha e a tabela fica ilegível. */}
+      <table className="w-full min-w-[48rem] border-collapse text-left text-sm">
         <caption className="sr-only">{rotulo}</caption>
         {children}
       </table>

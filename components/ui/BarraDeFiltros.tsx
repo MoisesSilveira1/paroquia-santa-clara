@@ -34,9 +34,16 @@ export default function BarraDeFiltros({
 
   const buscaNaUrl = parametros.get("busca") ?? "";
   const [busca, setBusca] = useState(buscaNaUrl);
+  const [urlConhecida, setUrlConhecida] = useState(buscaNaUrl);
 
-  // Se a URL mudar por fora (botão voltar, clique num link), o campo acompanha.
-  useEffect(() => setBusca(buscaNaUrl), [buscaNaUrl]);
+  // Se a URL mudar por fora — botão voltar, clique num link, "Limpar" —, o
+  // campo acompanha. O ajuste acontece durante a renderização, e não num
+  // efeito: assim o React refaz o trabalho antes de pintar a tela, em vez de
+  // mostrar o valor velho e corrigir logo depois.
+  if (urlConhecida !== buscaNaUrl) {
+    setUrlConhecida(buscaNaUrl);
+    setBusca(buscaNaUrl);
+  }
 
   function navegar(mudancas: Record<string, string>) {
     const proximos = new URLSearchParams(parametros);

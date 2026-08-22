@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import GaleriaClient from "@/components/GaleriaClient";
+import Galeria from "@/components/Galeria";
 
 export const metadata: Metadata = {
   title: "Galeria de Fotos",
@@ -14,7 +14,7 @@ export default function GaleriaPage() {
         Momentos da vida da nossa comunidade: festas dos padroeiros, celebrações
         e encontros.
       </p>
-      <GaleriaClient />
+      <Galeria />
     </div>
   );
 }

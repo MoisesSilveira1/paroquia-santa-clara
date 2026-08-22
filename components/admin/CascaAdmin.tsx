@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { usePreferenciaLocal } from "@/lib/preferencias";
 import BarraLateral from "./BarraLateral";
 import CabecalhoAdmin, { type UsuarioDaSessao } from "./CabecalhoAdmin";
 import { menuDoPapel } from "./navegacao";
@@ -24,25 +25,18 @@ export default function CascaAdmin({
 }) {
   const itens = menuDoPapel(usuario.papel);
 
-  const [recolhida, setRecolhida] = useState(false);
+  const [preferencia, definirPreferencia] = usePreferenciaLocal(
+    CHAVE_RECOLHIDA,
+    "nao"
+  );
+  const recolhida = preferencia === "sim";
+
+  // Estado só desta aba e deste momento: não faz sentido guardar que o menu
+  // do celular ficou aberto.
   const [gavetaAberta, setGavetaAberta] = useState(false);
 
-  // A preferência é lida depois da montagem: ler `localStorage` durante a
-  // renderização faria o HTML do servidor divergir do que o navegador tem.
-  useEffect(() => {
-    setRecolhida(localStorage.getItem(CHAVE_RECOLHIDA) === "sim");
-  }, []);
-
   function alternarRecolher() {
-    setRecolhida((antes) => {
-      const proximo = !antes;
-      try {
-        localStorage.setItem(CHAVE_RECOLHIDA, proximo ? "sim" : "nao");
-      } catch {
-        // Armazenamento bloqueado: a escolha vale só nesta sessão.
-      }
-      return proximo;
-    });
+    definirPreferencia(recolhida ? "nao" : "sim");
   }
 
   return (

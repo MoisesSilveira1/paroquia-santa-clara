@@ -19,28 +19,51 @@ e verificação em duas etapas. Detalhes em [continuidade.md](continuidade.md).
 No [registro.br](https://registro.br), registrar o domínio com **titular =
 CNPJ da paróquia** e contato = conta-mãe. Custo ~R$ 40/ano.
 
-## 3. Supabase (20 min)
+## 3. Banco de dados (20 min)
 
-1. Criar conta em [supabase.com](https://supabase.com) com a conta-mãe e um
-   projeto novo (região: São Paulo).
-2. Em **SQL Editor**, colar e rodar todo o
-   [`supabase/schema.sql`](../supabase/schema.sql).
-3. Em **Authentication → Users → Add user**, criar o acesso da secretaria
-   (e-mail e senha provisória).
-4. Em **Project Settings → API**, copiar `Project URL` e a chave `anon public`.
+Em desenvolvimento o banco é um arquivo (SQLite). Em hospedagem serverless
+como a Vercel isso **não** funciona: o disco é apagado a cada publicação e o
+arquivo iria junto. É preciso um banco hospedado.
+
+1. Criar um Postgres gratuito — [Neon](https://neon.tech) ou
+   [Supabase](https://supabase.com), região São Paulo — com a conta-mãe.
+   (Serve também o [Turso](https://turso.tech), que é SQLite hospedado.)
+2. Copiar a string de conexão do banco.
+3. Em [`prisma/schema.prisma`](../prisma/schema.prisma), trocar o provider:
+
+   ```prisma
+   datasource db {
+     provider = "postgresql"
+   }
+   ```
+
+   Trocando para Turso, o provider continua `sqlite` e muda só o adaptador em
+   [`lib/db.ts`](../lib/db.ts).
+4. Com a `DATABASE_URL` apontando para o banco novo, criar as tabelas:
+
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+5. Criar o primeiro administrador. O jeito mais simples é rodar o seed uma vez
+   (`npm run db:semear`), entrar no painel com o acesso que ele imprime,
+   cadastrar as pessoas de verdade em **Usuários** e **excluir os dois acessos
+   de exemplo**. As senhas do seed são públicas: estão no repositório.
 
 ## 4. Hospedagem na Vercel (20 min)
 
 1. Entrar em [vercel.com](https://vercel.com) com a conta-mãe (login pelo GitHub).
 2. **Add New → Project** e escolher o repositório `paroquia-santa-clara`.
    A Vercel reconhece o Next.js sozinho — não mudar nenhuma configuração.
-3. Em **Environment Variables**, cadastrar (ver [`.env.example`](../.env.example)):
+3. Em **Environment Variables**, cadastrar (ver [`.env.example`](../.env.example)) —
+   entre elas `DATABASE_URL` e `SEGREDO_SESSAO`, esta última gerada com
+   `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`:
 
    | Variável | Valor |
    | --- | --- |
    | `NEXT_PUBLIC_SITE_URL` | `https://www.dominio-escolhido.org.br` |
-   | `NEXT_PUBLIC_SUPABASE_URL` | o Project URL do passo 3 |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | a chave anon do passo 3 |
+   | `DATABASE_URL` | a string de conexão do banco do passo 3 |
+   | `SEGREDO_SESSAO` | os 64 caracteres gerados pelo comando acima |
 
 4. **Deploy**. Em poucos minutos o site estará no ar num endereço `.vercel.app`.
 

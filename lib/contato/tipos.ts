@@ -19,7 +19,6 @@ export type MensagemContato = {
 };
 
 export type ResultadoEnvio =
+  /** Gravada no painel da secretaria. O aviso por e-mail é um extra. */
   | { estado: "enviado" }
-  /** Sem e-mail configurado: o site avisa em vez de fingir que enviou. */
-  | { estado: "demonstracao" }
   | { estado: "erro"; mensagem: string };

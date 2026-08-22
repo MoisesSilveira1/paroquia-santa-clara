@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Users, Phone, CalendarClock } from "lucide-react";
-import { pastorais } from "@/lib/dados";
+import { pastoraisAtivas } from "@/lib/servicos/pastorais";
 
 export const metadata: Metadata = {
   title: "Pastorais e Movimentos",
@@ -8,7 +8,9 @@ export const metadata: Metadata = {
     "Conheça as pastorais e movimentos da paróquia e saiba como participar.",
 };
 
-export default function PastoraisPage() {
+export default async function PastoraisPage() {
+  const pastorais = await pastoraisAtivas();
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="text-4xl text-principal-escuro">Pastorais e Movimentos</h1>
@@ -20,7 +22,7 @@ export default function PastoraisPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {pastorais.map((pastoral) => (
           <article
-            key={pastoral.nome}
+            key={pastoral.slug}
             className="group flex flex-col rounded-xl border border-destaque-claro bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-destaque hover:shadow-md"
           >
             <Users className="h-8 w-8 text-principal transition-colors group-hover:text-destaque" aria-hidden />

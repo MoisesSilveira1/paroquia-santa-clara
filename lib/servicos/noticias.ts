@@ -19,6 +19,12 @@ export type NoticiaDaLista = {
   slug: string;
   titulo: string;
   resumo: string;
+  /**
+   * Vem junto na listagem porque o formulário de edição abre a partir da
+   * linha da tabela: sem o texto aqui, salvar uma edição apagaria o corpo da
+   * notícia sem ninguém pedir.
+   */
+  corpo: string | null;
   categoria: CategoriaNoticia;
   status: StatusNoticia;
   destaque: boolean;
@@ -32,6 +38,7 @@ const CAMPOS_LISTA = {
   slug: true,
   titulo: true,
   resumo: true,
+  corpo: true,
   categoria: true,
   status: true,
   destaque: true,
@@ -87,9 +94,26 @@ export async function buscarNoticia(id: string) {
   return db.noticia.findUnique({ where: { id } });
 }
 
-/** O que o site público mostra no mural de notícias. */
-export async function noticiasPublicadas(limite?: number) {
-  return db.noticia.findMany({
+export type NoticiaPublica = {
+  slug: string;
+  titulo: string;
+  resumo: string;
+  categoria: CategoriaNoticia;
+  publicadaEm: Date | null;
+  destaque: boolean;
+};
+
+/**
+ * O que o site público mostra no mural de notícias.
+ *
+ * O SQLite devolve `categoria` como texto solto. O estreitamento acontece
+ * aqui, na fronteira do banco, e não em cada tela: os valores possíveis são
+ * garantidos na escrita, por `noticiaSchema`.
+ */
+export async function noticiasPublicadas(
+  limite?: number
+): Promise<NoticiaPublica[]> {
+  const linhas = await db.noticia.findMany({
     where: { status: "PUBLICADA", publicadaEm: { not: null } },
     select: {
       slug: true,
@@ -102,6 +126,8 @@ export async function noticiasPublicadas(limite?: number) {
     orderBy: [{ destaque: "desc" }, { publicadaEm: "desc" }],
     ...(limite ? { take: limite } : {}),
   });
+
+  return linhas as NoticiaPublica[];
 }
 
 /**

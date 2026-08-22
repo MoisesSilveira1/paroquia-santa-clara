@@ -9,7 +9,7 @@ import {
 import Hero from "@/components/Hero";
 import MissaCard from "@/components/MissaCard";
 import AvisosSemana from "@/components/AvisosSemana";
-import { horariosMissas } from "@/lib/dados";
+import { gradeDaSemana } from "@/lib/servicos/celebracoes";
 
 const atalhos = [
   {
@@ -38,7 +38,9 @@ const atalhos = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const grade = await gradeDaSemana();
+
   return (
     <>
       <Hero />
@@ -54,7 +56,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {horariosMissas.slice(0, 3).map((horario) => (
+          {grade.slice(0, 3).map((horario) => (
             <MissaCard key={horario.dia} horario={horario} />
           ))}
         </div>

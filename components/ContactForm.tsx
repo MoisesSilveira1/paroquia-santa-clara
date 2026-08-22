@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Send, CheckCircle2, Info, Loader2 } from "lucide-react";
+import { Send, CheckCircle2, Loader2 } from "lucide-react";
 import { CAMPO, TEXTO_ERRO } from "@/components/ui/estilos";
 import { enviarMensagem } from "@/lib/contato/acoes";
 import { ASSUNTOS, type ResultadoEnvio } from "@/lib/contato/tipos";
-import { paroquia } from "@/lib/dados";
 
 const CARTAO_RESPOSTA =
   "flex flex-col items-center gap-3 rounded-xl border border-destaque-claro bg-white p-10 text-center shadow-sm";
@@ -38,30 +37,6 @@ export default function ContactForm() {
         <p className="text-sm text-texto-suave">
           Obrigado pelo contato. A secretaria responderá em breve. Paz e bem!
         </p>
-      </div>
-    );
-  }
-
-  // Sem e-mail configurado ainda: avisamos em vez de fingir que enviamos.
-  if (resultado?.estado === "demonstracao") {
-    return (
-      <div role="status" className={CARTAO_RESPOSTA}>
-        <Info className="h-12 w-12 text-destaque" aria-hidden />
-        <h3 className="text-xl text-principal-escuro">
-          Formulário em demonstração
-        </h3>
-        <p className="text-sm text-texto-suave">
-          O envio automático ainda será ativado. Enquanto isso, fale com a
-          secretaria pelo WhatsApp ou pelo telefone {paroquia.telefone}.
-        </p>
-        <a
-          href={`https://wa.me/${paroquia.whatsapp}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-1 inline-flex items-center gap-2 rounded-lg bg-[#25d366] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1eb855]"
-        >
-          Falar no WhatsApp
-        </a>
       </div>
     );
   }

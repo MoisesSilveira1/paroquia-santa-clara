@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { BookOpenText } from "lucide-react";
 import MissaCard from "@/components/MissaCard";
-import { horariosMissas, sacramentos } from "@/lib/dados";
+import { sacramentos } from "@/lib/dados";
+import { gradeDaSemana } from "@/lib/servicos/celebracoes";
 
 export const metadata: Metadata = {
   title: "Horários e Sacramentos",
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
     "Horários de missas, confissões, adoração ao Santíssimo e informações sobre os sacramentos.",
 };
 
-export default function HorariosPage() {
+export default async function HorariosPage() {
+  const grade = await gradeDaSemana();
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="text-4xl text-principal-escuro">Horários e Sacramentos</h1>
@@ -24,7 +27,7 @@ export default function HorariosPage() {
           Missas e celebrações da semana
         </h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {horariosMissas.map((horario) => (
+          {grade.map((horario) => (
             <MissaCard key={horario.dia} horario={horario} />
           ))}
         </div>

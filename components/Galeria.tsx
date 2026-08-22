@@ -1,39 +1,24 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { CalendarDays, Camera } from "lucide-react";
-import { repositorio, type Album, type Foto } from "@/lib/conteudo";
+import { albunsPublicados } from "@/lib/servicos/galeria";
 
 /** Tamanho que cada miniatura ocupa, para o navegador baixar só o necessário. */
 const TAMANHOS_MINIATURA =
   "(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw";
 
-export default function GaleriaClient() {
-  const [albuns, setAlbuns] = useState<Album[]>([]);
-  const [carregando, setCarregando] = useState(true);
+const FORMATO = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" });
 
-  useEffect(() => {
-    let ativo = true;
-    repositorio
-      .listarAlbuns()
-      .then((lista) => {
-        if (ativo) setAlbuns(lista);
-      })
-      .catch(() => {
-        /* mostra o estado vazio */
-      })
-      .finally(() => {
-        if (ativo) setCarregando(false);
-      });
-    return () => {
-      ativo = false;
-    };
-  }, []);
+type Foto = { id: string; url: string; legenda: string | null };
 
-  if (carregando) {
-    return <p className="mt-8 text-texto-suave">Carregando álbuns…</p>;
-  }
+/**
+ * Galeria de fotos do site.
+ *
+ * Renderiza no servidor: as imagens vêm no HTML e o navegador já pode começar
+ * a baixá-las, em vez de esperar o JavaScript carregar para só então descobrir
+ * quais são.
+ */
+export default async function Galeria() {
+  const albuns = await albunsPublicados();
 
   if (albuns.length === 0) {
     return (
@@ -54,7 +39,7 @@ export default function GaleriaClient() {
           {album.data && (
             <p className="mt-1 flex items-center gap-1.5 text-sm text-texto-suave">
               <CalendarDays className="h-4 w-4 text-destaque" aria-hidden />
-              {formatarData(album.data)}
+              {FORMATO.format(album.data)}
             </p>
           )}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -79,13 +64,6 @@ function Miniatura({
   foto: Foto;
   descricaoPadrao: string;
 }) {
-  const descricao = foto.legenda ?? descricaoPadrao;
-  const estilo =
-    "h-full w-full object-cover transition-transform duration-300 group-hover:scale-105";
-  // Fotos guardadas no próprio site passam pelo otimizador do Next; as que vêm
-  // do Storage têm domínio dinâmico e são exibidas direto.
-  const doProprioSite = foto.url.startsWith("/");
-
   return (
     <a
       href={foto.url}
@@ -93,23 +71,13 @@ function Miniatura({
       rel="noopener noreferrer"
       className="group relative block aspect-square overflow-hidden rounded-lg border border-destaque-claro bg-fundo-suave"
     >
-      {doProprioSite ? (
-        <Image
-          src={foto.url}
-          alt={descricao}
-          fill
-          sizes={TAMANHOS_MINIATURA}
-          className={estilo}
-        />
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={foto.url} alt={descricao} loading="lazy" className={estilo} />
-      )}
+      <Image
+        src={foto.url}
+        alt={foto.legenda ?? descricaoPadrao}
+        fill
+        sizes={TAMANHOS_MINIATURA}
+        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+      />
     </a>
   );
-}
-
-function formatarData(data: string) {
-  const [ano, mes, dia] = data.split("-");
-  return `${dia}/${mes}/${ano}`;
 }

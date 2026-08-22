@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import EventCard from "@/components/EventCard";
-import { noticias } from "@/lib/dados";
+import { noticiasPublicadas } from "@/lib/servicos/noticias";
 
 export const metadata: Metadata = {
   title: "Notícias e Eventos",
@@ -8,9 +8,11 @@ export const metadata: Metadata = {
     "Mural de notícias, agenda de eventos e festas dos padroeiros da paróquia.",
 };
 
-export default function NoticiasPage() {
-  const eventos = noticias.filter((n) => n.categoria === "Evento");
-  const avisos = noticias.filter((n) => n.categoria === "Notícia");
+export default async function NoticiasPage() {
+  // Só o que a secretaria publicou: rascunhos e arquivadas ficam de fora.
+  const noticias = await noticiasPublicadas();
+  const eventos = noticias.filter((n) => n.categoria === "EVENTO");
+  const avisos = noticias.filter((n) => n.categoria === "NOTICIA");
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">

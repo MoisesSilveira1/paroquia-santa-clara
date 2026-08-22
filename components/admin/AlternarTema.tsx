@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { BotaoIcone } from "@/components/ui/Botao";
+import {
+  usePreferenciaLocal,
+  useSistemaPrefereEscuro,
+} from "@/lib/preferencias";
 
 export const CHAVE_TEMA = "paroquia:tema-do-painel";
-type Tema = "claro" | "escuro";
+
+/** "sistema" = acompanha a configuração do computador. */
+const PADRAO = "sistema";
 
 /**
  * Script que roda ANTES da primeira pintura da tela.
@@ -18,49 +24,43 @@ export const SCRIPT_TEMA_INICIAL = `
 (function () {
   try {
     var salvo = localStorage.getItem(${JSON.stringify(CHAVE_TEMA)});
-    var escuro = salvo
-      ? salvo === "escuro"
-      : matchMedia("(prefers-color-scheme: dark)").matches;
+    var escuro = !salvo || salvo === "sistema"
+      ? matchMedia("(prefers-color-scheme: dark)").matches
+      : salvo === "escuro";
     if (escuro) document.documentElement.dataset.tema = "escuro";
   } catch (e) {}
 })();
 `;
 
 export default function AlternarTema() {
-  const [tema, setTema] = useState<Tema>("claro");
+  const [preferencia, definirPreferencia] = usePreferenciaLocal(
+    CHAVE_TEMA,
+    PADRAO
+  );
+  const sistemaEscuro = useSistemaPrefereEscuro();
 
-  // Lê o que o script acima já aplicou, para o ícone nascer coerente.
-  useEffect(() => {
-    setTema(document.documentElement.dataset.tema === "escuro" ? "escuro" : "claro");
-  }, []);
+  const escuro =
+    preferencia === PADRAO ? sistemaEscuro : preferencia === "escuro";
 
-  // O tema escuro vale só dentro do painel: as páginas públicas ainda têm
-  // fundos brancos fixos e ficariam ilegíveis. Ao sair do painel, desmarcamos.
+  // Aqui o efeito está no seu lugar: sincroniza o React com algo de fora
+  // dele — o atributo do <html> que a folha de estilos observa.
+  //
+  // A limpeza tira a marca ao sair do painel. O tema escuro vale só aqui: as
+  // páginas públicas ainda têm fundos brancos fixos e ficariam ilegíveis.
   useEffect(() => {
+    if (escuro) document.documentElement.dataset.tema = "escuro";
+    else delete document.documentElement.dataset.tema;
+
     return () => {
       delete document.documentElement.dataset.tema;
     };
-  }, []);
-
-  function alternar() {
-    const proximo: Tema = tema === "escuro" ? "claro" : "escuro";
-    setTema(proximo);
-
-    if (proximo === "escuro") document.documentElement.dataset.tema = "escuro";
-    else delete document.documentElement.dataset.tema;
-
-    try {
-      localStorage.setItem(CHAVE_TEMA, proximo);
-    } catch {
-      // Navegador com armazenamento bloqueado: o tema vale só nesta aba.
-    }
-  }
+  }, [escuro]);
 
   return (
     <BotaoIcone
-      icone={tema === "escuro" ? Sun : Moon}
-      rotulo={tema === "escuro" ? "Usar tema claro" : "Usar tema escuro"}
-      onClick={alternar}
+      icone={escuro ? Sun : Moon}
+      rotulo={escuro ? "Usar tema claro" : "Usar tema escuro"}
+      onClick={() => definirPreferencia(escuro ? "claro" : "escuro")}
     />
   );
 }
