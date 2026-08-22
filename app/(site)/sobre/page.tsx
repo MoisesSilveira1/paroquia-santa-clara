@@ -15,8 +15,8 @@ export default function SobrePage() {
         <Image
           src="/fotos/brasao.webp"
           alt="Brasão da Paróquia Santa Clara e São Francisco de Assis"
-          width={837}
-          height={1028}
+          width={900}
+          height={1109}
           className="h-40 w-auto shrink-0 drop-shadow sm:h-48"
         />
         <div>

@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma
+# Cliente gerado a partir do schema: recriado por `npm run db:gerar`.
+/lib/gerado/prisma
+# Banco local de desenvolvimento — cada máquina tem o seu, populado pelo seed.
+/prisma/*.db
+/prisma/*.db-journal
+
+# Skills de referência do Prisma (docs da v7 lidas por assistentes de código).
+# A cópia versionada é a de .claude/skills; .agents é a mesma coisa duplicada
+# pelo `prisma init` para outras ferramentas.
+/.agents

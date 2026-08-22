@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Ativa o prefixo `escuro:` para os poucos casos em que um componente precisa
+   de uma regra própria no tema escuro. Na maior parte do painel isso não é
+   necessário: os componentes usam tokens semânticos (fundo, superficie, texto)
+   cujos VALORES trocam mais abaixo. */
+@custom-variant escuro (&:where([data-tema="escuro"], [data-tema="escuro"] *));
+
 @theme {
   /* Paleta: azul mariano + dourado litúrgico.
      Os nomes descrevem o PAPEL de cada cor, não o tom — trocar a paleta do
@@ -8,6 +14,10 @@
   /* superfícies */
   --color-fundo: #f7f9fc;
   --color-fundo-suave: #e8eef7;
+  /* superfície de cartões, tabelas e modais (branco no tema claro) */
+  --color-superficie: #ffffff;
+  --color-superficie-suave: #f2f6fb;
+  --color-borda: #dbe5f2;
 
   /* cor institucional (cabeçalho, rodapé, botões, títulos) */
   --color-principal: #24466f;
@@ -25,8 +35,57 @@
   /* avisos de erro e ações destrutivas */
   --color-perigo: #a3282f;
 
+  /* estados (selos de status, alertas do painel).
+     Cada estado tem a cor do texto/ícone e uma versão de fundo suave. */
+  --color-sucesso: #1a6f47;
+  --color-sucesso-suave: #d9f2e5;
+  --color-atencao: #8a5a12;
+  --color-atencao-suave: #fbeed0;
+  --color-info: #1f5691;
+  --color-info-suave: #ddebfa;
+  --color-neutro: #5b6b80;
+  --color-neutro-suave: #e7ebf1;
+  --color-perigo-suave: #fbdfe0;
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-merriweather), ui-serif, Georgia, serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Tema escuro.
+   Só vale onde `data-tema="escuro"` estiver presente — hoje, apenas o painel
+   administrativo marca isso. O site público permanece sempre claro, porque
+   suas páginas ainda usam `bg-white` fixo em vários lugares e inverteriam mal.
+   Aqui trocamos apenas os VALORES dos tokens: nenhum componente muda.
+--------------------------------------------------------------------------- */
+:root[data-tema="escuro"] {
+  --color-fundo: #0d1a2b;
+  --color-fundo-suave: #16283f;
+  --color-superficie: #132436;
+  --color-superficie-suave: #1a3049;
+  --color-borda: #244059;
+
+  --color-principal: #3d6396;
+  --color-principal-claro: #5b80b3;
+  --color-principal-escuro: #2a4a75;
+
+  --color-destaque: #d9b64a;
+  --color-destaque-claro: #3a3116;
+
+  --color-texto: #e6edf7;
+  --color-texto-suave: #93a7c2;
+
+  --color-perigo: #f08c91;
+  --color-perigo-suave: #4a1f22;
+
+  --color-sucesso: #6ee7a8;
+  --color-sucesso-suave: #12402c;
+  --color-atencao: #f0c24b;
+  --color-atencao-suave: #453309;
+  --color-info: #7fb2ea;
+  --color-info-suave: #16324f;
+  --color-neutro: #9fb1c6;
+  --color-neutro-suave: #22364d;
 }
 
 body {
@@ -40,4 +99,11 @@ h2,
 h3,
 h4 {
   font-family: var(--font-serif);
+}
+
+/* Sem isto, alternar entre claro e escuro pisca. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-tema] body {
+    transition: background-color 200ms ease, color 200ms ease;
+  }
 }
