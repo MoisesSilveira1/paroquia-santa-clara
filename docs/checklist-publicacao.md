@@ -43,7 +43,10 @@ Nesta ordem, porque uma depende da outra.
       com titular = CNPJ da paróquia e contato = e-mail-mãe.
 - [ ] **Criar o banco hospedado** (Postgres gratuito no Neon ou Supabase, ou
       Turso) na conta institucional — SQLite em arquivo não sobrevive à
-      hospedagem serverless.
+      hospedagem serverless. As fotos da galeria ficam guardadas no próprio
+      banco, então conte com espaço: cada foto ocupa cerca de 150 KB, ou seja
+      **~150 MB para mil fotos** (o plano gratuito do Neon dá 0,5 GB). É
+      também o que faz o backup do banco já levar as fotos junto.
 - [ ] **Contratar o Google Workspace** — modelo misto: Standard para secretaria
       e pároco, Starter para as demais contas.
 - [ ] **Criar a conta de hospedagem** com o e-mail-mãe.
@@ -63,7 +66,9 @@ O passo a passo detalhado está em [publicar.md](publicar.md).
       `DATABASE_URL`, `SEGREDO_SESSAO` (32+ caracteres, gerada ao acaso) e
       **`NEXT_PUBLIC_SITE_URL`** (sem esta última, o cartão de compartilhamento
       do WhatsApp aponta para `localhost` e não carrega).
-- [ ] Subir as fotos reais pelo painel `/admin` (as atuais são de demonstração).
+- [ ] Subir as fotos reais pelo painel `/admin` → Galeria (as atuais são de
+      demonstração). O envio é pelo próprio painel, direto do computador —
+      fotos de iPhone (`.HEIC`) precisam virar JPG antes.
 - [x] ~~Formulário de contato~~ — **pronto**: já valida e envia de verdade.
       Falta só preencher `RESEND_API_KEY`, `CONTATO_EMAIL_DESTINO` e
       `CONTATO_EMAIL_REMETENTE` quando o e-mail existir. Sem elas, o formulário

@@ -153,15 +153,47 @@ model Foto {
   id      String @id @default(cuid())
   album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
   albumId String
-  /// Caminho pronto para o `src` da imagem.
+  /// Caminho pronto para o `src` da imagem: `/imagens/<id>` quando a foto foi
+  /// enviada pelo painel, ou um arquivo de `/public` para as fotos que vieram
+  /// junto com o código.
   url     String
   legenda String?
   ordem   Int    @default(0)
 
   criadoEm DateTime @default(now())
 
+  imagem Imagem?
+
   @@index([albumId, ordem])
   @@map("fotos")
+}
+
+/// Os bytes de uma foto enviada pelo painel.
+///
+/// Fica numa tabela separada de propósito: as listagens da galeria leem
+/// `fotos` o tempo todo, e um `Bytes` ali dentro viria junto em qualquer
+/// consulta distraída que esquecesse o `select`.
+///
+/// Guardar a imagem no banco (em vez de gravar um arquivo em `public/`) é o
+/// que faz o envio funcionar depois de publicado: em hospedagem serverless o
+/// disco é descartado a cada implantação, então um arquivo gravado ali some.
+/// Assim o banco continua sendo o único lugar que precisa de backup.
+model Imagem {
+  id     String @id @default(cuid())
+  /// A foto é a dona: apagar a foto (ou o álbum inteiro) leva os bytes junto.
+  foto   Foto   @relation(fields: [fotoId], references: [id], onDelete: Cascade)
+  fotoId String @unique
+
+  dados   Bytes
+  /// Tipo MIME servido no cabeçalho, sempre `image/webp` hoje.
+  tipo    String
+  largura Int
+  altura  Int
+  bytes   Int
+
+  criadoEm DateTime @default(now())
+
+  @@map("imagens")
 }
 
 // ---------------------------------------------------------------------------

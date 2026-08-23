@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { Images, ImagePlus, Pencil, Plus } from "lucide-react";
+import { Check, Images, ImagePlus, Pencil, Plus, Upload } from "lucide-react";
 import Botao, { BotaoIcone } from "@/components/ui/Botao";
 import { CampoBooleano, CampoTexto } from "@/components/ui/Campo";
 import EstadoVazio from "@/components/ui/EstadoVazio";
@@ -19,18 +19,23 @@ import {
   TabelaTitulo,
 } from "@/components/ui/Tabela";
 import DialogoDeExclusao from "@/components/admin/DialogoDeExclusao";
-import { ESTADO_INICIAL } from "@/lib/servicos/resultado";
-import type { AlbumDaLista } from "@/lib/servicos/galeria";
+import { ESTADO_INICIAL, type EstadoFormulario } from "@/lib/servicos/resultado";
+import type { AlbumDaLista, FotoDoAlbum } from "@/lib/servicos/galeria";
 import {
-  adicionarFotoAcao,
+  ACEITE,
+  MAXIMO_DE_ARQUIVOS,
+  conferirLote,
+  formatarTamanho,
+} from "@/lib/imagens/limites";
+import {
+  enviarFotosAcao,
   excluirAlbumAcao,
   excluirFotoAcao,
+  salvarLegendaAcao,
   salvarAlbum,
 } from "./acoes";
 
 const FORMATO = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
-
-export type FotoDoAlbum = { id: string; url: string; legenda: string | null };
 
 function paraCampoData(data: Date | null | undefined): string {
   return data ? data.toISOString().slice(0, 10) : "";
@@ -139,7 +144,7 @@ export default function GerenciadorGaleria({
                       />
                       <DialogoDeExclusao
                         nome={album.titulo}
-                        descricao={`As ${album._count.fotos} fotos do álbum saem da galeria junto. Os arquivos continuam na pasta do site.`}
+                        descricao={`As ${album._count.fotos} fotos do álbum são apagadas junto e não tem como voltar atrás.`}
                         aoConfirmar={() => excluirAlbumAcao(album.id)}
                       />
                     </div>
@@ -253,44 +258,68 @@ function JanelaDeFotos({
   aoFechar: () => void;
   aoAvisar: (mensagem: string) => void;
 }) {
-  const [estado, enviar, pendente] = useActionState(
-    adicionarFotoAcao,
-    ESTADO_INICIAL
-  );
+  const seletor = useRef<HTMLInputElement>(null);
+  const [escolhidas, setEscolhidas] = useState<File[]>([]);
+  const [recusa, setRecusa] = useState<string | null>(null);
+  const [estado, setEstado] = useState<EstadoFormulario>(ESTADO_INICIAL);
+  const [pendente, iniciar] = useTransition();
 
-  useEffect(() => {
-    if (estado.ok && estado.mensagem) aoAvisar(estado.mensagem);
-  }, [estado, aoAvisar]);
+  // Chama a ação à mão em vez de usar `useActionState` porque, dando certo, o
+  // seletor de arquivos precisa ser limpo: sem isso as mesmas fotos continuam
+  // escolhidas na tela e é fácil enviá-las duas vezes.
+  function enviar(dados: FormData) {
+    iniciar(async () => {
+      const resultado = await enviarFotosAcao(ESTADO_INICIAL, dados);
+      setEstado(resultado);
+      if (!resultado.ok) return;
+
+      if (resultado.mensagem) aoAvisar(resultado.mensagem);
+      setEscolhidas([]);
+      if (seletor.current) seletor.current.value = "";
+    });
+  }
+
+  function aoEscolher(arquivos: FileList | null) {
+    const lista = Array.from(arquivos ?? []);
+    setEscolhidas(lista);
+    setRecusa(lista.length ? conferirLote(lista) : null);
+  }
+
+  const total = escolhidas.reduce((soma, arquivo) => soma + arquivo.size, 0);
+  const podeEnviar = escolhidas.length > 0 && !recusa;
 
   return (
     <Modal
       aberto
       aoFechar={aoFechar}
       titulo={`Fotos de "${album.titulo}"`}
-      descricao="As imagens já precisam estar na pasta public/fotos do site."
+      descricao="As fotos escolhidas são reduzidas e enviadas direto daqui."
     >
       {fotos.length === 0 ? (
         <p className="text-sm text-texto-suave">
           Este álbum ainda não tem fotos.
         </p>
       ) : (
-        <ul className="grid grid-cols-3 gap-3">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {fotos.map((foto) => (
-            <li key={foto.id} className="group relative">
-              <Image
-                src={foto.url}
-                alt={foto.legenda ?? ""}
-                width={160}
-                height={120}
-                className="h-24 w-full rounded-lg border border-borda object-cover"
-              />
-              <div className="absolute top-1 right-1">
-                <DialogoDeExclusao
-                  nome="esta foto"
-                  descricao="Ela sai do álbum, mas o arquivo continua na pasta do site."
-                  aoConfirmar={() => excluirFotoAcao(foto.id)}
+            <li key={foto.id} className="space-y-1.5">
+              <div className="relative">
+                <Image
+                  src={foto.url}
+                  alt={foto.legenda ?? ""}
+                  width={160}
+                  height={120}
+                  className="h-24 w-full rounded-lg border border-borda object-cover"
                 />
+                <div className="absolute top-1 right-1">
+                  <DialogoDeExclusao
+                    nome="esta foto"
+                    descricao="A imagem é apagada junto e não tem como voltar atrás."
+                    aoConfirmar={() => excluirFotoAcao(foto.id)}
+                  />
+                </div>
               </div>
+              <LegendaDaFoto foto={foto} aoAvisar={aoAvisar} />
             </li>
           ))}
         </ul>
@@ -299,30 +328,108 @@ function JanelaDeFotos({
       <form action={enviar} className="mt-5 space-y-4 border-t border-borda pt-4">
         <input type="hidden" name="albumId" value={album.id} />
 
-        <CampoTexto
-          name="url"
-          rotulo="Caminho da imagem"
-          required
-          placeholder="/fotos/galeria/festa-2026/foto-1.webp"
-          dica="Precisa começar com /fotos/ e apontar para um arquivo já enviado ao site."
-        />
+        <div className="space-y-1.5">
+          <label
+            htmlFor="seletor-de-fotos"
+            className="flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed border-borda px-4 py-6 text-center transition-colors hover:border-destaque hover:bg-fundo-suave"
+          >
+            <Upload className="h-5 w-5 text-texto-suave" aria-hidden />
+            <span className="text-sm font-medium text-texto">
+              Escolher fotos do computador
+            </span>
+            <span className="text-xs text-texto-suave">
+              JPG, PNG ou WebP — até {MAXIMO_DE_ARQUIVOS} por vez
+            </span>
+          </label>
 
-        <CampoTexto
-          name="legenda"
-          rotulo="Legenda (opcional)"
-          maxLength={200}
-        />
+          <input
+            ref={seletor}
+            id="seletor-de-fotos"
+            type="file"
+            name="fotos"
+            accept={ACEITE}
+            multiple
+            className="sr-only"
+            onChange={(evento) => aoEscolher(evento.target.files)}
+          />
 
+          {escolhidas.length > 0 && !recusa && (
+            <p className="text-xs text-texto-suave">
+              {escolhidas.length === 1
+                ? `1 foto escolhida (${formatarTamanho(total)}).`
+                : `${escolhidas.length} fotos escolhidas (${formatarTamanho(total)}).`}
+            </p>
+          )}
+        </div>
+
+        {escolhidas.length === 1 && !recusa && (
+          <CampoTexto
+            name="legenda"
+            rotulo="Legenda (opcional)"
+            maxLength={200}
+            dica="Num envio de várias fotos, a legenda de cada uma é escrita aqui embaixo depois."
+          />
+        )}
+
+        {recusa && <Alerta tom="perigo">{recusa}</Alerta>}
         {estado.mensagem && !estado.ok && (
           <Alerta tom="perigo">{estado.mensagem}</Alerta>
         )}
 
         <div className="flex justify-end">
-          <Botao type="submit" icone={ImagePlus} pendente={pendente}>
-            Adicionar foto
+          <Botao
+            type="submit"
+            icone={ImagePlus}
+            pendente={pendente}
+            disabled={!podeEnviar}
+          >
+            {pendente ? "Enviando..." : "Adicionar ao álbum"}
           </Botao>
         </div>
       </form>
     </Modal>
+  );
+}
+
+/** Legenda de uma foto já no álbum, salva sem recarregar a janela. */
+function LegendaDaFoto({
+  foto,
+  aoAvisar,
+}: {
+  foto: FotoDoAlbum;
+  aoAvisar: (mensagem: string) => void;
+}) {
+  const [texto, setTexto] = useState(foto.legenda ?? "");
+  const [salvando, setSalvando] = useState(false);
+  const mudou = texto !== (foto.legenda ?? "");
+
+  async function salvar() {
+    setSalvando(true);
+    const resultado = await salvarLegendaAcao(foto.id, texto);
+    setSalvando(false);
+    aoAvisar(resultado.mensagem ?? "Legenda salva.");
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        value={texto}
+        onChange={(evento) => setTexto(evento.target.value)}
+        maxLength={200}
+        placeholder="Legenda"
+        aria-label={`Legenda da foto${foto.legenda ? ` "${foto.legenda}"` : ""}`}
+        className="w-full rounded-md border border-borda bg-superficie px-2 py-1 text-xs text-texto outline-none focus:border-destaque"
+      />
+      {/* O botão só aparece com algo para salvar: fora isso, seriam três
+          ícones idênticos e sem função embaixo de cada foto. */}
+      {mudou && (
+        <BotaoIcone
+          icone={Check}
+          rotulo="Salvar legenda"
+          onClick={salvar}
+          disabled={salvando}
+        />
+      )}
+    </div>
   );
 }

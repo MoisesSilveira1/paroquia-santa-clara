@@ -3,12 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { exigirSessao } from "@/lib/auth/guardas";
 import {
-  adicionarFoto,
+  adicionarFotoEnviada,
   atualizarAlbum,
+  atualizarLegenda,
   criarAlbum,
   excluirAlbum,
   excluirFoto,
 } from "@/lib/servicos/galeria";
+import { prepararImagem } from "@/lib/imagens/processar";
+import { conferirLote } from "@/lib/imagens/limites";
 import {
   apenasTexto,
   executar,
@@ -70,14 +73,13 @@ export async function excluirAlbumAcao(id: string): Promise<EstadoFormulario> {
 }
 
 /**
- * Registra uma foto que já está publicada em /public.
+ * Recebe as fotos escolhidas na tela, converte e guarda no álbum.
  *
- * O envio de arquivos pelo navegador ainda não existe: enquanto as fotos são
- * otimizadas em lote por scripts/otimizar-fotos.mjs e entram junto com o
- * código, o painel só precisa apontar para elas. Aceitar apenas caminhos
- * internos também impede que o álbum passe a servir imagens de fora.
+ * Uma foto ruim no meio do lote não derruba o envio inteiro: as boas entram e
+ * a mensagem final diz quantas ficaram de fora e por quê. Quem está enviando
+ * 12 fotos de uma festa não deveria perder as 11 que estavam certas.
  */
-export async function adicionarFotoAcao(
+export async function enviarFotosAcao(
   _anterior: EstadoFormulario,
   formulario: FormData
 ): Promise<EstadoFormulario> {
@@ -85,19 +87,67 @@ export async function adicionarFotoAcao(
     await exigirSessao();
 
     const albumId = String(formulario.get("albumId") ?? "");
-    const url = String(formulario.get("url") ?? "").trim();
-    const legenda = String(formulario.get("legenda") ?? "").trim();
-
     if (!albumId) throw new ErroDeNegocio("Álbum não informado.");
-    if (!url.startsWith("/fotos/")) {
-      throw new ErroDeNegocio(
-        'O caminho precisa começar com "/fotos/" e apontar para um arquivo já enviado à pasta public.'
-      );
+
+    const legenda = String(formulario.get("legenda") ?? "").trim();
+    const arquivos = formulario
+      .getAll("fotos")
+      .filter((item): item is File => item instanceof File && item.size > 0);
+
+    // A mesma conferência que a tela já fez. Ela vale porque a tela pode ser
+    // contornada: o formulário aceita um POST montado à mão.
+    const recusa = conferirLote(arquivos);
+    if (recusa) throw new ErroDeNegocio(recusa);
+
+    // A legenda digitada vale para uma foto só; num lote não há como saber a
+    // qual delas pertence. As demais entram sem legenda e recebem a sua na
+    // grade, uma a uma.
+    const legendaUnica = arquivos.length === 1 ? legenda : "";
+
+    const falhas: string[] = [];
+    let enviadas = 0;
+
+    // Uma por vez, de propósito: converter 12 fotos em paralelo faria o sharp
+    // segurar todas descomprimidas na memória ao mesmo tempo.
+    for (const arquivo of arquivos) {
+      try {
+        const imagem = await prepararImagem(arquivo);
+        await adicionarFotoEnviada(albumId, imagem, legendaUnica || undefined);
+        enviadas++;
+      } catch (erro) {
+        if (!(erro instanceof ErroDeNegocio)) throw erro;
+        falhas.push(erro.message);
+      }
     }
 
-    await adicionarFoto(albumId, url, legenda || undefined);
     revalidar();
-    return { ok: true, mensagem: "Foto adicionada ao álbum." };
+
+    if (enviadas === 0) throw new ErroDeNegocio(falhas.join(" "));
+
+    const quantas = enviadas === 1 ? "1 foto adicionada" : `${enviadas} fotos adicionadas`;
+    return {
+      ok: true,
+      mensagem: falhas.length
+        ? `${quantas} ao álbum. Não deu para usar: ${falhas.join(" ")}`
+        : `${quantas} ao álbum.`,
+    };
+  });
+}
+
+export async function salvarLegendaAcao(
+  id: string,
+  legenda: string
+): Promise<EstadoFormulario> {
+  return executar(async () => {
+    await exigirSessao();
+
+    if (legenda.length > 200) {
+      throw new ErroDeNegocio("A legenda passa de 200 caracteres.");
+    }
+
+    await atualizarLegenda(id, legenda.trim());
+    revalidar();
+    return { ok: true, mensagem: "Legenda salva." };
   });
 }
 

@@ -74,7 +74,8 @@ terminal. **Troque-as antes de publicar o site.**
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
 | Estrutura das páginas | `app/<pagina>/page.tsx` |
 | Canal do YouTube das missas | objeto `youtube` em [`lib/dados.ts`](lib/dados.ts) |
-| Fotos novas (otimizar) | `node scripts/otimizar-fotos.mjs` |
+| Fotos da galeria | Painel `/admin` → Galeria → botão de fotos do álbum (envia do computador) |
+| Fotos fixas do site (capa, brasão) | Colocar em `public/fotos/` e rodar `node scripts/otimizar-fotos.mjs` |
 
 ## Como o código está organizado
 
@@ -95,6 +96,19 @@ válidos sejam gravados.
 **Toda ação confere sessão e permissão por conta própria.** Esconder um botão
 na tela não protege nada: qualquer pessoa pode enviar ao servidor a mesma
 requisição que o botão enviaria, sem passar pela interface.
+
+### Sobre as fotos da galeria
+
+As fotos enviadas pelo painel são guardadas **no banco**, não numa pasta. Ao
+chegarem, [`lib/imagens/`](lib/imagens) as gira conforme a câmera marcou,
+reduz para 1400 px no maior lado e converte para WebP — cerca de 150 KB cada.
+São servidas pelo endereço `/imagens/<id>`.
+
+Guardar no banco é o que faz o envio funcionar depois de publicado: em
+hospedagem serverless o disco é descartado a cada publicação, então um arquivo
+gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
+junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
+porque essas vêm com o código.
 
 ### Sobre o banco em produção
 
