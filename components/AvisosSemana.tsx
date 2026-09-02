@@ -1,29 +1,19 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Megaphone } from "lucide-react";
-import { repositorio } from "@/lib/conteudo";
+import { avisosAtivos } from "@/lib/servicos/avisos";
 import { paroquia } from "@/lib/dados";
 
-export default function AvisosSemana() {
-  const [avisos, setAvisos] = useState<string[]>([]);
+/**
+ * Avisos da secretaria na página inicial.
+ *
+ * Renderiza no servidor, lendo direto do banco. Antes buscava no navegador
+ * depois de a página carregar, o que deixava a seção surgir com atraso e a
+ * escondia de quem visse a página sem JavaScript — inclusive dos buscadores.
+ */
+export default async function AvisosSemana() {
+  const avisos = await avisosAtivos();
 
-  useEffect(() => {
-    let ativo = true;
-    repositorio
-      .listarAvisos({ somenteAtivos: true })
-      .then((lista) => {
-        if (ativo) setAvisos(lista.map((aviso) => aviso.texto));
-      })
-      .catch(() => {
-        // A página inicial não deve quebrar por causa dos avisos: se a consulta
-        // falhar, a seção simplesmente não aparece.
-      });
-    return () => {
-      ativo = false;
-    };
-  }, []);
-
+  // Sem avisos publicados, a seção inteira some em vez de mostrar uma caixa
+  // vazia com título.
   if (avisos.length === 0) return null;
 
   return (
@@ -35,7 +25,10 @@ export default function AvisosSemana() {
       <ul className="mt-4 space-y-3">
         {avisos.map((aviso) => (
           <li key={aviso} className="flex items-start gap-3 text-base">
-            <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-principal" aria-hidden />
+            <span
+              className="mt-2 h-2 w-2 shrink-0 rounded-full bg-principal"
+              aria-hidden
+            />
             {aviso}
           </li>
         ))}

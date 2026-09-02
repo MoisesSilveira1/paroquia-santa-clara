@@ -1,32 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { registrarMensagem } from "@/lib/servicos/mensagens";
+import { mensagemSchema } from "@/lib/validacao/esquemas";
 import type { MensagemContato, ResultadoEnvio } from "./tipos";
-
-const LIMITES = {
-  nome: { minimo: 2, maximo: 100 },
-  mensagem: { minimo: 10, maximo: 5000 },
-};
-
-/** Validação feita no servidor: a ação é alcançável por POST direto. */
-function validar(dados: MensagemContato): string | null {
-  const nome = dados.nome?.trim() ?? "";
-  const email = dados.email?.trim() ?? "";
-  const mensagem = dados.mensagem?.trim() ?? "";
-
-  if (nome.length < LIMITES.nome.minimo || nome.length > LIMITES.nome.maximo) {
-    return "Informe seu nome completo.";
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return "Informe um e-mail válido.";
-  }
-  if (
-    mensagem.length < LIMITES.mensagem.minimo ||
-    mensagem.length > LIMITES.mensagem.maximo
-  ) {
-    return "Escreva a mensagem com pelo menos 10 caracteres.";
-  }
-  return null;
-}
 
 function textoDoEmail(dados: MensagemContato) {
   return [
@@ -42,25 +19,66 @@ function textoDoEmail(dados: MensagemContato) {
 }
 
 /**
- * Recebe o formulário de contato e envia para a secretaria.
+ * Recebe o formulário de contato.
  *
- * Enquanto o e-mail institucional não existir, devolve "demonstracao" — assim
- * o site nunca finge ter enviado uma mensagem que não saiu do lugar.
+ * A mensagem é SEMPRE gravada no banco e aparece na tela Mensagens do painel.
+ * O e-mail para a secretaria é um aviso a mais, não o meio de entrega: se a
+ * chave do Resend não estiver configurada, ou o envio falhar, a mensagem já
+ * está guardada e ninguém fica sem resposta por causa disso.
  */
 export async function enviarMensagem(
   dados: MensagemContato
 ): Promise<ResultadoEnvio> {
-  // Robôs preenchem todos os campos, inclusive o que fica escondido.
+  // Robôs preenchem todos os campos, inclusive o que fica escondido. Fingimos
+  // sucesso para não ensinar ao robô qual campo o denunciou.
   if (dados.confirmacao) return { estado: "enviado" };
 
-  const problema = validar(dados);
-  if (problema) return { estado: "erro", mensagem: problema };
+  const conferido = mensagemSchema.safeParse({
+    nome: dados.nome,
+    email: dados.email,
+    telefone: dados.telefone,
+    assunto: dados.assunto,
+    corpo: dados.mensagem,
+  });
 
+  if (!conferido.success) {
+    return {
+      estado: "erro",
+      mensagem:
+        conferido.error.issues[0]?.message ?? "Confira os dados e tente de novo.",
+    };
+  }
+
+  try {
+    await registrarMensagem(conferido.data);
+    // O painel mostra a contagem de mensagens novas.
+    revalidatePath("/admin");
+    revalidatePath("/admin/mensagens");
+  } catch (erro) {
+    console.error("Falha ao gravar mensagem de contato:", erro);
+    return {
+      estado: "erro",
+      mensagem:
+        "Não foi possível registrar sua mensagem agora. Tente novamente ou fale conosco pelo WhatsApp.",
+    };
+  }
+
+  await avisarSecretariaPorEmail(dados);
+  return { estado: "enviado" };
+}
+
+/**
+ * Notifica a secretaria por e-mail, se estiver configurado.
+ *
+ * Não devolve erro de propósito: a mensagem já está no painel, e falhar o
+ * aviso não deve fazer o visitante achar que precisa escrever de novo.
+ */
+async function avisarSecretariaPorEmail(dados: MensagemContato): Promise<void> {
   const chave = process.env.RESEND_API_KEY?.trim();
   const destino = process.env.CONTATO_EMAIL_DESTINO?.trim();
   const remetente = process.env.CONTATO_EMAIL_REMETENTE?.trim();
 
-  if (!chave || !destino || !remetente) return { estado: "demonstracao" };
+  if (!chave || !destino || !remetente) return;
 
   try {
     const resposta = await fetch("https://api.resend.com/emails", {
@@ -80,24 +98,12 @@ export async function enviarMensagem(
 
     if (!resposta.ok) {
       console.error(
-        "Falha ao enviar contato:",
+        "Mensagem gravada, mas o aviso por e-mail falhou:",
         resposta.status,
         await resposta.text()
       );
-      return {
-        estado: "erro",
-        mensagem:
-          "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.",
-      };
     }
-
-    return { estado: "enviado" };
   } catch (erro) {
-    console.error("Erro de rede ao enviar contato:", erro);
-    return {
-      estado: "erro",
-      mensagem:
-        "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.",
-    };
+    console.error("Mensagem gravada, mas o aviso por e-mail falhou:", erro);
   }
 }

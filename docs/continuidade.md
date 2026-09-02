@@ -30,7 +30,7 @@ Criar um e-mail institucional que será o "dono" de tudo:
 | --- | --- | --- | --- |
 | Registro.br (domínio) | Endereço do site e dos e-mails | CNPJ da paróquia/mitra, e-mail-mãe | ⏳ registrar do zero (antigo perdido) |
 | GitHub (código) | Guarda o código do site | Organização própria (ex. `paroquia-santa-clara-sf`) com 2+ donos | ⚠️ hoje em conta pessoal de voluntário |
-| Supabase (banco/painel) | Avisos, fotos, login do /admin | Organização com a conta-mãe | ⏳ a criar |
+| Banco de dados hospedado | Todo o conteúdo publicado pelo painel | Organização com a conta-mãe | ⏳ a criar |
 | Hospedagem (Cloudflare/Vercel) | Site no ar | Conta-mãe | ⏳ a definir |
 | Google Workspace | E-mails @dominio | Admin = conta-mãe; CNPJ da paróquia | ⏳ ver docs/email-google-workspace.md |
 | YouTube (canal das missas) | Transmissões | Conta Google da paróquia com 2+ gestores | ✅ já existe (confirmar gestores) |
@@ -42,7 +42,7 @@ Criar um e-mail institucional que será o "dono" de tudo:
 - [ ] Registrar o domínio no registro.br **com o CNPJ da paróquia** e o e-mail-mãe
 - [ ] Criar organização no GitHub e **transferir este repositório** para ela
       (Settings → Transfer ownership); manter voluntários como colaboradores
-- [ ] Criar o projeto Supabase dentro de organização acessível pela conta-mãe
+- [ ] Criar o banco hospedado dentro de organização acessível pela conta-mãe
 - [ ] Hospedagem na conta-mãe (voluntários como membros, não donos)
 - [ ] Conferir se o canal do YouTube tem pelo menos 2 gestores da paróquia
 - [ ] Registrar credenciais num cofre (ex. Bitwarden gratuito) ou envelope
@@ -60,7 +60,7 @@ Criar um e-mail institucional que será o "dono" de tudo:
 ## Como passar o bastão (roteiro de 1 hora)
 
 1. Novo voluntário lê o [README](../README.md) e este documento.
-2. Recebe acesso: colaborador no GitHub da organização + membro no Supabase +
+2. Recebe acesso: colaborador no GitHub da organização + membro no banco +
    membro na hospedagem (a partir das contas institucionais — nada muda de dono).
 3. Roda o site localmente (`npm install && npm run dev`) e faz uma alteração
    de teste num aviso pelo `/admin`.

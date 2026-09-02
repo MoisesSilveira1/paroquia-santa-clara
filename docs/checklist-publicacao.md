@@ -41,7 +41,12 @@ Nesta ordem, porque uma depende da outra.
       Será o dono de todos os serviços — ver [continuidade.md](continuidade.md).
 - [ ] **Registrar o domínio** no [registro.br](https://registro.br) (~R$ 40/ano),
       com titular = CNPJ da paróquia e contato = e-mail-mãe.
-- [ ] **Criar o projeto Supabase** (plano gratuito) na conta institucional.
+- [ ] **Criar o banco hospedado** (Postgres gratuito no Neon ou Supabase, ou
+      Turso) na conta institucional — SQLite em arquivo não sobrevive à
+      hospedagem serverless. As fotos da galeria ficam guardadas no próprio
+      banco, então conte com espaço: cada foto ocupa cerca de 150 KB, ou seja
+      **~150 MB para mil fotos** (o plano gratuito do Neon dá 0,5 GB). É
+      também o que faz o backup do banco já levar as fotos junto.
 - [ ] **Contratar o Google Workspace** — modelo misto: Standard para secretaria
       e pároco, Starter para as demais contas.
 - [ ] **Criar a conta de hospedagem** com o e-mail-mãe.
@@ -52,13 +57,18 @@ Feito por quem cuida do site, depois que as etapas acima estiverem prontas.
 O passo a passo detalhado está em [publicar.md](publicar.md).
 
 - [ ] Substituir todos os itens `DEMO` em `lib/dados.ts` pelos dados reais.
-- [ ] Aplicar [`supabase/schema.sql`](../supabase/schema.sql) no projeto Supabase
-      e criar o usuário do painel para a secretaria.
-- [ ] Criar `.env.local` e configurar as mesmas variáveis na hospedagem:
-      `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e
+- [ ] Apontar `DATABASE_URL` para o banco hospedado e rodar
+      `npx prisma migrate deploy` para criar as tabelas.
+- [ ] Cadastrar as pessoas da secretaria em **Usuários** no painel e **excluir
+      os dois acessos de exemplo do seed** — as senhas deles estão no
+      repositório, à vista de qualquer um.
+- [ ] Criar `.env` e configurar as mesmas variáveis na hospedagem:
+      `DATABASE_URL`, `SEGREDO_SESSAO` (32+ caracteres, gerada ao acaso) e
       **`NEXT_PUBLIC_SITE_URL`** (sem esta última, o cartão de compartilhamento
       do WhatsApp aponta para `localhost` e não carrega).
-- [ ] Subir as fotos reais pelo painel `/admin` (as atuais são de demonstração).
+- [ ] Subir as fotos reais pelo painel `/admin` → Galeria (as atuais são de
+      demonstração). O envio é pelo próprio painel, direto do computador —
+      fotos de iPhone (`.HEIC`) precisam virar JPG antes.
 - [x] ~~Formulário de contato~~ — **pronto**: já valida e envia de verdade.
       Falta só preencher `RESEND_API_KEY`, `CONTATO_EMAIL_DESTINO` e
       `CONTATO_EMAIL_REMETENTE` quando o e-mail existir. Sem elas, o formulário
@@ -89,7 +99,7 @@ O passo a passo detalhado está em [publicar.md](publicar.md).
 | --- | --- |
 | Domínio `.org.br` | ~R$ 40/ano |
 | Hospedagem (Cloudflare Pages ou Vercel) | R$ 0 |
-| Supabase (plano gratuito) | R$ 0 |
+| Banco de dados (plano gratuito) | R$ 0 |
 | Google Workspace | conforme o número de contas (ver proposta) |
 
 O site em si não tem custo de infraestrutura neste porte — o que se paga é o

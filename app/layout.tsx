@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Merriweather } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import DadosEstruturados from "@/components/DadosEstruturados";
 import { URL_DO_SITE } from "@/lib/site";
 
 const inter = Inter({
@@ -57,6 +53,13 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Layout raiz: só o documento HTML, as fontes e os metadados.
+ *
+ * A moldura visual mora nos grupos de rota — `(site)` para as páginas
+ * públicas e `admin/(painel)` para a área da secretaria —, porque as duas
+ * têm cabeçalhos completamente diferentes.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -66,14 +69,12 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${inter.variable} ${merriweather.variable} h-full antialiased`}
+      // O painel escreve `data-tema` aqui antes da hidratação, para não piscar
+      // branco em quem usa o tema escuro. É uma divergência deliberada entre o
+      // HTML do servidor e o do navegador; sem isto, o React reclama dela.
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <DadosEstruturados />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppButton />
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }

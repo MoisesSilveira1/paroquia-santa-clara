@@ -6,24 +6,48 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "db:gerar": "prisma generate",
+    "db:migrar": "prisma migrate dev",
+    "db:semear": "prisma db seed",
+    "db:recriar": "prisma migrate reset",
+    "db:estudio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.9",
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "better-sqlite3": "^13.0.3",
     "lucide-react": "^1.27.0",
     "next": "16.2.12",
+    "prisma": "^7.9.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
-    "sharp": "^0.35.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "prisma@7.9.1": true,
+    "@prisma/engines@7.9.1": true,
+    "esbuild@0.28.2": true,
+    "sharp@0.34.5": true,
+    "sharp@0.35.3": true,
+    "unrs-resolver@1.12.2": true,
+    "better-sqlite3@12.11.1": true,
+    "better-sqlite3@13.0.3": true
   }
 }
