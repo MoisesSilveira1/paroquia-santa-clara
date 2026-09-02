@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import { PrismaClient } from "../lib/gerado/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { criarHashDeSenha } from "../lib/auth/senha";
 import { paraSlug } from "../lib/servicos/slug";
 import {
@@ -23,11 +23,15 @@ import {
  * É seguro rodar mais de uma vez: tudo é gravado por uma chave estável.
  */
 
-const db = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
-  }),
-});
+const url = process.env.DATABASE_URL;
+if (!url) {
+  throw new Error(
+    "DATABASE_URL não definida. Copie .env.example para .env e preencha com a " +
+      "string de conexão do banco antes de semear."
+  );
+}
+
+const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 
 /** Senhas de desenvolvimento. Em produção, criar os usuários pelo painel. */
 const ACESSOS = [

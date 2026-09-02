@@ -30,7 +30,7 @@ Criar um e-mail institucional que será o "dono" de tudo:
 | --- | --- | --- | --- |
 | Registro.br (domínio) | Endereço do site e dos e-mails | CNPJ da paróquia/mitra, e-mail-mãe | ⏳ registrar do zero (antigo perdido) |
 | GitHub (código) | Guarda o código do site | Organização própria (ex. `paroquia-santa-clara-sf`) com 2+ donos | ⚠️ hoje em conta pessoal de voluntário |
-| Banco de dados hospedado | Todo o conteúdo publicado pelo painel | Organização com a conta-mãe | ⏳ a criar |
+| Banco de dados (Prisma Postgres) | Todo o conteúdo publicado pelo painel, inclusive as fotos | Espaço de trabalho da conta-mãe | ⚠️ criado em 02/09/2026, mas na conta pessoal do desenvolvedor |
 | Hospedagem (Cloudflare/Vercel) | Site no ar | Conta-mãe | ⏳ a definir |
 | Google Workspace | E-mails @dominio | Admin = conta-mãe; CNPJ da paróquia | ⏳ ver docs/email-google-workspace.md |
 | YouTube (canal das missas) | Transmissões | Conta Google da paróquia com 2+ gestores | ✅ já existe (confirmar gestores) |
@@ -42,7 +42,10 @@ Criar um e-mail institucional que será o "dono" de tudo:
 - [ ] Registrar o domínio no registro.br **com o CNPJ da paróquia** e o e-mail-mãe
 - [ ] Criar organização no GitHub e **transferir este repositório** para ela
       (Settings → Transfer ownership); manter voluntários como colaboradores
-- [ ] Criar o banco hospedado dentro de organização acessível pela conta-mãe
+- [ ] **Passar o banco (Prisma Postgres) para a conta-mãe** — hoje ele está no
+      espaço de trabalho pessoal do desenvolvedor. É onde mora TODO o conteúdo
+      do painel, inclusive as fotos: se essa conta se perder, perde-se o site
+      inteiro. Este é o mesmo erro que custou o domínio antigo.
 - [ ] Hospedagem na conta-mãe (voluntários como membros, não donos)
 - [ ] Conferir se o canal do YouTube tem pelo menos 2 gestores da paróquia
 - [ ] Registrar credenciais num cofre (ex. Bitwarden gratuito) ou envelope

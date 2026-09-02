@@ -1,9 +1,10 @@
 // Modelo de dados do site da paróquia.
 //
-// Nota sobre SQLite: este provider não tem `enum`. Os campos de situação
-// (status, categoria, papel) são texto, com os valores válidos definidos e
-// checados em lib/validacao/esquemas.ts. Ao migrar para Postgres, eles podem
-// virar enums de verdade sem que as telas mudem.
+// Os campos de situação (status, categoria, papel) são texto, e não `enum`.
+// Vêm da época do SQLite, que não tem enum; os valores válidos são definidos e
+// checados em lib/validacao/esquemas.ts. Agora no Postgres eles poderiam virar
+// enums de verdade — fica como melhoria futura, porque exigiria uma migração
+// de tipo em cada coluna sem trazer ganho imediato para as telas.
 
 generator client {
   provider = "prisma-client"
@@ -11,7 +12,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // ---------------------------------------------------------------------------

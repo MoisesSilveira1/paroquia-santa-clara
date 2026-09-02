@@ -19,36 +19,35 @@ e verificação em duas etapas. Detalhes em [continuidade.md](continuidade.md).
 No [registro.br](https://registro.br), registrar o domínio com **titular =
 CNPJ da paróquia** e contato = conta-mãe. Custo ~R$ 40/ano.
 
-## 3. Banco de dados (20 min)
+## 3. Banco de dados (10 min)
 
-Em desenvolvimento o banco é um arquivo (SQLite). Em hospedagem serverless
-como a Vercel isso **não** funciona: o disco é apagado a cada publicação e o
-arquivo iria junto. É preciso um banco hospedado.
+**Já está feito** desde 02/09/2026: o projeto usa **Prisma Postgres**
+hospedado (projeto `paroquia-santa-clara`, região US East). O que resta é
+decidir se o site publicado usa esse mesmo banco ou um separado.
 
-1. Criar um Postgres gratuito — [Neon](https://neon.tech) ou
-   [Supabase](https://supabase.com), região São Paulo — com a conta-mãe.
-   (Serve também o [Turso](https://turso.tech), que é SQLite hospedado.)
-2. Copiar a string de conexão do banco.
-3. Em [`prisma/schema.prisma`](../prisma/schema.prisma), trocar o provider:
+Recomendado: **um banco só para produção**, e `npx prisma dev` (Postgres
+local) para desenvolver — assim mexer no projeto nunca toca nos dados reais
+da paróquia.
 
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-   }
-   ```
-
-   Trocando para Turso, o provider continua `sqlite` e muda só o adaptador em
-   [`lib/db.ts`](../lib/db.ts).
-4. Com a `DATABASE_URL` apontando para o banco novo, criar as tabelas:
+1. Em [console.prisma.io](https://console.prisma.io), abrir o projeto e copiar
+   a **connection string direta** do banco de produção.
+2. Conferir que ela termina com `?sslmode=verify-full`. Esse modo autentica o
+   servidor, não só criptografa — por essa conexão passam as mensagens dos
+   fiéis e os acessos do painel.
+3. Com a `DATABASE_URL` apontando para o banco de produção, criar as tabelas:
 
    ```bash
    npx prisma migrate deploy
    ```
 
-5. Criar o primeiro administrador. O jeito mais simples é rodar o seed uma vez
+4. Criar o primeiro administrador. O jeito mais simples é rodar o seed uma vez
    (`npm run db:semear`), entrar no painel com o acesso que ele imprime,
    cadastrar as pessoas de verdade em **Usuários** e **excluir os dois acessos
    de exemplo**. As senhas do seed são públicas: estão no repositório.
+
+> Ao transferir o projeto para a paróquia, o banco também precisa mudar de
+> dono — hoje ele está no espaço de trabalho pessoal do desenvolvedor. Ver
+> [continuidade.md](continuidade.md).
 
 ## 4. Hospedagem na Vercel (20 min)
 

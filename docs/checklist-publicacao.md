@@ -41,12 +41,12 @@ Nesta ordem, porque uma depende da outra.
       Será o dono de todos os serviços — ver [continuidade.md](continuidade.md).
 - [ ] **Registrar o domínio** no [registro.br](https://registro.br) (~R$ 40/ano),
       com titular = CNPJ da paróquia e contato = e-mail-mãe.
-- [ ] **Criar o banco hospedado** (Postgres gratuito no Neon ou Supabase, ou
-      Turso) na conta institucional — SQLite em arquivo não sobrevive à
-      hospedagem serverless. As fotos da galeria ficam guardadas no próprio
-      banco, então conte com espaço: cada foto ocupa cerca de 150 KB, ou seja
-      **~150 MB para mil fotos** (o plano gratuito do Neon dá 0,5 GB). É
-      também o que faz o backup do banco já levar as fotos junto.
+- [x] ~~Criar o banco hospedado~~ — **feito em 02/09/2026**: Prisma Postgres,
+      projeto `paroquia-santa-clara`. Falta apenas **passar o banco para a
+      conta institucional** quando ela existir: hoje ele está no espaço de
+      trabalho pessoal do desenvolvedor. As fotos ficam guardadas no próprio
+      banco (cerca de 150 KB cada, ~150 MB para mil fotos), o que faz o backup
+      do banco já levar as fotos junto — mas exige olho no espaço contratado.
 - [ ] **Contratar o Google Workspace** — modelo misto: Standard para secretaria
       e pároco, Starter para as demais contas.
 - [ ] **Criar a conta de hospedagem** com o e-mail-mãe.

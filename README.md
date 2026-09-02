@@ -26,7 +26,7 @@ gerenciado por um painel simples, sem mexer em código.
 ## Tecnologia
 
 - [Next.js](https://nextjs.org) (App Router, TypeScript) + [Tailwind CSS](https://tailwindcss.com)
-- [Prisma](https://prisma.io) sobre SQLite: banco de tudo que a secretaria publica
+- [Prisma](https://prisma.io) sobre PostgreSQL: banco de tudo que a secretaria publica
 - [Zod](https://zod.dev): confere tudo que entra pelos formulários
 - Ícones [Lucide](https://lucide.dev)
 - Login próprio, sem serviço externo: senha derivada com `scrypt` e sessão em
@@ -89,9 +89,9 @@ O painel é dividido em três camadas, e cada uma só conhece a de baixo:
 
 O formato de tudo que entra está em
 [`lib/validacao/esquemas.ts`](lib/validacao/esquemas.ts), inclusive a lista
-fechada de valores de situação (`RASCUNHO`, `PUBLICADA`…). Como o SQLite não
-tem `enum`, é esse arquivo — e não o banco — que garante que só valores
-válidos sejam gravados.
+fechada de valores de situação (`RASCUNHO`, `PUBLICADA`…). Esses campos são
+texto no banco — herança da época do SQLite, que não tem `enum` — então é esse
+arquivo, e não o banco, que garante que só valores válidos sejam gravados.
 
 **Toda ação confere sessão e permissão por conta própria.** Esconder um botão
 na tela não protege nada: qualquer pessoa pode enviar ao servidor a mesma
@@ -110,14 +110,20 @@ gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
 junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
 porque essas vêm com o código.
 
-### Sobre o banco em produção
+### Sobre o banco
 
-O SQLite é um arquivo. Em hospedagem serverless (Vercel, Cloudflare) o disco é
-descartado a cada publicação, e esse arquivo se perderia junto — **lá é preciso
-usar Postgres ou Turso**. A troca é o `provider` em
-[`prisma/schema.prisma`](prisma/schema.prisma) mais a variável `DATABASE_URL`;
-nenhuma tela muda. Migrando para Postgres, os campos de situação também podem
-virar `enum` de verdade no banco.
+O banco é **PostgreSQL hospedado** (Prisma Postgres). Até 02/09/2026 era um
+arquivo SQLite local, que não serviria depois de publicado: em hospedagem
+serverless o disco é descartado a cada publicação e o arquivo — com avisos,
+notícias e fotos — iria junto.
+
+A conexão vem da variável `DATABASE_URL`, e deve usar **`sslmode=verify-full`**.
+Assim o tráfego não é só criptografado: o servidor também é autenticado, o que
+impede alguém se passar pelo banco no caminho. Isso importa porque por essa
+conexão passam as mensagens dos fiéis e os dados de acesso do painel.
+
+Para mexer no projeto sem tocar nos dados de verdade, `npx prisma dev` sobe um
+Postgres na sua máquina e imprime a conexão para colar no `.env`.
 
 Itens marcados com `DEMO` em `lib/dados.ts` ainda são fictícios e precisam ser
 confirmados com a secretaria antes da publicação.
