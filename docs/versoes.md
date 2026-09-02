@@ -10,6 +10,8 @@ voltar a qualquer uma delas a qualquer momento.
 | --- | --- |
 | `v1.0-apresentacao` | Site completo em tons de creme/marrom/terracota (paleta franciscana), pronto para apresentar ao conselho. |
 | `v1.1-paleta-azul` | Mesma coisa, com a paleta azul mariano + dourado. |
+| `v1.2-pronto-para-deploy` | SEO, página de erro e formulário de contato prontos. Conteúdo ainda vinha escrito no código. |
+| `v2.0-painel` | A secretaria passa a gerenciar o site sozinha pelo painel `/admin`, com banco de dados, login e envio de fotos. |
 
 Para ver a lista atualizada, com a descrição de cada uma:
 
