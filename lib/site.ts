@@ -14,6 +14,7 @@ export const PAGINAS_PUBLICAS = [
   { caminho: "/noticias", prioridade: 0.8, frequencia: "weekly" },
   { caminho: "/sobre", prioridade: 0.7, frequencia: "monthly" },
   { caminho: "/pastorais", prioridade: 0.7, frequencia: "monthly" },
+  { caminho: "/catequese", prioridade: 0.7, frequencia: "monthly" },
   { caminho: "/galeria", prioridade: 0.6, frequencia: "weekly" },
   { caminho: "/dizimo", prioridade: 0.6, frequencia: "monthly" },
   { caminho: "/contato", prioridade: 0.6, frequencia: "monthly" },

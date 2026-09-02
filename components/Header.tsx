@@ -11,6 +11,7 @@ const links = [
   { href: "/horarios", label: "Horários" },
   { href: "/sobre", label: "A Paróquia" },
   { href: "/pastorais", label: "Pastorais" },
+  { href: "/catequese", label: "Catequese" },
   { href: "/missa-online", label: "Missa Online" },
   { href: "/noticias", label: "Notícias" },
   { href: "/galeria", label: "Galeria" },
@@ -25,7 +26,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-principal text-fundo shadow-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setAberto(false)}>
+        <Link
+          href="/"
+          className="flex items-center gap-3"
+          aria-label="Paróquia Santa Clara e São Francisco de Assis — ir para o início"
+          onClick={() => setAberto(false)}
+        >
           {/* Escudo do brasão oficial. O nome vem escrito ao lado, então a
               imagem é decorativa (alt vazio) para não repetir no leitor de tela. */}
           <Image
@@ -36,8 +42,16 @@ export default function Header() {
             priority
             className="h-11 w-auto drop-shadow-sm sm:h-12"
           />
-          <span className="font-serif text-lg leading-tight sm:text-xl">
-            Paróquia Santa Clara e<br className="sm:hidden" /> São Francisco de Assis
+          {/* O nome completo cabe enquanto o menu está escondido. A partir de
+              xl o menu ocupa a linha, então mostramos a versão curta — o nome
+              inteiro continua no rodapé, no título da aba e no aria-label. */}
+          <span aria-hidden className="font-serif text-lg leading-tight sm:text-xl">
+            <span className="xl:hidden">
+              Paróquia Santa Clara e<br className="sm:hidden" /> São Francisco de Assis
+            </span>
+            <span className="hidden whitespace-nowrap xl:inline">
+              Santa Clara e São Francisco
+            </span>
           </span>
         </Link>
 

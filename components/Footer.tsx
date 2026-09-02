@@ -51,6 +51,7 @@ export default function Footer() {
             <li><Link className="hover:text-destaque" href="/horarios">Horários de Missas</Link></li>
             <li><Link className="hover:text-destaque" href="/sobre">A Paróquia</Link></li>
             <li><Link className="hover:text-destaque" href="/pastorais">Pastorais</Link></li>
+            <li><Link className="hover:text-destaque" href="/catequese">Catequese</Link></li>
             <li><Link className="hover:text-destaque" href="/missa-online">Missa Online</Link></li>
             <li><Link className="hover:text-destaque" href="/noticias">Notícias</Link></li>
             <li><Link className="hover:text-destaque" href="/galeria">Galeria de Fotos</Link></li>
