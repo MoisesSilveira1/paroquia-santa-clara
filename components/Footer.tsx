@@ -62,6 +62,18 @@ export default function Footer() {
       </div>
       <div className="border-t border-principal-claro py-4 text-center text-xs text-fundo-suave">
         © {new Date().getFullYear()} {paroquia.nome} · Arquidiocese de Brasília
+        {/* Entrada da secretaria. Discreta de propósito: quem visita o site não
+            precisa dela. Discreta não é escondida — quem trabalha aqui tem de
+            achar sem decorar endereço. O robots.txt já mantém /admin fora das
+            buscas, e o rel="nofollow" evita que os buscadores a sigam daqui. */}
+        <span aria-hidden className="mx-2 opacity-50">·</span>
+        <Link
+          href="/admin"
+          rel="nofollow"
+          className="underline decoration-dotted underline-offset-2 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100"
+        >
+          Área da secretaria
+        </Link>
       </div>
     </footer>
   );
