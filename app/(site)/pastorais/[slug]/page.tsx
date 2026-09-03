@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   CalendarClock,
   ExternalLink,
+  KeyRound,
   Mail,
   Phone,
   Users,
@@ -44,13 +45,28 @@ export default async function PaginaDaPastoral({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
-      <Link
-        href="/pastorais"
-        className="inline-flex items-center gap-2 text-sm text-principal hover:text-principal-escuro"
-      >
-        <ArrowLeft className="h-4 w-4" aria-hidden />
-        Todas as pastorais
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href="/pastorais"
+          className="inline-flex items-center gap-2 text-sm text-principal hover:text-principal-escuro"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden />
+          Todas as pastorais
+        </Link>
+
+        {/* Entrada do coordenador. Fica discreta de propósito: a página é
+            para a comunidade, e este botão serve a uma pessoa só do grupo.
+            Leva direto à tela da equipe; quem ainda não entrou passa pelo
+            login e cai no painel, que aponta para cá em um clique. */}
+        <Link
+          href="/admin/coordenadores"
+          rel="nofollow"
+          className="inline-flex items-center gap-2 rounded-lg border border-destaque-claro bg-white px-3.5 py-2 text-sm font-medium text-principal transition-colors hover:border-destaque hover:bg-fundo"
+        >
+          <KeyRound className="h-4 w-4 text-destaque" aria-hidden />
+          Coordenador
+        </Link>
+      </div>
 
       <header className="mt-4">
         <h1 className="text-4xl text-principal-escuro">{pastoral.nome}</h1>
