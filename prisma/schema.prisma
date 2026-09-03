@@ -129,11 +129,54 @@ model Pastoral {
   ativa     Boolean @default(true)
   ordem     Int     @default(0)
 
+  coordenadores Coordenador[]
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
   @@index([ativa, ordem])
   @@map("pastorais")
+}
+
+/// Quem responde por uma pastoral ou coordenação.
+///
+/// Fica separado de `Pastoral` porque coordenação troca de coordenador e
+/// costuma ter mais de um (coordenador e vice, por exemplo), enquanto a
+/// pastoral em si continua a mesma. O campo `contato` da pastoral segue
+/// existindo para o telefone institucional — o da secretaria, o da sala.
+///
+/// Não tem ligação com `Usuario`: coordenar uma pastoral não dá acesso ao
+/// painel, e quem entra no painel não precisa coordenar nada. Se um dia um
+/// coordenador precisar de login, o cadastro dele é feito em Usuários.
+model Coordenador {
+  id   String @id @default(cuid())
+  nome String
+  /// "Coordenador(a)", "Vice-coordenador(a)", "Secretário(a)"...
+  funcao String @default("Coordenador(a)")
+
+  telefone String?
+  email    String?
+  /// Se o telefone e o e-mail podem aparecer no site.
+  ///
+  /// Nasce desligado de propósito. Coordenador é voluntário da comunidade, e
+  /// publicar o telefone de alguém sem que a pessoa tenha dito "pode" é
+  /// diferente de publicar o número da secretaria. O nome e a função aparecem
+  /// sempre; o contato, só com autorização.
+  contatoPublico Boolean @default(false)
+
+  pastoral   Pastoral @relation(fields: [pastoralId], references: [id], onDelete: Cascade)
+  pastoralId String
+
+  ativo Boolean @default(true)
+  /// Menor aparece primeiro — serve para o coordenador vir antes do vice.
+  ordem Int     @default(0)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([pastoralId, ordem])
+  @@index([ativo])
+  @@map("coordenadores")
 }
 
 model Album {

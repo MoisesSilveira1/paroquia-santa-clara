@@ -52,6 +52,9 @@ export async function pastoraisAtivas() {
   return db.pastoral.findMany({
     where: { ativa: true },
     select: {
+      // O `id` vem para casar com os coordenadores, que a página busca numa
+      // consulta separada e junta em memória.
+      id: true,
       slug: true,
       nome: true,
       descricao: true,

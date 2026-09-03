@@ -15,13 +15,13 @@ gerenciado por um painel simples, sem mexer em código.
 | `/` | Boas-vindas, horários resumidos, avisos da semana, atalhos |
 | `/horarios` | Missas, confissões e adoração por dia da semana |
 | `/sobre` | História, padroeiros, pároco e equipe |
-| `/pastorais` | Pastorais e movimentos com contatos |
+| `/pastorais` | Pastorais e movimentos, com quem coordena cada um |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
 | `/noticias` | Mural de notícias e agenda de eventos |
 | `/galeria` | Álbuns de fotos dos eventos |
 | `/dizimo` | Orientações sobre o dízimo, Pix e dados bancários |
 | `/contato` | Formulário, mapa, WhatsApp e telefones |
-| `/admin` | **Painel da secretaria** (exige login): avisos, notícias, horários, pastorais, galeria, mensagens e usuários |
+| `/admin` | **Painel da secretaria** (exige login): avisos, notícias, horários, pastorais, coordenadores, galeria, mensagens e usuários |
 
 ## Tecnologia
 
@@ -52,8 +52,9 @@ com o valor que este comando imprime:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-O `db:semear` cria dois acessos de desenvolvimento e imprime as senhas no
-terminal. **Troque-as antes de publicar o site.**
+O `db:semear` cria um acesso de cada nível (administrador geral, padre e
+administrador comum) e imprime as senhas no terminal. **Troque-as antes de
+publicar o site.**
 
 ### Comandos do banco
 
@@ -69,6 +70,7 @@ terminal. **Troque-as antes de publicar o site.**
 | Quero mudar… | Onde |
 | --- | --- |
 | Avisos, notícias, horários de missa, pastorais e fotos | Painel `/admin` (não precisa de código) |
+| Quem coordena cada pastoral | Painel `/admin` → Coordenadores |
 | Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
@@ -110,6 +112,22 @@ gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
 junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
 porque essas vêm com o código.
 
+### Sobre os coordenadores
+
+Cada pastoral pode ter uma ou mais pessoas responsáveis, cadastradas em
+`/admin` → **Coordenadores**. O nome e a função aparecem no cartão da pastoral
+no site; o telefone e o e-mail **só aparecem se alguém marcar “Mostrar o
+contato no site”**, e isso nasce desmarcado.
+
+Esse padrão é proposital: coordenador é voluntário da comunidade, e publicar o
+telefone de uma pessoa exige o consentimento dela — diferente do número da
+secretaria, que é institucional. O filtro é feito na consulta ao banco, em
+[`lib/servicos/coordenadores.ts`](lib/servicos/coordenadores.ts), e não na
+tela, para que uma mudança distraída de layout não vaze o número de ninguém.
+
+Cadastrar um coordenador **não dá acesso ao painel**. São coisas separadas: se
+um coordenador precisar entrar no painel, cadastre-o também em Usuários.
+
 ### Sobre o banco
 
 O banco é **PostgreSQL hospedado** (Prisma Postgres). Até 02/09/2026 era um
@@ -134,7 +152,7 @@ São três níveis de acesso:
 
 | Nível | Pode |
 | --- | --- |
-| Administrador comum | Avisos, notícias, horários, pastorais, galeria e mensagens de contato. Cadastra e edita coordenadores. **Não exclui cadastro de ninguém.** |
+| Administrador comum | Avisos, notícias, horários, pastorais, galeria e mensagens de contato. Cadastra e edita coordenadores das pastorais. **Não exclui cadastro de pessoa** — nem de coordenador, nem de usuário. |
 | Padre | Tudo, sem restrição |
 | Administrador geral | Tudo, sem restrição. É quem mantém o site funcionando |
 

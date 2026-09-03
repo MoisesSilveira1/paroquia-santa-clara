@@ -6,6 +6,7 @@ import {
   Megaphone,
   Newspaper,
   ShieldCheck,
+  UserCog,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -36,6 +37,12 @@ export const MENU: ItemDeMenu[] = [
   { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper },
   { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays },
   { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users },
+  {
+    href: "/admin/coordenadores",
+    rotulo: "Coordenadores",
+    icone: UserCog,
+    exige: "coordenadores.gerenciar",
+  },
   { href: "/admin/galeria", rotulo: "Galeria", icone: Images },
   { href: "/admin/mensagens", rotulo: "Mensagens", icone: Mail },
   {

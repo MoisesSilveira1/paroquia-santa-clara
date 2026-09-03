@@ -35,7 +35,11 @@ export default function ErroDoPainel({
         icone={AlertTriangle}
         titulo="Esta tela não carregou"
         descricao={
-          erro.digest
+          // `erro?` e não `erro.`: esta tela é a última rede de proteção, e
+          // uma tela de erro que estoura ao desenhar o erro deixa a secretaria
+          // diante do erro cru do navegador. Aconteceu em 03/09/2026, quando
+          // o React entregou a falha sem objeto.
+          erro?.digest
             ? `Tente novamente. Se continuar, avise quem cuida do site e informe o código ${erro.digest}.`
             : "Tente novamente. Se continuar, avise quem cuida do site."
         }

@@ -173,6 +173,29 @@ export const pastoralSchema = z.object({
 
 export const pastoralEdicaoSchema = pastoralSchema.extend({ id });
 
+/**
+ * Quem responde por uma pastoral.
+ *
+ * Telefone e e-mail são opcionais e o e-mail é validado só quando vem
+ * preenchido: muita gente da comunidade não usa e-mail, e obrigar o campo
+ * levaria a secretaria a inventar um endereço para conseguir salvar.
+ */
+export const coordenadorSchema = z.object({
+  nome: texto(3, 120, "O nome"),
+  funcao: texto(3, 60, "A função"),
+  pastoralId: id,
+  telefone: opcional(40, "O telefone"),
+  email: z
+    .union([z.literal(""), z.email("Informe um e-mail válido.")])
+    .optional()
+    .transform((v) => v || null),
+  contatoPublico: caixaDeMarcar,
+  ativo: caixaDeMarcar,
+  ordem: z.coerce.number().int().min(0).max(999).default(0),
+});
+
+export const coordenadorEdicaoSchema = coordenadorSchema.extend({ id });
+
 // ---------------------------------------------------------------------------
 // Galeria
 // ---------------------------------------------------------------------------

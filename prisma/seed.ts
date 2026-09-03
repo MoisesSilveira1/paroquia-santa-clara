@@ -191,6 +191,39 @@ async function semear() {
   }
   console.log(`  ${pastorais.length} pastorais`);
 
+  // ----- coordenadores -----
+  //
+  // Só semeia se a tabela estiver vazia. Coordenador não tem chave estável
+  // como o slug da pastoral, e reescrever por nome apagaria a correção que a
+  // secretaria tivesse feito na grafia.
+  if ((await db.coordenador.count()) === 0) {
+    const catequese = await db.pastoral.findUnique({
+      where: { slug: paraSlug("Catequese") },
+      select: { id: true },
+    });
+    if (catequese) {
+      // DEMO — nomes fictícios, para a tela não abrir vazia. O contato nasce
+      // fechado: publicar telefone de voluntário exige o "pode" da pessoa.
+      await db.coordenador.createMany({
+        data: [
+          {
+            nome: "Maria das Graças (exemplo)",
+            funcao: "Coordenadora",
+            pastoralId: catequese.id,
+            ordem: 0,
+          },
+          {
+            nome: "Antônio Ferreira (exemplo)",
+            funcao: "Vice-coordenador",
+            pastoralId: catequese.id,
+            ordem: 1,
+          },
+        ],
+      });
+      console.log("  2 coordenadores de exemplo");
+    }
+  }
+
   // ----- notícias -----
   for (const noticia of noticias) {
     const dados = {

@@ -30,7 +30,7 @@ export const NOME_DO_PAPEL: Record<Papel, string> = {
 /** Explicação em uma linha, mostrada ao escolher o nível de acesso. */
 export const DESCRICAO_DO_PAPEL: Record<Papel, string> = {
   ADMIN_COMUM:
-    "Cuida do dia a dia: avisos, fotos, notícias, horários e respostas aos contatos. Cadastra e edita coordenadores, mas não exclui cadastros.",
+    "Cuida do dia a dia: avisos, fotos, notícias, horários e respostas aos contatos. Cadastra e edita coordenadores das pastorais, mas não exclui cadastro de pessoa.",
   PADRE: "Acesso total, sem restrição.",
   SUPER_ADMIN: "Acesso total, sem restrição. É quem mantém o site funcionando.",
 };
@@ -40,11 +40,15 @@ export const DESCRICAO_DO_PAPEL: Record<Papel, string> = {
  *
  * `conteudo` é tudo que aparece no site: avisos, notícias, horários, pastorais,
  * galeria e o andamento das mensagens de contato. `usuarios` é o cadastro de
- * quem entra no painel.
+ * quem entra no painel. `coordenadores` é o cadastro de quem responde por cada
+ * pastoral — não dá acesso a nada, mas é nome de pessoa da comunidade, e por
+ * isso excluir segue a mesma regra do cadastro de usuário.
  */
 export const PERMISSOES = [
   "conteudo.editar",
   "conteudo.excluir",
+  "coordenadores.gerenciar",
+  "coordenadores.excluir",
   "usuarios.gerenciar",
   "usuarios.excluir",
   "usuarios.promover",
@@ -58,7 +62,12 @@ export type Permissao = (typeof PERMISSOES)[number];
  * limite dentro do painel.
  */
 const PERMISSOES_DO_PAPEL: Record<Papel, readonly Permissao[]> = {
-  ADMIN_COMUM: ["conteudo.editar", "conteudo.excluir", "usuarios.gerenciar"],
+  ADMIN_COMUM: [
+    "conteudo.editar",
+    "conteudo.excluir",
+    "coordenadores.gerenciar",
+    "usuarios.gerenciar",
+  ],
   PADRE: PERMISSOES,
   SUPER_ADMIN: PERMISSOES,
 };
@@ -94,6 +103,10 @@ export function papeisAtribuiveisPor(papel: Papel): Papel[] {
 export const RECADO_SEM_PERMISSAO: Record<Permissao, string> = {
   "conteudo.editar": "Sua conta não tem permissão para alterar o conteúdo do site.",
   "conteudo.excluir": "Sua conta não tem permissão para excluir conteúdo do site.",
+  "coordenadores.gerenciar":
+    "Sua conta não tem permissão para mexer no cadastro dos coordenadores.",
+  "coordenadores.excluir":
+    "Excluir um coordenador é do padre ou do administrador geral. Peça a um deles — ou desmarque “Mostrar no site”, que tira o nome do ar sem apagar o cadastro.",
   "usuarios.gerenciar": "Sua conta não tem permissão para mexer nos cadastros do painel.",
   "usuarios.excluir":
     "Excluir um cadastro é do padre ou do administrador geral. Peça a um deles — ou desative o acesso, que não apaga nada.",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Users, Phone, CalendarClock } from "lucide-react";
 import { pastoraisAtivas } from "@/lib/servicos/pastorais";
+import { coordenadoresPorPastoral } from "@/lib/servicos/coordenadores";
 
 export const metadata: Metadata = {
   title: "Pastorais e Movimentos",
@@ -9,7 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default async function PastoraisPage() {
-  const pastorais = await pastoraisAtivas();
+  // Duas consultas, e não uma por cartão: os coordenadores vêm todos de uma
+  // vez e são distribuídos aqui.
+  const [pastorais, coordenadores] = await Promise.all([
+    pastoraisAtivas(),
+    coordenadoresPorPastoral(),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -20,30 +26,59 @@ export default async function PastoraisPage() {
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {pastorais.map((pastoral) => (
-          <article
-            key={pastoral.slug}
-            className="group flex flex-col rounded-xl border border-destaque-claro bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-destaque hover:shadow-md"
-          >
-            <Users className="h-8 w-8 text-principal transition-colors group-hover:text-destaque" aria-hidden />
-            <h2 className="mt-3 text-xl text-texto">{pastoral.nome}</h2>
-            <p className="mt-2 flex-1 text-sm leading-relaxed">
-              {pastoral.descricao}
-            </p>
-            <dl className="mt-4 space-y-1.5 border-t border-fundo-suave pt-4 text-sm text-texto-suave">
-              <div className="flex items-center gap-2">
-                <dt className="sr-only">Reuniões</dt>
-                <CalendarClock className="h-4 w-4 text-destaque" aria-hidden />
-                <dd>{pastoral.reunioes}</dd>
-              </div>
-              <div className="flex items-center gap-2">
-                <dt className="sr-only">Contato</dt>
-                <Phone className="h-4 w-4 text-destaque" aria-hidden />
-                <dd>{pastoral.contato}</dd>
-              </div>
-            </dl>
-          </article>
-        ))}
+        {pastorais.map((pastoral) => {
+          const equipe = coordenadores.get(pastoral.id) ?? [];
+          return (
+            <article
+              key={pastoral.slug}
+              className="group flex flex-col rounded-xl border border-destaque-claro bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-destaque hover:shadow-md"
+            >
+              <Users className="h-8 w-8 text-principal transition-colors group-hover:text-destaque" aria-hidden />
+              <h2 className="mt-3 text-xl text-texto">{pastoral.nome}</h2>
+              <p className="mt-2 flex-1 text-sm leading-relaxed">
+                {pastoral.descricao}
+              </p>
+
+              {/* Quem coordena vem antes do telefone da secretaria: o visitante
+                  procura uma pessoa para falar, não um número genérico. */}
+              {equipe.length > 0 && (
+                <div className="mt-4 border-t border-fundo-suave pt-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
+                    {equipe.length > 1 ? "Coordenação" : "Coordena"}
+                  </h3>
+                  <ul className="mt-2 space-y-1.5 text-sm">
+                    {equipe.map((pessoa) => (
+                      <li key={`${pessoa.nome}-${pessoa.funcao}`}>
+                        <span className="font-medium text-texto">
+                          {pessoa.nome}
+                        </span>
+                        <span className="text-texto-suave"> — {pessoa.funcao}</span>
+                        {pessoa.contato && (
+                          <span className="block text-xs text-texto-suave">
+                            {pessoa.contato}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <dl className="mt-4 space-y-1.5 border-t border-fundo-suave pt-4 text-sm text-texto-suave">
+                <div className="flex items-center gap-2">
+                  <dt className="sr-only">Reuniões</dt>
+                  <CalendarClock className="h-4 w-4 text-destaque" aria-hidden />
+                  <dd>{pastoral.reunioes}</dd>
+                </div>
+                <div className="flex items-center gap-2">
+                  <dt className="sr-only">Contato</dt>
+                  <Phone className="h-4 w-4 text-destaque" aria-hidden />
+                  <dd>{pastoral.contato}</dd>
+                </div>
+              </dl>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
