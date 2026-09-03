@@ -48,6 +48,7 @@ export default function Footer() {
         <div>
           <h2 className="font-serif text-lg">Acesso rápido</h2>
           <ul className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <li><Link className="hover:text-destaque" href="/aviso-paroquial">Aviso Paroquial</Link></li>
             <li><Link className="hover:text-destaque" href="/horarios">Horários de Missas</Link></li>
             <li><Link className="hover:text-destaque" href="/sobre">A Paróquia</Link></li>
             <li><Link className="hover:text-destaque" href="/pastorais">Pastorais</Link></li>

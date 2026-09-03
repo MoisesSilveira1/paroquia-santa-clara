@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PAPEIS } from "@/lib/auth/papeis";
+import { idDoVideo } from "@/lib/video/youtube";
 
 /**
  * Formato de tudo que entra pelo painel.
@@ -118,6 +119,46 @@ export const avisoSchema = z.object({
 });
 
 export const avisoEdicaoSchema = avisoSchema.extend({ id });
+
+/**
+ * O aviso que abre o site.
+ *
+ * O endereço do vídeo é recusado aqui quando não é do YouTube: quem monta o
+ * `<iframe>` da tela confia que isso já foi conferido — ver lib/video/youtube.
+ * Recusar no formulário também avisa a secretaria na hora, em vez de o vídeo
+ * simplesmente não aparecer no site sem explicação.
+ */
+export const avisoParoquialSchema = z
+  .object({
+    titulo: texto(3, 160, "O título"),
+    texto: opcional(4000, "O texto"),
+    videoUrl: opcional(400, "O endereço do vídeo"),
+    ativo: caixaDeMarcar,
+    expiraEm: dataOpcional,
+    /** Marcada, a imagem guardada é apagada ao salvar. */
+    removerImagem: caixaDeMarcar,
+  })
+  .refine((dados) => !dados.videoUrl || idDoVideo(dados.videoUrl) !== null, {
+    path: ["videoUrl"],
+    message:
+      "Só aceito vídeo do YouTube. Copie o endereço da barra do navegador ou do botão Compartilhar.",
+  });
+
+export const avisoParoquialEdicaoSchema = z
+  .object({
+    id,
+    titulo: texto(3, 160, "O título"),
+    texto: opcional(4000, "O texto"),
+    videoUrl: opcional(400, "O endereço do vídeo"),
+    ativo: caixaDeMarcar,
+    expiraEm: dataOpcional,
+    removerImagem: caixaDeMarcar,
+  })
+  .refine((dados) => !dados.videoUrl || idDoVideo(dados.videoUrl) !== null, {
+    path: ["videoUrl"],
+    message:
+      "Só aceito vídeo do YouTube. Copie o endereço da barra do navegador ou do botão Compartilhar.",
+  });
 
 // ---------------------------------------------------------------------------
 // Notícias e eventos

@@ -1,4 +1,5 @@
 import {
+  BellRing,
   CalendarDays,
   Images,
   LayoutDashboard,
@@ -33,6 +34,7 @@ export type ItemDeMenu = {
 
 export const MENU: ItemDeMenu[] = [
   { href: "/admin", rotulo: "Painel", icone: LayoutDashboard },
+  { href: "/admin/aviso-paroquial", rotulo: "Aviso paroquial", icone: BellRing },
   { href: "/admin/avisos", rotulo: "Avisos da semana", icone: Megaphone },
   { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper },
   { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays },

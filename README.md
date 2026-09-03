@@ -13,6 +13,7 @@ gerenciado por um painel simples, sem mexer em código.
 | Página | Conteúdo |
 | --- | --- |
 | `/` | Boas-vindas, horários resumidos, avisos da semana, atalhos |
+| `/aviso-paroquial` | O comunicado em destaque, que também abre numa janela ao entrar no site |
 | `/horarios` | Missas, confissões e adoração por dia da semana |
 | `/sobre` | História, padroeiros, pároco e equipe |
 | `/pastorais` | Pastorais e movimentos, com quem coordena cada um |
@@ -21,7 +22,7 @@ gerenciado por um painel simples, sem mexer em código.
 | `/galeria` | Álbuns de fotos dos eventos |
 | `/dizimo` | Orientações sobre o dízimo, Pix e dados bancários |
 | `/contato` | Formulário, mapa, WhatsApp e telefones |
-| `/admin` | **Painel da secretaria** (exige login): avisos, notícias, horários, pastorais, coordenadores, galeria, mensagens e usuários |
+| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, coordenadores, galeria, mensagens e usuários |
 
 ## Tecnologia
 
@@ -70,6 +71,7 @@ publicar o site.**
 | Quero mudar… | Onde |
 | --- | --- |
 | Avisos, notícias, horários de missa, pastorais e fotos | Painel `/admin` (não precisa de código) |
+| A janela que abre o site | Painel `/admin` → Aviso paroquial |
 | Quem coordena cada pastoral | Painel `/admin` → Coordenadores |
 | Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
@@ -111,6 +113,32 @@ hospedagem serverless o disco é descartado a cada publicação, então um arqui
 gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
 junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
 porque essas vêm com o código.
+
+### Sobre o aviso paroquial
+
+O aviso paroquial é a janela que abre sobre o site e precisa ser fechada para
+continuar navegando. Aceita texto, uma imagem e um vídeo do YouTube. É outra
+coisa dos **avisos da semana**, que são recados curtos em lista na página
+inicial — aquele é o mural, este é o que ninguém pode deixar de ver.
+
+Três decisões que economizam dor de cabeça:
+
+- **Só um aviso fica no ar por vez.** Pôr um no ar tira o anterior. Dois
+  comunicados empilhados na cara do visitante não ajudariam ninguém.
+- **Aparece uma vez por aviso, não a cada visita.** O navegador lembra que a
+  pessoa já viu (em `localStorage`). Editar o aviso faz ele reaparecer para
+  todo mundo, então corrigir um horário chega a quem já tinha lido.
+- **Tem data de validade opcional.** Sem ela, um comunicado esquecido ficaria
+  bloqueando a entrada do site para sempre.
+
+O endereço do vídeo é conferido no servidor e só aceita YouTube. Um `<iframe>`
+com endereço vindo de formulário embutiria qualquer página dentro do site da
+paróquia — ver [`lib/video/youtube.ts`](lib/video/youtube.ts), que extrai o
+identificador e monta a URL em vez de confiar no que foi colado.
+
+A janela depende de JavaScript. Por isso o mesmo conteúdo tem endereço fixo em
+`/aviso-paroquial`, ligado no rodapé: é para lá que se manda o link no grupo do
+WhatsApp, e é onde quem fechou sem ler encontra o aviso de novo.
 
 ### Sobre os coordenadores
 

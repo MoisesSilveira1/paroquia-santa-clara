@@ -73,6 +73,60 @@ model Aviso {
   @@map("avisos")
 }
 
+/// O aviso que abre o site: aparece numa janela sobre a página inicial e
+/// precisa ser fechado para continuar navegando.
+///
+/// É outra coisa do `Aviso` acima. Aquele é o recado curto de todo domingo,
+/// vários ao mesmo tempo, em lista na página inicial. Este é o comunicado que
+/// a paróquia quer que ninguém deixe de ver — só um no ar de cada vez, com
+/// imagem e vídeo.
+model AvisoParoquial {
+  id     String  @id @default(cuid())
+  titulo String
+  texto  String?
+  /// Endereço de um vídeo do YouTube, como a pessoa copiou do navegador.
+  /// O identificador é extraído na hora de montar a página; guardar a URL
+  /// inteira deixa a secretaria conferir depois o que ela colou.
+  videoUrl String?
+
+  /// Só um aviso fica ativo por vez — ver `publicarAviso` no serviço.
+  ativo Boolean @default(false)
+  /// Depois desta data o aviso some sozinho. Sem isto, um comunicado esquecido
+  /// bloquearia a entrada do site para sempre.
+  expiraEm DateTime?
+
+  imagem ImagemDeAviso?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([ativo, atualizadoEm])
+  @@map("avisos_paroquiais")
+}
+
+/// Os bytes da imagem de um aviso paroquial.
+///
+/// Tabela separada de `Imagem` (a da galeria) de propósito: lá a dona é uma
+/// foto de álbum, aqui é um aviso, e cada uma apaga a sua em cascata. Juntar
+/// as duas exigiria uma coluna de dono opcional e a regra "exatamente uma
+/// preenchida", que ninguém garante — duas tabelas pequenas se explicam
+/// sozinhas.
+model ImagemDeAviso {
+  id      String         @id @default(cuid())
+  aviso   AvisoParoquial @relation(fields: [avisoId], references: [id], onDelete: Cascade)
+  avisoId String         @unique
+
+  dados   Bytes
+  tipo    String
+  largura Int
+  altura  Int
+  bytes   Int
+
+  criadoEm DateTime @default(now())
+
+  @@map("imagens_de_avisos")
+}
+
 model Noticia {
   id     String @id @default(cuid())
   /// Endereço da notícia no site (/noticias/festa-de-santa-clara-2026).
