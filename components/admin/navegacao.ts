@@ -1,5 +1,6 @@
 import {
   BellRing,
+  CalendarRange,
   CalendarDays,
   Images,
   LayoutDashboard,
@@ -39,6 +40,12 @@ export const MENU: ItemDeMenu[] = [
   { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper, exige: "conteudo.editar" },
   { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays, exige: "conteudo.editar" },
   { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users, exige: "conteudo.editar" },
+  {
+    href: "/admin/agenda",
+    rotulo: "Agenda",
+    icone: CalendarRange,
+    exige: "agenda.propria",
+  },
   {
     href: "/admin/coordenadores",
     rotulo: "Coordenadores e equipes",

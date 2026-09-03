@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PAPEIS } from "@/lib/auth/papeis";
 import { idDoVideo } from "@/lib/video/youtube";
+import { instanteNaParoquia } from "@/lib/agenda/fuso";
 
 /**
  * Formato de tudo que entra pelo painel.
@@ -20,10 +21,12 @@ import { idDoVideo } from "@/lib/video/youtube";
 export { PAPEIS };
 
 export const CATEGORIAS_NOTICIA = ["NOTICIA", "EVENTO"] as const;
+export const TIPOS_DE_EVENTO = ["REUNIAO", "ESCALA"] as const;
 export const STATUS_NOTICIA = ["RASCUNHO", "PUBLICADA", "ARQUIVADA"] as const;
 export const STATUS_MENSAGEM = ["NOVA", "LIDA", "RESPONDIDA", "ARQUIVADA"] as const;
 
 export type CategoriaNoticia = (typeof CATEGORIAS_NOTICIA)[number];
+export type TipoDeEvento = (typeof TIPOS_DE_EVENTO)[number];
 export type StatusNoticia = (typeof STATUS_NOTICIA)[number];
 export type StatusMensagem = (typeof STATUS_MENSAGEM)[number];
 
@@ -32,6 +35,11 @@ export const ROTULO_STATUS_NOTICIA: Record<StatusNoticia, string> = {
   RASCUNHO: "Rascunho",
   PUBLICADA: "Publicada",
   ARQUIVADA: "Arquivada",
+};
+
+export const ROTULO_TIPO_DE_EVENTO: Record<TipoDeEvento, string> = {
+  REUNIAO: "Reunião",
+  ESCALA: "Escala de serviço",
 };
 
 export const ROTULO_CATEGORIA: Record<CategoriaNoticia, string> = {
@@ -244,6 +252,54 @@ export const coordenadorSchema = z.object({
 });
 
 export const coordenadorEdicaoSchema = coordenadorSchema.extend({ id });
+
+/**
+ * Um compromisso na agenda da pastoral.
+ *
+ * A hora vem separada da data porque é assim que o formulário pergunta
+ * (`<input type="date">` + `<input type="time">`); aqui as duas viram um
+ * instante só, que é o que o calendário ordena.
+ */
+const horaDoDia = z
+  .string()
+  .trim()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use o formato HH:MM (ex.: 19:30).");
+
+export const eventoDaPastoralSchema = z
+  .object({
+    pastoralId: id,
+    titulo: texto(3, 160, "O título"),
+    tipo: z.enum(TIPOS_DE_EVENTO),
+    data: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a data."),
+    horaInicio: horaDoDia,
+    horaFim: z.union([z.literal(""), horaDoDia]).optional(),
+    local: opcional(120, "O local"),
+    observacao: opcional(600, "A observação"),
+    /** Ids de quem foi escalado. O formulário manda um por caixa marcada. */
+    escalados: z.array(z.string().min(1)).default([]),
+  })
+  .transform((d) => ({
+    pastoralId: d.pastoralId,
+    titulo: d.titulo,
+    tipo: d.tipo,
+    // Hora de Brasília, e não do servidor — ver lib/agenda/fuso.ts.
+    inicio: instanteNaParoquia(d.data, d.horaInicio),
+    fim: d.horaFim ? instanteNaParoquia(d.data, d.horaFim) : null,
+    local: d.local,
+    observacao: d.observacao,
+    escalados: d.escalados,
+  }))
+  .refine((d) => !d.fim || d.fim > d.inicio, {
+    path: ["horaFim"],
+    message: "A hora de término precisa ser depois da de início.",
+  });
+
+export const eventoDaPastoralEdicaoSchema = z
+  .object({ id })
+  .and(eventoDaPastoralSchema);
 
 // ---------------------------------------------------------------------------
 // Galeria

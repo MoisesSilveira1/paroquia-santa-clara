@@ -46,7 +46,21 @@ export function validarFormulario<Saida>(
   esquema: z.ZodType<Saida>,
   formulario: FormData
 ): { ok: true; dados: Saida } | { ok: false; estado: EstadoFormulario } {
-  const bruto = Object.fromEntries(formulario);
+  return validarEntrada(esquema, Object.fromEntries(formulario));
+}
+
+/**
+ * O mesmo, mas para quem já montou o objeto por conta própria.
+ *
+ * Existe por causa dos campos que se repetem — várias caixas com o mesmo
+ * `name`, como a escala de quem serve. `Object.fromEntries` guarda só a
+ * última, então quem precisa da lista inteira monta o objeto com `getAll` e
+ * chama esta função.
+ */
+export function validarEntrada<Saida>(
+  esquema: z.ZodType<Saida>,
+  bruto: Record<string, unknown>
+): { ok: true; dados: Saida } | { ok: false; estado: EstadoFormulario } {
   const resultado = esquema.safeParse(bruto);
 
   if (resultado.success) return { ok: true, dados: resultado.data };

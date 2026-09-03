@@ -36,7 +36,7 @@ export const NOME_DO_PAPEL: Record<Papel, string> = {
 /** Explicação em uma linha, mostrada ao escolher o nível de acesso. */
 export const DESCRICAO_DO_PAPEL: Record<Papel, string> = {
   COORDENADOR:
-    "Cuida apenas da própria pastoral: cadastra e edita a equipe dela e agenda salas. Não mexe no site nem nas outras pastorais.",
+    "Cuida apenas da própria pastoral: a equipe dela e a agenda de reuniões e escalas. Não mexe no site nem nas outras pastorais.",
   ADMIN_COMUM:
     "Cuida do dia a dia: avisos, fotos, notícias, horários e respostas aos contatos. Cadastra e edita coordenadores das pastorais, mas não exclui cadastro de pessoa.",
   PADRE: "Acesso total, sem restrição.",
@@ -62,6 +62,7 @@ export const PERMISSOES = [
   "conteudo.editar",
   "conteudo.excluir",
   "equipe.propria",
+  "agenda.propria",
   "coordenadores.gerenciar",
   "coordenadores.excluir",
   "usuarios.gerenciar",
@@ -80,11 +81,12 @@ const PERMISSOES_DO_PAPEL: Record<Papel, readonly Permissao[]> = {
   // O coordenador entra no painel e alcança uma coisa só: a equipe da
   // pastoral em que ele aparece como coordenação. Nem conteúdo do site, nem
   // usuários, nem as outras pastorais.
-  COORDENADOR: ["equipe.propria"],
+  COORDENADOR: ["equipe.propria", "agenda.propria"],
   ADMIN_COMUM: [
     "conteudo.editar",
     "conteudo.excluir",
     "equipe.propria",
+    "agenda.propria",
     "coordenadores.gerenciar",
     "usuarios.gerenciar",
   ],
@@ -125,6 +127,8 @@ export const RECADO_SEM_PERMISSAO: Record<Permissao, string> = {
   "conteudo.excluir": "Sua conta não tem permissão para excluir conteúdo do site.",
   "equipe.propria":
     "Sua conta não tem permissão para mexer na equipe de nenhuma pastoral.",
+  "agenda.propria":
+    "Sua conta não tem permissão para mexer na agenda de nenhuma pastoral.",
   "coordenadores.gerenciar":
     "Sua conta só pode mexer na equipe da pastoral que você coordena.",
   "coordenadores.excluir":

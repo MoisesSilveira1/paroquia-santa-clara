@@ -218,23 +218,27 @@ export async function coordenacaoPorPastoral(): Promise<
 }
 
 /**
- * A equipe de uma pastoral, separada em coordenação e demais membros.
+ * A coordenação de uma pastoral — o que a página `/pastorais/<slug>` mostra.
  *
- * É o que a página `/pastorais/<slug>` mostra.
+ * SÓ a coordenação, de propósito: coordenador, vice e adjunto. O resto da
+ * equipe é gente voluntária, que serve quando pode e nem sempre com
+ * frequência; publicar esses nomes no site expõe pessoas que não pediram
+ * para estar ali, e envelhece rápido. A equipe inteira continua no painel,
+ * que é onde ela serve para escala e contato interno.
+ *
+ * O corte é aqui, na consulta: a página não recebe os outros nomes, então
+ * não há como um cartão novo mostrá-los sem querer.
  */
-export async function equipeDaPastoral(
+export async function coordenacaoDaPastoral(
   pastoralId: string
-): Promise<{ coordenacao: PessoaNoSite[]; equipe: PessoaNoSite[] }> {
+): Promise<PessoaNoSite[]> {
   const linhas = await db.coordenador.findMany({
-    where: { ativo: true, pastoralId },
+    where: { ativo: true, naCoordenacao: true, pastoralId },
     select: CAMPOS_PUBLICOS,
     orderBy: [{ ordem: "asc" }, { nome: "asc" }],
   });
 
-  return {
-    coordenacao: linhas.filter((l) => l.naCoordenacao).map(semContatoNaoAutorizado),
-    equipe: linhas.filter((l) => !l.naCoordenacao).map(semContatoNaoAutorizado),
-  };
+  return linhas.map(semContatoNaoAutorizado);
 }
 
 /**

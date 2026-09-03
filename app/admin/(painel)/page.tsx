@@ -13,6 +13,8 @@ import Selo from "@/components/ui/Selo";
 import { exigirSessao } from "@/lib/auth/guardas";
 import { pode } from "@/lib/auth/papeis";
 import { resumoDoPainel } from "@/lib/servicos/painel";
+import { proximosEventos, type EventoDaAgenda } from "@/lib/servicos/agenda";
+import { ProximosCompromissos } from "./agenda/Calendario";
 import {
   ROTULO_STATUS_NOTICIA,
   type StatusNoticia,
@@ -27,7 +29,10 @@ export default async function PaginaPainel() {
   // secretaria. Quem só coordena uma pastoral recebe uma abertura própria em
   // vez de números que não lhe dizem respeito.
   if (!pode(usuario.papel, "conteudo.editar")) {
-    return <AberturaDoCoordenador primeiroNome={primeiroNome} />;
+    const proximos = await proximosEventos({ id: usuario.id, papel: usuario.papel });
+    return (
+      <AberturaDoCoordenador primeiroNome={primeiroNome} proximos={proximos} />
+    );
   }
 
   const resumo = await resumoDoPainel();
@@ -208,7 +213,13 @@ function formatarData(data: Date) {
  * Existe porque o painel da secretaria não serve aqui: mostrar "3 mensagens a
  * responder" a quem não pode abri-las é ao mesmo tempo inútil e indiscreto.
  */
-function AberturaDoCoordenador({ primeiroNome }: { primeiroNome: string }) {
+function AberturaDoCoordenador({
+  primeiroNome,
+  proximos,
+}: {
+  primeiroNome: string;
+  proximos: EventoDaAgenda[];
+}) {
   return (
     <div className="space-y-6">
       <div>
@@ -216,22 +227,30 @@ function AberturaDoCoordenador({ primeiroNome }: { primeiroNome: string }) {
           Paz e bem, {primeiroNome}!
         </h2>
         <p className="mt-1 text-texto-suave">
-          Aqui você cuida da equipe da sua pastoral.
+          Aqui você cuida da equipe e da agenda da sua pastoral.
         </p>
       </div>
 
       <Cartao>
         <CartaoCabecalho
-          titulo="Minha equipe"
-          descricao="Cadastre e edite quem serve na sua pastoral. Os nomes aparecem na página dela no site."
+          titulo="Próximos compromissos"
+          descricao="Reuniões e escalas marcadas para os próximos dias."
         />
-        <div className="px-5 pb-5">
+        <ProximosCompromissos eventos={proximos} />
+        <div className="flex flex-wrap gap-3 border-t border-borda px-5 py-4">
           <Link
-            href="/admin/coordenadores"
+            href="/admin/agenda"
             className="inline-flex items-center gap-2 rounded-lg bg-principal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-principal-escuro"
           >
+            <CalendarDays className="h-4 w-4" aria-hidden />
+            Abrir a agenda
+          </Link>
+          <Link
+            href="/admin/coordenadores"
+            className="inline-flex items-center gap-2 rounded-lg border-2 border-principal px-5 py-2.5 text-sm font-semibold text-principal transition-colors hover:bg-superficie-suave"
+          >
             <Users className="h-4 w-4" aria-hidden />
-            Abrir minha equipe
+            Minha equipe
           </Link>
         </div>
       </Cartao>

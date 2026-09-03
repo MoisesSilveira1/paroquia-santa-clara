@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { pastoralPorSlug } from "@/lib/servicos/pastorais";
 import {
-  equipeDaPastoral,
+  coordenacaoDaPastoral,
   type PessoaNoSite,
 } from "@/lib/servicos/coordenadores";
 import { catequese, paroquia } from "@/lib/dados";
@@ -41,7 +41,7 @@ export default async function PaginaDaPastoral({
   const pastoral = await pastoralPorSlug(slug);
   if (!pastoral) notFound();
 
-  const { coordenacao, equipe } = await equipeDaPastoral(pastoral.id);
+  const coordenacao = await coordenacaoDaPastoral(pastoral.id);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -97,20 +97,13 @@ export default async function PaginaDaPastoral({
           versão da mesma informação. */}
       {slug === "catequese" && <AtalhoDaCatequese />}
 
+      {/* Só a coordenação aparece no site — ver `coordenacaoDaPastoral`. */}
       <Grupo
         titulo="Coordenação"
         descricao="Com quem falar sobre esta pastoral."
         pessoas={coordenacao}
         vazio="A coordenação ainda não foi cadastrada. Fale com a secretaria da paróquia."
       />
-
-      {equipe.length > 0 && (
-        <Grupo
-          titulo="Equipe"
-          descricao="Quem serve nesta pastoral."
-          pessoas={equipe}
-        />
-      )}
 
       <footer className="mt-10 rounded-xl bg-fundo-suave p-5 text-sm text-texto-suave">
         Quer participar? Fale com a coordenação ou com a secretaria pelo

@@ -186,6 +186,7 @@ model Pastoral {
   ordem     Int     @default(0)
 
   coordenadores Coordenador[]
+  eventos       EventoDaPastoral[]
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -252,6 +253,8 @@ model Coordenador {
   /// Menor aparece primeiro — serve para o coordenador vir antes do vice.
   ordem Int     @default(0)
 
+  escalas EscalaNoEvento[]
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
@@ -259,6 +262,62 @@ model Coordenador {
   @@index([ativo])
   @@index([usuarioId])
   @@map("coordenadores")
+}
+
+/// Um compromisso da agenda de uma pastoral: reunião ou escala de serviço.
+///
+/// A agenda pertence ao grupo, e não à paróquia inteira: cada coordenador vê
+/// e marca a sua. É por isso que o `pastoralId` é obrigatório e apaga em
+/// cascata — agenda sem dono não teria quem cuidasse dela.
+model EventoDaPastoral {
+  id         String   @id @default(cuid())
+  pastoral   Pastoral @relation(fields: [pastoralId], references: [id], onDelete: Cascade)
+  pastoralId String
+
+  titulo String
+  /// "REUNIAO" | "ESCALA" — ver lib/validacao/esquemas.ts.
+  ///
+  /// Separados porque são coisas diferentes na vida do grupo: a reunião é do
+  /// grupo todo, a escala diz quem serve naquele dia. A tela mostra cada uma
+  /// com sua cara.
+  tipo String @default("REUNIAO")
+
+  /// Início do compromisso. Guardado como instante, e não como texto, para o
+  /// calendário conseguir ordenar e agrupar por dia.
+  inicio DateTime
+  /// Fim, quando faz diferença. Reunião de uma hora costuma não precisar.
+  fim    DateTime?
+
+  /// Onde: "Salão paroquial", "Sala 2", "Quiosque". Texto livre por enquanto —
+  /// a lista fechada de espaços, com aviso de choque de horário, depende de a
+  /// paróquia dizer quais espaços existem.
+  local      String?
+  observacao String?
+
+  escalados EscalaNoEvento[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([pastoralId, inicio])
+  @@map("eventos_de_pastoral")
+}
+
+/// Quem está escalado para servir num evento.
+model EscalaNoEvento {
+  id       String           @id @default(cuid())
+  evento   EventoDaPastoral @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  eventoId String
+  /// A pessoa vem da equipe da pastoral: escalar quem não está na equipe seria
+  /// escalar um desconhecido.
+  membro   Coordenador      @relation(fields: [membroId], references: [id], onDelete: Cascade)
+  membroId String
+
+  criadoEm DateTime @default(now())
+
+  @@unique([eventoId, membroId])
+  @@index([membroId])
+  @@map("escalas_de_evento")
 }
 
 model Album {

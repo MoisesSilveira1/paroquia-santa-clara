@@ -19,13 +19,13 @@ gerenciado por um painel simples, sem mexer em código.
 | `/calendario-liturgico` | Tempo, cor e celebração de cada dia, com o folheto das leituras |
 | `/sobre` | História, padroeiros, pároco e equipe |
 | `/pastorais` | Pastorais e movimentos; cada cartão abre a página da pastoral |
-| `/pastorais/<pastoral>` | Informações, coordenação e equipe, com os contatos autorizados |
+| `/pastorais/<pastoral>` | Informações e coordenação da pastoral, com os contatos autorizados |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
 | `/noticias` | Mural de notícias e agenda de eventos |
 | `/galeria` | Álbuns de fotos dos eventos |
 | `/dizimo` | Orientações sobre o dízimo, Pix e dados bancários |
 | `/contato` | Formulário, mapa, WhatsApp e telefones |
-| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, coordenadores, galeria, mensagens e usuários |
+| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, agenda, coordenadores, galeria, mensagens e usuários |
 
 ## Tecnologia
 
@@ -76,6 +76,7 @@ publicar o site.**
 | Avisos, notícias, horários de missa, pastorais e fotos | Painel `/admin` (não precisa de código) |
 | A janela que abre o site | Painel `/admin` → Aviso paroquial |
 | Quem coordena e quem serve em cada pastoral | Painel `/admin` → Coordenadores e equipes |
+| Reuniões e escalas de uma pastoral | Painel `/admin` → Agenda |
 | Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
@@ -116,6 +117,31 @@ hospedagem serverless o disco é descartado a cada publicação, então um arqui
 gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
 junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
 porque essas vêm com o código.
+
+### Sobre a agenda das pastorais
+
+Cada pastoral tem a sua agenda em `/admin` → **Agenda**: reuniões do grupo e
+escalas de quem serve. A agenda pertence ao grupo — o coordenador vê e marca
+só a dele; a secretaria vê todas.
+
+**Os horários são guardados como instante, no fuso de Brasília**, e isso não é
+detalhe. `new Date("2026-09-10T19:30:00")` usa o fuso de quem roda o código:
+no computador da secretaria dá certo por acidente, mas em hospedagem
+serverless o servidor roda em UTC e a reunião apareceria três horas cedo. A
+conversão está em [`lib/agenda/fuso.ts`](lib/agenda/fuso.ts), usa a base de
+fusos do sistema (e não um "-3" fixo) e foi conferida rodando os testes com
+`TZ=UTC`.
+
+Guardar o instante certo é também o que deixa a porta aberta para o **Google
+Calendar**: título, início, fim, local e observação já são exatamente os
+campos de um evento de calendário. Quando quiserem integrar, os dois caminhos
+são publicar a agenda como assinatura (`.ics`, mais simples, só leitura) ou
+sincronizar pela API do Google (mais trabalho, duas mãos) — o segundo pede uma
+coluna nova para guardar o id do evento lá, e nada além disso.
+
+O **local** é texto livre por enquanto, com sugestões (salão, quiosque, salas).
+A lista fechada de espaços, com aviso de choque de horário entre dois grupos,
+depende de a paróquia dizer quais espaços existem.
 
 ### Sobre o calendário litúrgico
 
@@ -196,10 +222,18 @@ WhatsApp, e é onde quem fechou sem ler encontra o aviso de novo.
 
 ### Sobre os coordenadores
 
-Cada pastoral pode ter uma ou mais pessoas responsáveis, cadastradas em
-`/admin` → **Coordenadores**. O nome e a função aparecem no cartão da pastoral
-no site; o telefone e o e-mail **só aparecem se alguém marcar “Mostrar o
-contato no site”**, e isso nasce desmarcado.
+Cada pastoral tem uma equipe cadastrada em `/admin` → **Coordenadores e
+equipes**, e ela se divide em duas pela caixa "Faz parte da coordenação".
+
+**Só a coordenação aparece no site** — coordenador, vice e adjunto. O resto da
+equipe é gente voluntária, que serve quando pode e nem sempre com frequência;
+publicar esses nomes expõe pessoas que não pediram para estar ali e envelhece
+rápido. A equipe inteira continua no painel, que é onde ela serve para escala
+e contato interno. O corte é feito na consulta ao banco, então a página nem
+recebe os outros nomes.
+
+O telefone e o e-mail **só aparecem se alguém marcar “Mostrar o contato no
+site”**, e isso nasce desmarcado.
 
 Esse padrão é proposital: coordenador é voluntário da comunidade, e publicar o
 telefone de uma pessoa exige o consentimento dela — diferente do número da

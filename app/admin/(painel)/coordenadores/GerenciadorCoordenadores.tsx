@@ -206,13 +206,14 @@ export default function GerenciadorCoordenadores({
   );
 }
 
-/** Sugestões de função — o campo aceita qualquer texto, isto é só atalho. */
+/**
+ * Sugestões de função. O campo aceita qualquer texto; estas são as três que
+ * a paróquia usa na coordenação e que aparecem no site.
+ */
 const FUNCOES = [
   "Coordenador(a)",
   "Vice-coordenador(a)",
-  "Secretário(a)",
-  "Tesoureiro(a)",
-  "Assessor(a)",
+  "Coordenador(a)-Adjunto(a)",
 ];
 
 function FormularioDeCoordenador({
@@ -313,8 +314,8 @@ function FormularioDeCoordenador({
 
         <CampoBooleano
           name="naCoordenacao"
-          rotulo="Faz parte da coordenação"
-          dica="Marcado, aparece em “Coordenação” — é quem a comunidade procura. Desmarcado, entra na lista da equipe."
+          rotulo="Faz parte da coordenação (aparece no site)"
+          dica="Coordenador, vice e adjunto aparecem na página da pastoral. Desmarcado, a pessoa fica só no painel — é o caso dos voluntários da equipe."
           defaultChecked={coordenador?.naCoordenacao ?? true}
         />
 
