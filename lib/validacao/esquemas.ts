@@ -232,6 +232,13 @@ export const coordenadorSchema = z.object({
     .transform((v) => v || null),
   contatoPublico: caixaDeMarcar,
   naCoordenacao: caixaDeMarcar,
+  /** Conta do painel desta pessoa. "" = nenhuma. */
+  usuarioId: z
+    .string()
+    .trim()
+    .max(40)
+    .optional()
+    .transform((v) => v || null),
   ativo: caixaDeMarcar,
   ordem: z.coerce.number().int().min(0).max(999).default(0),
 });

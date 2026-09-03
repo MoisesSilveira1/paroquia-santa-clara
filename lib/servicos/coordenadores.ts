@@ -4,10 +4,71 @@ import type { z } from "zod";
 import { db } from "@/lib/db";
 import { montarPagina, recortar, type Pagina } from "./listagem";
 import { ErroDeNegocio } from "./resultado";
+import { pode, type Papel } from "@/lib/auth/papeis";
 import type {
   coordenadorEdicaoSchema,
   coordenadorSchema,
 } from "@/lib/validacao/esquemas";
+
+/** O mínimo que as funções de alcance precisam saber de quem está mexendo. */
+export type QuemMexe = { id: string; papel: Papel };
+
+/**
+ * As pastorais que esta conta coordena.
+ *
+ * Só conta quem está na COORDENAÇÃO e ativo: alguém que entrou na equipe como
+ * membro comum, ou que saiu da coordenação, não deve continuar mandando no
+ * cadastro do grupo.
+ */
+export async function pastoraisQueCoordena(usuarioId: string): Promise<string[]> {
+  const linhas = await db.coordenador.findMany({
+    where: { usuarioId, naCoordenacao: true, ativo: true },
+    select: { pastoralId: true },
+  });
+  return [...new Set(linhas.map((l) => l.pastoralId))];
+}
+
+/**
+ * Se esta conta alcança a equipe desta pastoral.
+ *
+ * Duas portas: quem tem `coordenadores.gerenciar` alcança qualquer pastoral
+ * (é a secretaria); quem só tem `equipe.propria` alcança as que coordena.
+ *
+ * A conferência é aqui, no serviço, e não na tela nem na ação: é o único
+ * ponto por onde todo caminho passa. Uma tela nova que esqueça de filtrar
+ * mostra demais — feio, mas inofensivo; uma ação que esqueça de conferir
+ * deixaria um coordenador editar a equipe alheia.
+ */
+export async function alcancaPastoral(
+  quem: QuemMexe,
+  pastoralId: string
+): Promise<boolean> {
+  if (pode(quem.papel, "coordenadores.gerenciar")) return true;
+  if (!pode(quem.papel, "equipe.propria")) return false;
+  return (await pastoraisQueCoordena(quem.id)).includes(pastoralId);
+}
+
+/**
+ * Dar (ou tirar) a conta do painel de alguém é da secretaria, não do próprio
+ * coordenador.
+ *
+ * Sem isto, um coordenador ligaria a conta dele a mais uma pastoral e passaria
+ * a mandar nela — a porta dos fundos deste papel.
+ */
+function garantirQuemVincula(quem: QuemMexe, usuarioId: string | null | undefined) {
+  if (usuarioId === undefined) return;
+  if (pode(quem.papel, "coordenadores.gerenciar")) return;
+  throw new ErroDeNegocio(
+    "Só a secretaria liga uma pessoa a uma conta do painel."
+  );
+}
+
+async function garantirAlcance(quem: QuemMexe, pastoralId: string) {
+  if (await alcancaPastoral(quem, pastoralId)) return;
+  throw new ErroDeNegocio(
+    "Você só pode mexer na equipe da pastoral que coordena."
+  );
+}
 
 export type Coordenador = {
   id: string;
@@ -18,6 +79,7 @@ export type Coordenador = {
   contatoPublico: boolean;
   naCoordenacao: boolean;
   pastoralId: string;
+  usuarioId: string | null;
   ativo: boolean;
   ordem: number;
   /** Nome da pastoral, para a tabela não precisar de uma segunda consulta. */
@@ -32,13 +94,25 @@ export async function listarCoordenadores({
   pastoralId,
   ativo,
   pagina = 1,
+  quem,
 }: {
   busca?: string;
   pastoralId?: string;
   ativo?: boolean;
   pagina?: number;
+  /// Quando informado, a lista só traz o que esta conta alcança.
+  quem?: QuemMexe;
 }): Promise<Pagina<Coordenador>> {
+  // O coordenador vê a equipe da sua pastoral e nada mais. O corte é na
+  // consulta: uma lista filtrada só na tela ainda teria trazido do banco os
+  // nomes e telefones das outras pastorais.
+  const soEstas =
+    quem && !pode(quem.papel, "coordenadores.gerenciar")
+      ? await pastoraisQueCoordena(quem.id)
+      : null;
+
   const onde = {
+    ...(soEstas ? { pastoralId: { in: soEstas } } : {}),
     // Mesma busca por texto do `contem` em ./listagem, aberta aqui porque
     // percorre três campos, um deles na pastoral relacionada.
     ...(busca
@@ -155,36 +229,77 @@ export async function equipeDaPastoral(
   };
 }
 
-/** As pastorais que podem receber um coordenador. */
-export async function pastoraisParaSelecao(): Promise<OpcaoDePastoral[]> {
+/**
+ * As pastorais que esta conta pode escolher no formulário.
+ *
+ * Para o coordenador, só a dele: oferecer as outras no seletor seria convidar
+ * a um erro que o servidor recusaria depois.
+ */
+export async function pastoraisParaSelecao(
+  quem?: QuemMexe
+): Promise<OpcaoDePastoral[]> {
+  const soEstas =
+    quem && !pode(quem.papel, "coordenadores.gerenciar")
+      ? await pastoraisQueCoordena(quem.id)
+      : null;
+
   return db.pastoral.findMany({
+    where: soEstas ? { id: { in: soEstas } } : {},
     select: { id: true, nome: true, ativa: true },
     orderBy: [{ ordem: "asc" }, { nome: "asc" }],
   });
 }
 
+/** As contas do painel que podem ser ligadas a alguém da coordenação. */
+export async function contasParaVincular(): Promise<
+  { id: string; nome: string; email: string }[]
+> {
+  return db.usuario.findMany({
+    where: { ativo: true, papel: "COORDENADOR" },
+    select: { id: true, nome: true, email: true },
+    orderBy: { nome: "asc" },
+  });
+}
+
 export async function criarCoordenador(
-  dados: z.infer<typeof coordenadorSchema>
+  dados: z.infer<typeof coordenadorSchema>,
+  quem: QuemMexe
 ) {
   await garantirPastoral(dados.pastoralId);
+  await garantirAlcance(quem, dados.pastoralId);
+  garantirQuemVincula(quem, dados.usuarioId);
   await db.coordenador.create({ data: dados });
 }
 
-export async function atualizarCoordenador({
-  id,
-  ...dados
-}: z.infer<typeof coordenadorEdicaoSchema>) {
-  const existe = await db.coordenador.findUnique({
+export async function atualizarCoordenador(
+  { id, ...dados }: z.infer<typeof coordenadorEdicaoSchema>,
+  quem: QuemMexe
+) {
+  const atual = await db.coordenador.findUnique({
     where: { id },
-    select: { id: true },
+    select: { pastoralId: true },
   });
-  if (!existe) throw new ErroDeNegocio("Coordenador não encontrado.");
+  if (!atual) throw new ErroDeNegocio("Coordenador não encontrado.");
 
+  // As duas pontas: a pastoral em que a pessoa está hoje e a para onde ela
+  // iria. Sem a primeira, um coordenador editaria alguém de outro grupo
+  // apenas escolhendo o próprio grupo no formulário.
+  await garantirAlcance(quem, atual.pastoralId);
   await garantirPastoral(dados.pastoralId);
+  await garantirAlcance(quem, dados.pastoralId);
+  garantirQuemVincula(quem, dados.usuarioId);
+
   await db.coordenador.update({ where: { id }, data: dados });
 }
 
-export async function excluirCoordenador(id: string) {
+export async function excluirCoordenador(id: string, quem: QuemMexe) {
+  const atual = await db.coordenador.findUnique({
+    where: { id },
+    select: { pastoralId: true },
+  });
+  if (!atual) throw new ErroDeNegocio("Coordenador não encontrado.");
+
+  await garantirAlcance(quem, atual.pastoralId);
   await db.coordenador.delete({ where: { id } });
 }
 

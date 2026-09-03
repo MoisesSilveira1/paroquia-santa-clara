@@ -18,10 +18,16 @@
  */
 
 /** Papéis de quem usa o painel, do mais restrito ao mais amplo. */
-export const PAPEIS = ["ADMIN_COMUM", "PADRE", "SUPER_ADMIN"] as const;
+export const PAPEIS = [
+  "COORDENADOR",
+  "ADMIN_COMUM",
+  "PADRE",
+  "SUPER_ADMIN",
+] as const;
 export type Papel = (typeof PAPEIS)[number];
 
 export const NOME_DO_PAPEL: Record<Papel, string> = {
+  COORDENADOR: "Coordenador de pastoral",
   ADMIN_COMUM: "Administrador comum",
   PADRE: "Padre",
   SUPER_ADMIN: "Administrador geral",
@@ -29,6 +35,8 @@ export const NOME_DO_PAPEL: Record<Papel, string> = {
 
 /** Explicação em uma linha, mostrada ao escolher o nível de acesso. */
 export const DESCRICAO_DO_PAPEL: Record<Papel, string> = {
+  COORDENADOR:
+    "Cuida apenas da própria pastoral: cadastra e edita a equipe dela e agenda salas. Não mexe no site nem nas outras pastorais.",
   ADMIN_COMUM:
     "Cuida do dia a dia: avisos, fotos, notícias, horários e respostas aos contatos. Cadastra e edita coordenadores das pastorais, mas não exclui cadastro de pessoa.",
   PADRE: "Acesso total, sem restrição.",
@@ -40,13 +48,20 @@ export const DESCRICAO_DO_PAPEL: Record<Papel, string> = {
  *
  * `conteudo` é tudo que aparece no site: avisos, notícias, horários, pastorais,
  * galeria e o andamento das mensagens de contato. `usuarios` é o cadastro de
- * quem entra no painel. `coordenadores` é o cadastro de quem responde por cada
- * pastoral — não dá acesso a nada, mas é nome de pessoa da comunidade, e por
- * isso excluir segue a mesma regra do cadastro de usuário.
+ * quem entra no painel.
+ *
+ * A equipe das pastorais tem duas permissões porque tem dois alcances:
+ * `equipe.propria` deixa mexer só nas pastorais que a pessoa coordena, e
+ * `coordenadores.gerenciar` deixa mexer em qualquer uma. Quem tem a segunda
+ * dispensa a primeira, mas ambas aparecem na tabela para o alcance ficar dito
+ * em vez de deduzido. O alcance em si é conferido em
+ * `lib/servicos/coordenadores.ts` — permissão diz "pode mexer em equipe",
+ * o serviço diz "nesta equipe".
  */
 export const PERMISSOES = [
   "conteudo.editar",
   "conteudo.excluir",
+  "equipe.propria",
   "coordenadores.gerenciar",
   "coordenadores.excluir",
   "usuarios.gerenciar",
@@ -62,9 +77,14 @@ export type Permissao = (typeof PERMISSOES)[number];
  * limite dentro do painel.
  */
 const PERMISSOES_DO_PAPEL: Record<Papel, readonly Permissao[]> = {
+  // O coordenador entra no painel e alcança uma coisa só: a equipe da
+  // pastoral em que ele aparece como coordenação. Nem conteúdo do site, nem
+  // usuários, nem as outras pastorais.
+  COORDENADOR: ["equipe.propria"],
   ADMIN_COMUM: [
     "conteudo.editar",
     "conteudo.excluir",
+    "equipe.propria",
     "coordenadores.gerenciar",
     "usuarios.gerenciar",
   ],
@@ -103,8 +123,10 @@ export function papeisAtribuiveisPor(papel: Papel): Papel[] {
 export const RECADO_SEM_PERMISSAO: Record<Permissao, string> = {
   "conteudo.editar": "Sua conta não tem permissão para alterar o conteúdo do site.",
   "conteudo.excluir": "Sua conta não tem permissão para excluir conteúdo do site.",
+  "equipe.propria":
+    "Sua conta não tem permissão para mexer na equipe de nenhuma pastoral.",
   "coordenadores.gerenciar":
-    "Sua conta não tem permissão para mexer no cadastro dos coordenadores.",
+    "Sua conta só pode mexer na equipe da pastoral que você coordena.",
   "coordenadores.excluir":
     "Excluir um coordenador é do padre ou do administrador geral. Peça a um deles — ou desmarque “Mostrar no site”, que tira o nome do ar sem apagar o cadastro.",
   "usuarios.gerenciar": "Sua conta não tem permissão para mexer nos cadastros do painel.",

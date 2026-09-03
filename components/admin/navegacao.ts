@@ -34,19 +34,21 @@ export type ItemDeMenu = {
 
 export const MENU: ItemDeMenu[] = [
   { href: "/admin", rotulo: "Painel", icone: LayoutDashboard },
-  { href: "/admin/aviso-paroquial", rotulo: "Aviso paroquial", icone: BellRing },
-  { href: "/admin/avisos", rotulo: "Avisos da semana", icone: Megaphone },
-  { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper },
-  { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays },
-  { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users },
+  { href: "/admin/aviso-paroquial", rotulo: "Aviso paroquial", icone: BellRing, exige: "conteudo.editar" },
+  { href: "/admin/avisos", rotulo: "Avisos da semana", icone: Megaphone, exige: "conteudo.editar" },
+  { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper, exige: "conteudo.editar" },
+  { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays, exige: "conteudo.editar" },
+  { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users, exige: "conteudo.editar" },
   {
     href: "/admin/coordenadores",
     rotulo: "Coordenadores e equipes",
     icone: UserCog,
-    exige: "coordenadores.gerenciar",
+    // `equipe.propria`, e não `coordenadores.gerenciar`: o coordenador de
+    // pastoral também entra aqui — só que a tela dele traz a equipe dele.
+    exige: "equipe.propria",
   },
-  { href: "/admin/galeria", rotulo: "Galeria", icone: Images },
-  { href: "/admin/mensagens", rotulo: "Mensagens", icone: Mail },
+  { href: "/admin/galeria", rotulo: "Galeria", icone: Images, exige: "conteudo.editar" },
+  { href: "/admin/mensagens", rotulo: "Mensagens", icone: Mail, exige: "conteudo.editar" },
   {
     href: "/admin/usuarios",
     rotulo: "Usuários",

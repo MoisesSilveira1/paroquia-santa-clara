@@ -30,7 +30,8 @@ export async function salvarCoordenador(
   const digitado = apenasTexto(Object.fromEntries(formulario));
 
   const resultado = await executar(async () => {
-    await exigirPermissao("coordenadores.gerenciar");
+    // A permissão diz que a conta mexe em EQUIPE; o serviço decide em QUAL.
+    const quem = await exigirPermissao("equipe.propria");
 
     const id = formulario.get("id");
     const editando = typeof id === "string" && id !== "";
@@ -41,7 +42,7 @@ export async function salvarCoordenador(
       const conferido = validarFormulario(coordenadorEdicaoSchema, formulario);
       if (!conferido.ok) return conferido.estado;
 
-      await atualizarCoordenador(conferido.dados);
+      await atualizarCoordenador(conferido.dados, quem);
       revalidar();
       return { ok: true, mensagem: "Coordenador atualizado." };
     }
@@ -49,7 +50,7 @@ export async function salvarCoordenador(
     const conferido = validarFormulario(coordenadorSchema, formulario);
     if (!conferido.ok) return conferido.estado;
 
-    await criarCoordenador(conferido.dados);
+    await criarCoordenador(conferido.dados, quem);
     revalidar();
     return { ok: true, mensagem: "Coordenador cadastrado." };
   });
@@ -70,8 +71,8 @@ export async function excluirCoordenadorAcao(
   id: string
 ): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirPermissao("coordenadores.excluir");
-    await excluirCoordenador(id);
+    const quem = await exigirPermissao("coordenadores.excluir");
+    await excluirCoordenador(id, quem);
     revalidar();
     return { ok: true, mensagem: "Coordenador excluído." };
   });

@@ -25,9 +25,9 @@ model Usuario {
   email        String   @unique
   /// Nunca guarda a senha em si — ver lib/auth/senha.ts.
   senhaHash    String
-  /// "ADMIN_COMUM" | "PADRE" | "SUPER_ADMIN" — quem pode o quê está em
-  /// lib/auth/papeis.ts. O padrão é o mais restrito de propósito: um cadastro
-  /// que chegue sem papel definido não deve nascer podendo tudo.
+  /// "COORDENADOR" | "ADMIN_COMUM" | "PADRE" | "SUPER_ADMIN" — quem pode o
+  /// quê está em lib/auth/papeis.ts. O padrão é o mais restrito de propósito:
+  /// um cadastro que chegue sem papel definido não deve nascer podendo tudo.
   papel        String   @default("ADMIN_COMUM")
   /// Desligar o acesso sem apagar o histórico de quem publicou o quê.
   ativo        Boolean  @default(true)
@@ -37,6 +37,8 @@ model Usuario {
 
   sessoes  Sessao[]
   noticias Noticia[]
+  /// As pastorais que esta conta coordena — ver `Coordenador.usuario`.
+  coordena Coordenador[]
 
   @@map("usuarios")
 }
@@ -204,9 +206,9 @@ model Pastoral {
 /// si continua a mesma. O campo `contato` da pastoral segue existindo para o
 /// telefone institucional — o da secretaria, o da sala.
 ///
-/// Não tem ligação com `Usuario`: coordenar uma pastoral não dá acesso ao
-/// painel, e quem entra no painel não precisa coordenar nada. Se um dia um
-/// coordenador precisar de login, o cadastro dele é feito em Usuários.
+/// Coordenar não dá acesso ao painel por si só: o acesso vem do `usuarioId`,
+/// que a secretaria preenche quando a pessoa recebe uma conta. A maior parte
+/// da equipe fica sem conta nenhuma, e é assim que deve ser.
 model Coordenador {
   id   String @id @default(cuid())
   nome String
@@ -226,6 +228,19 @@ model Coordenador {
   pastoral   Pastoral @relation(fields: [pastoralId], references: [id], onDelete: Cascade)
   pastoralId String
 
+  /// A conta do painel desta pessoa, quando ela tem uma.
+  ///
+  /// É este vínculo que diz "fulano coordena a Liturgia": um usuário de papel
+  /// COORDENADOR só enxerga e edita as pastorais em que aparece aqui, com
+  /// `naCoordenacao` marcado. Sem o vínculo, a conta entra no painel e não
+  /// alcança nada — de propósito, porque a alternativa seria alcançar tudo.
+  ///
+  /// Fica aqui, e não numa tabela à parte, para não haver duas respostas para
+  /// "quem coordena a Liturgia": a pessoa já está na equipe, e a conta é só
+  /// mais um dado dela.
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  usuarioId String?
+
   /// Coordenação (coordenador, vice, secretário) ou equipe (os demais).
   ///
   /// A página da pastoral mostra os dois grupos separados, porque é assim que
@@ -242,6 +257,7 @@ model Coordenador {
 
   @@index([pastoralId, ordem])
   @@index([ativo])
+  @@index([usuarioId])
   @@map("coordenadores")
 }
 

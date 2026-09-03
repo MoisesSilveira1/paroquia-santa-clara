@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Cartao, { CartaoCabecalho } from "@/components/ui/Cartao";
+import SemPermissaoAviso from "@/components/admin/SemPermissaoAviso";
 import { exigirSessao } from "@/lib/auth/guardas";
 import { pode } from "@/lib/auth/papeis";
 import { listarAvisosParoquiais } from "@/lib/servicos/aviso-paroquial";
@@ -9,6 +10,7 @@ export const metadata: Metadata = { title: "Aviso paroquial" };
 
 export default async function PaginaAvisoParoquial() {
   const eu = await exigirSessao();
+  if (!pode(eu.papel, "conteudo.editar")) return <SemPermissaoAviso />;
 
   // Sem busca nem paginação: são poucos avisos, e todos cabem numa tela.
   const itens = await listarAvisosParoquiais();

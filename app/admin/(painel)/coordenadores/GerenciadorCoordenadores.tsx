@@ -29,14 +29,22 @@ import type {
 } from "@/lib/servicos/coordenadores";
 import { excluirCoordenadorAcao, salvarCoordenador } from "./acoes";
 
+export type ContaDoPainel = { id: string; nome: string; email: string };
+
 export default function GerenciadorCoordenadores({
   itens,
   pastorais,
+  contas,
+  podeVincular,
   podeExcluir,
   temFiltro,
 }: {
   itens: Coordenador[];
   pastorais: OpcaoDePastoral[];
+  /** Contas de coordenador que podem ser ligadas a alguém. Vazio para quem não pode vincular. */
+  contas: ContaDoPainel[];
+  /** Só a secretaria liga pessoa a conta — ver o serviço. */
+  podeVincular: boolean;
   /** Decide se o botão aparece. Quem barra de verdade é o acoes.ts. */
   podeExcluir: boolean;
   temFiltro: boolean;
@@ -185,6 +193,8 @@ export default function GerenciadorCoordenadores({
         <FormularioDeCoordenador
           coordenador={emEdicao}
           pastorais={pastorais}
+          contas={contas}
+          podeVincular={podeVincular}
           aoFechar={fechar}
           aoConcluir={(mensagem) => {
             fechar();
@@ -208,11 +218,15 @@ const FUNCOES = [
 function FormularioDeCoordenador({
   coordenador,
   pastorais,
+  contas,
+  podeVincular,
   aoFechar,
   aoConcluir,
 }: {
   coordenador: Coordenador | null;
   pastorais: OpcaoDePastoral[];
+  contas: ContaDoPainel[];
+  podeVincular: boolean;
   aoFechar: () => void;
   aoConcluir: (mensagem: string) => void;
 }) {
@@ -303,6 +317,25 @@ function FormularioDeCoordenador({
           dica="Marcado, aparece em “Coordenação” — é quem a comunidade procura. Desmarcado, entra na lista da equipe."
           defaultChecked={coordenador?.naCoordenacao ?? true}
         />
+
+        {/* Só quem manda em qualquer pastoral vê este campo — e o serviço
+            recusa a alteração de quem não pode, caso alguém o forje. */}
+        {podeVincular && (
+          <CampoSelecao
+            name="usuarioId"
+            rotulo="Conta do painel (opcional)"
+            dica="Ligue a uma conta de nível “Coordenador de pastoral” para a pessoa poder cadastrar a própria equipe. Cadastre a conta antes, em Usuários."
+            defaultValue={coordenador?.usuarioId ?? ""}
+            opcoes={[
+              { valor: "", texto: "Sem acesso ao painel" },
+              ...contas.map((c) => ({
+                valor: c.id,
+                texto: `${c.nome} — ${c.email}`,
+              })),
+            ]}
+            erro={estado.erros?.usuarioId?.[0]}
+          />
+        )}
 
         <CampoBooleano
           name="contatoPublico"

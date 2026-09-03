@@ -11,6 +11,7 @@ import Cartao, { CartaoCabecalho, CartaoMetrica } from "@/components/ui/Cartao";
 import EstadoVazio from "@/components/ui/EstadoVazio";
 import Selo from "@/components/ui/Selo";
 import { exigirSessao } from "@/lib/auth/guardas";
+import { pode } from "@/lib/auth/papeis";
 import { resumoDoPainel } from "@/lib/servicos/painel";
 import {
   ROTULO_STATUS_NOTICIA,
@@ -20,9 +21,16 @@ import { TOM_DO_STATUS_NOTICIA } from "./tons";
 
 export default async function PaginaPainel() {
   const usuario = await exigirSessao();
-  const resumo = await resumoDoPainel();
-
   const primeiroNome = usuario.nome.split(" ")[0];
+
+  // O resumo conta mensagens dos fiéis, notícias e avisos — coisas da
+  // secretaria. Quem só coordena uma pastoral recebe uma abertura própria em
+  // vez de números que não lhe dizem respeito.
+  if (!pode(usuario.papel, "conteudo.editar")) {
+    return <AberturaDoCoordenador primeiroNome={primeiroNome} />;
+  }
+
+  const resumo = await resumoDoPainel();
 
   return (
     <div className="space-y-6">
@@ -192,4 +200,41 @@ const FORMATO = new Intl.DateTimeFormat("pt-BR", {
 
 function formatarData(data: Date) {
   return FORMATO.format(data);
+}
+
+/**
+ * A abertura de quem coordena uma pastoral.
+ *
+ * Existe porque o painel da secretaria não serve aqui: mostrar "3 mensagens a
+ * responder" a quem não pode abri-las é ao mesmo tempo inútil e indiscreto.
+ */
+function AberturaDoCoordenador({ primeiroNome }: { primeiroNome: string }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="font-serif text-2xl text-texto">
+          Paz e bem, {primeiroNome}!
+        </h2>
+        <p className="mt-1 text-texto-suave">
+          Aqui você cuida da equipe da sua pastoral.
+        </p>
+      </div>
+
+      <Cartao>
+        <CartaoCabecalho
+          titulo="Minha equipe"
+          descricao="Cadastre e edite quem serve na sua pastoral. Os nomes aparecem na página dela no site."
+        />
+        <div className="px-5 pb-5">
+          <Link
+            href="/admin/coordenadores"
+            className="inline-flex items-center gap-2 rounded-lg bg-principal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-principal-escuro"
+          >
+            <Users className="h-4 w-4" aria-hidden />
+            Abrir minha equipe
+          </Link>
+        </div>
+      </Cartao>
+    </div>
+  );
 }
