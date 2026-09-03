@@ -49,18 +49,26 @@ export async function alcancaPastoral(
 }
 
 /**
- * Dar (ou tirar) a conta do painel de alguém é da secretaria, não do próprio
- * coordenador.
+ * Decide qual vínculo com conta do painel de fato será gravado.
  *
- * Sem isto, um coordenador ligaria a conta dele a mais uma pastoral e passaria
- * a mandar nela — a porta dos fundos deste papel.
+ * Dar (ou tirar) a conta de alguém é da secretaria: sem isso, um coordenador
+ * ligaria a própria conta a mais uma pastoral e passaria a mandar nela — a
+ * porta dos fundos deste papel.
+ *
+ * Para quem não pode, o campo é IGNORADO em vez de recusado, e a diferença
+ * importa. O formulário do coordenador nem desenha esse campo, então ele
+ * chega vazio; recusar por isso travava o cadastro inteiro — foi o que
+ * aconteceu em 03/09/2026, e o coordenador não conseguia incluir ninguém.
+ * Ignorar mantém o valor que já estava lá e não abre nada: quem forjar o
+ * campo simplesmente não é obedecido.
  */
-function garantirQuemVincula(quem: QuemMexe, usuarioId: string | null | undefined) {
-  if (usuarioId === undefined) return;
-  if (pode(quem.papel, "coordenadores.gerenciar")) return;
-  throw new ErroDeNegocio(
-    "Só a secretaria liga uma pessoa a uma conta do painel."
-  );
+function vinculoAGravar(
+  quem: QuemMexe,
+  pedido: string | null | undefined,
+  atual: string | null
+): string | null {
+  if (pode(quem.papel, "coordenadores.gerenciar")) return pedido ?? null;
+  return atual;
 }
 
 async function garantirAlcance(quem: QuemMexe, pastoralId: string) {
@@ -267,8 +275,12 @@ export async function criarCoordenador(
 ) {
   await garantirPastoral(dados.pastoralId);
   await garantirAlcance(quem, dados.pastoralId);
-  garantirQuemVincula(quem, dados.usuarioId);
-  await db.coordenador.create({ data: dados });
+
+  // Cadastro novo não tem vínculo anterior: para quem não pode vincular,
+  // nasce sem conta.
+  await db.coordenador.create({
+    data: { ...dados, usuarioId: vinculoAGravar(quem, dados.usuarioId, null) },
+  });
 }
 
 export async function atualizarCoordenador(
@@ -277,7 +289,7 @@ export async function atualizarCoordenador(
 ) {
   const atual = await db.coordenador.findUnique({
     where: { id },
-    select: { pastoralId: true },
+    select: { pastoralId: true, usuarioId: true },
   });
   if (!atual) throw new ErroDeNegocio("Coordenador não encontrado.");
 
@@ -287,9 +299,14 @@ export async function atualizarCoordenador(
   await garantirAlcance(quem, atual.pastoralId);
   await garantirPastoral(dados.pastoralId);
   await garantirAlcance(quem, dados.pastoralId);
-  garantirQuemVincula(quem, dados.usuarioId);
 
-  await db.coordenador.update({ where: { id }, data: dados });
+  await db.coordenador.update({
+    where: { id },
+    data: {
+      ...dados,
+      usuarioId: vinculoAGravar(quem, dados.usuarioId, atual.usuarioId),
+    },
+  });
 }
 
 export async function excluirCoordenador(id: string, quem: QuemMexe) {
