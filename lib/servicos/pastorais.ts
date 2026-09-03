@@ -70,6 +70,27 @@ export async function pastoraisAtivas() {
   });
 }
 
+/**
+ * Uma pastoral pelo endereço dela no site.
+ *
+ * Devolve `null` quando não existe ou está oculta — a página trata os dois
+ * casos do mesmo jeito, com "não encontrada". Uma pastoral tirada do ar não
+ * deve continuar acessível por quem guardou o link.
+ */
+export async function pastoralPorSlug(slug: string) {
+  return db.pastoral.findFirst({
+    where: { slug, ativa: true },
+    select: {
+      id: true,
+      slug: true,
+      nome: true,
+      descricao: true,
+      contato: true,
+      reunioes: true,
+    },
+  });
+}
+
 export async function criarPastoral(dados: z.infer<typeof pastoralSchema>) {
   await db.pastoral.create({
     data: { ...dados, slug: await slugUnico("pastoral", dados.nome) },

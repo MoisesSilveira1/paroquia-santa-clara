@@ -16,6 +16,7 @@ export type Coordenador = {
   telefone: string | null;
   email: string | null;
   contatoPublico: boolean;
+  naCoordenacao: boolean;
   pastoralId: string;
   ativo: boolean;
   ordem: number;
@@ -68,47 +69,90 @@ export async function listarCoordenadores({
   return montarPagina(itens as Coordenador[], total, recorte);
 }
 
+/** Uma pessoa como o site a mostra: sem os campos que não podem ser públicos. */
+export type PessoaNoSite = {
+  nome: string;
+  funcao: string;
+  /** Só preenchido quando a pessoa autorizou. */
+  telefone: string | null;
+  email: string | null;
+};
+
 /**
- * Os coordenadores que aparecem no site, agrupados por pastoral.
+ * Deixa passar telefone e e-mail só de quem autorizou.
  *
- * Devolve um mapa em vez de uma lista para que a página de pastorais faça uma
- * consulta só, e não uma por cartão.
+ * Está aqui, na camada que fala com o banco, e não na tela: é o que garante
+ * que um `console.log`, um cartão novo ou uma mudança distraída de layout não
+ * vaze o número de ninguém. Quem não autorizou sai daqui com `null`, e não
+ * há como a tela mostrar o que não recebeu.
  */
-export async function coordenadoresPorPastoral(): Promise<
-  Map<string, { nome: string; funcao: string; contato: string | null }[]>
+function semContatoNaoAutorizado(linha: {
+  nome: string;
+  funcao: string;
+  telefone: string | null;
+  email: string | null;
+  contatoPublico: boolean;
+}): PessoaNoSite {
+  return {
+    nome: linha.nome,
+    funcao: linha.funcao,
+    telefone: linha.contatoPublico ? linha.telefone : null,
+    email: linha.contatoPublico ? linha.email : null,
+  };
+}
+
+const CAMPOS_PUBLICOS = {
+  nome: true,
+  funcao: true,
+  telefone: true,
+  email: true,
+  contatoPublico: true,
+  naCoordenacao: true,
+} as const;
+
+/**
+ * A coordenação de cada pastoral, para os cartões da listagem.
+ *
+ * Só a coordenação: o cartão é um resumo, e a equipe inteira cabe na página
+ * da pastoral. Devolve um mapa para a página fazer uma consulta só, e não uma
+ * por cartão.
+ */
+export async function coordenacaoPorPastoral(): Promise<
+  Map<string, PessoaNoSite[]>
 > {
   const linhas = await db.coordenador.findMany({
-    where: { ativo: true, pastoral: { ativa: true } },
-    select: {
-      nome: true,
-      funcao: true,
-      telefone: true,
-      email: true,
-      contatoPublico: true,
-      pastoralId: true,
-    },
+    where: { ativo: true, naCoordenacao: true, pastoral: { ativa: true } },
+    select: { ...CAMPOS_PUBLICOS, pastoralId: true },
     orderBy: [{ ordem: "asc" }, { nome: "asc" }],
   });
 
-  const mapa = new Map<
-    string,
-    { nome: string; funcao: string; contato: string | null }[]
-  >();
-
+  const mapa = new Map<string, PessoaNoSite[]>();
   for (const linha of linhas) {
     const lista = mapa.get(linha.pastoralId) ?? [];
-    lista.push({
-      nome: linha.nome,
-      funcao: linha.funcao,
-      // O telefone e o e-mail só saem daqui com autorização. Filtrar na
-      // consulta, e não na tela, é o que garante que um `console.log` ou uma
-      // mudança distraída de layout não vaze o número de ninguém.
-      contato: linha.contatoPublico ? (linha.telefone ?? linha.email) : null,
-    });
+    lista.push(semContatoNaoAutorizado(linha));
     mapa.set(linha.pastoralId, lista);
   }
-
   return mapa;
+}
+
+/**
+ * A equipe de uma pastoral, separada em coordenação e demais membros.
+ *
+ * É o que a página `/pastorais/<slug>` mostra.
+ */
+export async function equipeDaPastoral(
+  pastoralId: string
+): Promise<{ coordenacao: PessoaNoSite[]; equipe: PessoaNoSite[] }> {
+  const linhas = await db.coordenador.findMany({
+    where: { ativo: true, pastoralId },
+    select: CAMPOS_PUBLICOS,
+    orderBy: [{ ordem: "asc" }, { nome: "asc" }],
+  });
+
+  return {
+    coordenacao: linhas.filter((l) => l.naCoordenacao).map(semContatoNaoAutorizado),
+    equipe: linhas.filter((l) => !l.naCoordenacao).map(semContatoNaoAutorizado),
+  };
 }
 
 /** As pastorais que podem receber um coordenador. */

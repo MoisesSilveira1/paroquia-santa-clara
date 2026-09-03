@@ -43,8 +43,8 @@ export default async function PaginaCoordenadores({
   return (
     <Cartao>
       <CartaoCabecalho
-        titulo="Coordenadores"
-        descricao="Quem responde por cada pastoral e coordenação da paróquia."
+        titulo="Coordenadores e equipes"
+        descricao="Quem responde por cada pastoral e quem serve nela. Aparece na página da pastoral no site."
       />
 
       <BarraDeFiltros

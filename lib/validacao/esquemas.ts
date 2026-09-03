@@ -231,6 +231,7 @@ export const coordenadorSchema = z.object({
     .optional()
     .transform((v) => v || null),
   contatoPublico: caixaDeMarcar,
+  naCoordenacao: caixaDeMarcar,
   ativo: caixaDeMarcar,
   ordem: z.coerce.number().int().min(0).max(999).default(0),
 });

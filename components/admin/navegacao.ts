@@ -41,7 +41,7 @@ export const MENU: ItemDeMenu[] = [
   { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users },
   {
     href: "/admin/coordenadores",
-    rotulo: "Coordenadores",
+    rotulo: "Coordenadores e equipes",
     icone: UserCog,
     exige: "coordenadores.gerenciar",
   },

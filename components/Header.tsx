@@ -10,7 +10,10 @@ const links = [
   { href: "/horarios", label: "Horários" },
   { href: "/sobre", label: "A Paróquia" },
   { href: "/pastorais", label: "Pastorais" },
-  { href: "/catequese", label: "Catequese" },
+  // A Catequese saiu do menu em 03/09/2026: ela é uma das pastorais, e agora
+  // cada pastoral tem página própria. O caminho é Pastorais → Catequese, que
+  // leva ao sistema dos catequistas. A página /catequese continua existindo,
+  // ligada de lá e do rodapé.
   { href: "/missa-online", label: "Missa Online" },
   { href: "/noticias", label: "Notícias" },
   { href: "/galeria", label: "Galeria" },

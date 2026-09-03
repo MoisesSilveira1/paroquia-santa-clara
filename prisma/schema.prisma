@@ -192,12 +192,17 @@ model Pastoral {
   @@map("pastorais")
 }
 
-/// Quem responde por uma pastoral ou coordenação.
+/// Quem serve numa pastoral ou movimento: a coordenação e a equipe.
 ///
-/// Fica separado de `Pastoral` porque coordenação troca de coordenador e
-/// costuma ter mais de um (coordenador e vice, por exemplo), enquanto a
-/// pastoral em si continua a mesma. O campo `contato` da pastoral segue
-/// existindo para o telefone institucional — o da secretaria, o da sala.
+/// O modelo se chama `Coordenador` porque nasceu assim, guardando só a
+/// coordenação; no mesmo dia passou a guardar a equipe inteira, separada pelo
+/// campo `naCoordenacao`. Renomear arrastaria a tabela, o serviço, duas telas
+/// e o nome da permissão sem mudar nada para quem usa o site — fica anotado
+/// aqui para ninguém se enganar lendo só o nome do modelo.
+///
+/// Fica separado de `Pastoral` porque a equipe troca de gente e a pastoral em
+/// si continua a mesma. O campo `contato` da pastoral segue existindo para o
+/// telefone institucional — o da secretaria, o da sala.
 ///
 /// Não tem ligação com `Usuario`: coordenar uma pastoral não dá acesso ao
 /// painel, e quem entra no painel não precisa coordenar nada. Se um dia um
@@ -220,6 +225,13 @@ model Coordenador {
 
   pastoral   Pastoral @relation(fields: [pastoralId], references: [id], onDelete: Cascade)
   pastoralId String
+
+  /// Coordenação (coordenador, vice, secretário) ou equipe (os demais).
+  ///
+  /// A página da pastoral mostra os dois grupos separados, porque é assim que
+  /// a comunidade os enxerga: quem procura "com quem falo" quer a coordenação,
+  /// e quem quer saber "quem serve aqui" quer a equipe inteira.
+  naCoordenacao Boolean @default(true)
 
   ativo Boolean @default(true)
   /// Menor aparece primeiro — serve para o coordenador vir antes do vice.

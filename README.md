@@ -18,7 +18,8 @@ gerenciado por um painel simples, sem mexer em código.
 | `/povo-de-deus` | Folheto litúrgico da semana, lido do site da Arquidiocese |
 | `/calendario-liturgico` | Tempo, cor e celebração de cada dia, com o folheto das leituras |
 | `/sobre` | História, padroeiros, pároco e equipe |
-| `/pastorais` | Pastorais e movimentos, com quem coordena cada um |
+| `/pastorais` | Pastorais e movimentos; cada cartão abre a página da pastoral |
+| `/pastorais/<pastoral>` | Informações, coordenação e equipe, com os contatos autorizados |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
 | `/noticias` | Mural de notícias e agenda de eventos |
 | `/galeria` | Álbuns de fotos dos eventos |
@@ -74,7 +75,7 @@ publicar o site.**
 | --- | --- |
 | Avisos, notícias, horários de missa, pastorais e fotos | Painel `/admin` (não precisa de código) |
 | A janela que abre o site | Painel `/admin` → Aviso paroquial |
-| Quem coordena cada pastoral | Painel `/admin` → Coordenadores |
+| Quem coordena e quem serve em cada pastoral | Painel `/admin` → Coordenadores e equipes |
 | Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
@@ -205,6 +206,14 @@ telefone de uma pessoa exige o consentimento dela — diferente do número da
 secretaria, que é institucional. O filtro é feito na consulta ao banco, em
 [`lib/servicos/coordenadores.ts`](lib/servicos/coordenadores.ts), e não na
 tela, para que uma mudança distraída de layout não vaze o número de ninguém.
+Verificado: com um telefone gravado em alguém não autorizado, a palavra não
+aparece em lugar nenhum do HTML servido.
+
+Cada pessoa é **coordenação** ou **equipe**, pela caixa "Faz parte da
+coordenação". A página da pastoral mostra os dois grupos separados, e o cartão
+da listagem resume só a coordenação — é assim que a comunidade enxerga: quem
+procura "com quem falo" quer a coordenação; quem quer saber "quem serve aqui"
+abre a página.
 
 Cadastrar um coordenador **não dá acesso ao painel**. São coisas separadas: se
 um coordenador precisar entrar no painel, cadastre-o também em Usuários.

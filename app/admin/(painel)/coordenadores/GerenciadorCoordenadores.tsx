@@ -131,6 +131,7 @@ export default function GerenciadorCoordenadores({
                     <p className="font-medium text-texto">{coordenador.nome}</p>
                     <p className="text-xs text-texto-suave">
                       {coordenador.funcao}
+                      {!coordenador.naCoordenacao && " · equipe"}
                     </p>
                   </TabelaCelula>
                   <TabelaCelula className="text-texto-suave">
@@ -294,6 +295,13 @@ function FormularioDeCoordenador({
           autoComplete="off"
           defaultValue={estado.valores?.email ?? coordenador?.email ?? ""}
           erro={estado.erros?.email?.[0]}
+        />
+
+        <CampoBooleano
+          name="naCoordenacao"
+          rotulo="Faz parte da coordenação"
+          dica="Marcado, aparece em “Coordenação” — é quem a comunidade procura. Desmarcado, entra na lista da equipe."
+          defaultChecked={coordenador?.naCoordenacao ?? true}
         />
 
         <CampoBooleano
