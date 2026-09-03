@@ -15,6 +15,7 @@ gerenciado por um painel simples, sem mexer em código.
 | `/` | Boas-vindas, horários resumidos, avisos da semana, atalhos |
 | `/aviso-paroquial` | O comunicado em destaque, que também abre numa janela ao entrar no site |
 | `/horarios` | Missas, confissões e adoração por dia da semana |
+| `/povo-de-deus` | Folheto litúrgico da semana, lido do site da Arquidiocese |
 | `/sobre` | História, padroeiros, pároco e equipe |
 | `/pastorais` | Pastorais e movimentos, com quem coordena cada um |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
@@ -113,6 +114,30 @@ hospedagem serverless o disco é descartado a cada publicação, então um arqui
 gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
 junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
 porque essas vêm com o código.
+
+### Sobre o folheto O Povo de Deus
+
+A página `/povo-de-deus` mostra o folheto litúrgico da semana **sem ninguém
+precisar atualizar nada**. Ela lê a página do folheto no site da Arquidiocese
+de Brasília, de hora em hora, e monta a lista de edições com os links de cada
+arquivo (folheto, versão para celular, telão e partituras).
+
+**Os arquivos não são copiados para cá, e isso é deliberado.** O folheto é
+publicação da Arquidiocese — o rodapé do site deles diz "todos os direitos
+reservados", e os textos litúrgicos e os cantos ainda têm outros donos por
+trás. Além disso, cópia envelhece: quando eles corrigem um arquivo (há edições
+marcadas "Prova Final"), a correção chega sozinha ao nosso site; uma cópia
+ficaria errada até alguém perceber.
+
+Duas defesas em [`lib/povo-de-deus/`](lib/povo-de-deus):
+
+- **Só entram links de `arqbrasilia.com.br`.** O conteúdo vem de um site que
+  não é nosso; se aquela página um dia for adulterada, o site da paróquia não
+  vira vitrine para os links de quem a adulterou.
+- **Falha não derruba a página.** A leitura depende do formato da página deles,
+  que pode mudar sem aviso. Quando não dá para ler, a tela mostra o caminho
+  direto para a Arquidiocese e continua útil — vale conferir essa tela se
+  alguém avisar que o folheto sumiu.
 
 ### Sobre o aviso paroquial
 

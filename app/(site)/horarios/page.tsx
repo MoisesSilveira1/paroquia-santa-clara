@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BookOpenText } from "lucide-react";
 import MissaCard from "@/components/MissaCard";
 import { sacramentos } from "@/lib/dados";
@@ -21,6 +22,23 @@ export default async function HorariosPage() {
         solenidades e tempos litúrgicos especiais, os horários podem mudar —
         acompanhe os avisos da secretaria.
       </p>
+
+      {/* Quem vem ver a que horas é a missa é exatamente quem quer o folheto
+          para acompanhá-la. O link fica aqui, não só no rodapé. */}
+      <Link
+        href="/povo-de-deus"
+        className="mt-6 inline-flex items-center gap-3 rounded-xl border border-destaque-claro bg-white px-5 py-3 transition-colors hover:border-destaque hover:bg-fundo"
+      >
+        <BookOpenText className="h-6 w-6 shrink-0 text-principal" aria-hidden />
+        <span>
+          <span className="block font-medium text-texto">
+            Folheto O Povo de Deus
+          </span>
+          <span className="block text-sm text-texto-suave">
+            Leituras e cantos da celebração, sempre na edição da semana
+          </span>
+        </span>
+      </Link>
 
       <section className="mt-8" aria-labelledby="missas">
         <h2 id="missas" className="text-2xl text-texto">
