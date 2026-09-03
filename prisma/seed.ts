@@ -33,7 +33,13 @@ if (!url) {
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 
-/** Senhas de desenvolvimento. Em produção, criar os usuários pelo painel. */
+/**
+ * Senhas de desenvolvimento. Em produção, criar os usuários pelo painel.
+ *
+ * Um de cada papel, para dar onde testar as permissões: entrando como
+ * `comum@` os botões de excluir cadastro somem, entrando como `padre@`
+ * aparecem.
+ */
 const ACESSOS = [
   {
     nome: "Administrador da Paróquia",
@@ -42,10 +48,16 @@ const ACESSOS = [
     papel: "SUPER_ADMIN",
   },
   {
+    nome: "Padre da Paróquia",
+    email: "padre@santaclara.local",
+    senha: "padre123456",
+    papel: "PADRE",
+  },
+  {
     nome: "Secretaria Paroquial",
     email: "secretaria@santaclara.local",
     senha: "secretaria123",
-    papel: "SECRETARIA",
+    papel: "ADMIN_COMUM",
   },
 ];
 

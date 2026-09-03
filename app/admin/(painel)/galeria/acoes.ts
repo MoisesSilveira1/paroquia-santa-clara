@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirSessao } from "@/lib/auth/guardas";
+import { exigirPermissao } from "@/lib/auth/guardas";
 import {
   adicionarFotoEnviada,
   atualizarAlbum,
@@ -33,7 +33,7 @@ export async function salvarAlbum(
   const digitado = apenasTexto(Object.fromEntries(formulario));
 
   const resultado = await executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
 
     const id = formulario.get("id");
     const editando = typeof id === "string" && id !== "";
@@ -65,7 +65,7 @@ export async function salvarAlbum(
 
 export async function excluirAlbumAcao(id: string): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.excluir");
     await excluirAlbum(id);
     revalidar();
     return { ok: true, mensagem: "Álbum excluído." };
@@ -84,7 +84,7 @@ export async function enviarFotosAcao(
   formulario: FormData
 ): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
 
     const albumId = String(formulario.get("albumId") ?? "");
     if (!albumId) throw new ErroDeNegocio("Álbum não informado.");
@@ -139,7 +139,7 @@ export async function salvarLegendaAcao(
   legenda: string
 ): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
 
     if (legenda.length > 200) {
       throw new ErroDeNegocio("A legenda passa de 200 caracteres.");
@@ -153,7 +153,7 @@ export async function salvarLegendaAcao(
 
 export async function excluirFotoAcao(id: string): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.excluir");
     await excluirFoto(id);
     revalidar();
     return { ok: true, mensagem: "Foto removida do álbum." };

@@ -130,14 +130,31 @@ confirmados com a secretaria antes da publicação.
 
 ## Quem pode entrar no painel
 
+São três níveis de acesso:
+
 | Nível | Pode |
 | --- | --- |
-| Secretaria | Avisos, notícias, horários, pastorais, galeria e mensagens |
-| Administrador | Tudo isso **mais** cadastrar e remover quem acessa o painel |
+| Administrador comum | Avisos, notícias, horários, pastorais, galeria e mensagens de contato. Cadastra e edita coordenadores. **Não exclui cadastro de ninguém.** |
+| Padre | Tudo, sem restrição |
+| Administrador geral | Tudo, sem restrição. É quem mantém o site funcionando |
 
-O sistema não deixa a paróquia ficar sem nenhum administrador ativo, nem
-permite que alguém retire o próprio acesso — seria uma porta trancada por
-dentro.
+O administrador comum tira o acesso de alguém desmarcando **Acesso liberado**
+na edição da pessoa: bloqueia a entrada na hora e não apaga o histórico. Só
+o padre e o administrador geral excluem o cadastro de fato.
+
+Três garantias que o sistema não abre mão:
+
+- ninguém retira o próprio acesso nem muda o próprio nível — seria uma porta
+  trancada por dentro;
+- a paróquia nunca fica sem ao menos um padre ou administrador geral ativo;
+- o administrador comum não cria nem edita conta de nível acima do dele. Sem
+  isso, bastaria criar uma conta de padre e entrar por ela para furar todas as
+  outras regras.
+
+Quem pode o quê está escrito em um lugar só,
+[lib/auth/papeis.ts](lib/auth/papeis.ts) — as telas e as ações consultam essa
+tabela em vez de comparar o papel na mão. Para mudar uma permissão ou criar um
+quarto nível, é lá.
 
 ## Documentação
 

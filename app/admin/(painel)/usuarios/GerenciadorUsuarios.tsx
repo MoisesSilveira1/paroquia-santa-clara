@@ -22,10 +22,16 @@ import {
   TabelaTitulo,
 } from "@/components/ui/Tabela";
 import DialogoDeExclusao from "@/components/admin/DialogoDeExclusao";
-import { NOME_DO_PAPEL } from "@/components/admin/navegacao";
+import {
+  DESCRICAO_DO_PAPEL,
+  NOME_DO_PAPEL,
+  PAPEIS_DE_ACESSO_TOTAL,
+  papeisAtribuiveisPor,
+  pode,
+  type Papel,
+} from "@/lib/auth/papeis";
 import { ESTADO_INICIAL } from "@/lib/servicos/resultado";
 import type { UsuarioDaLista } from "@/lib/servicos/usuarios";
-import { PAPEIS } from "@/lib/validacao/esquemas";
 import { excluirUsuarioAcao, salvarUsuario } from "./acoes";
 
 const FORMATO = new Intl.DateTimeFormat("pt-BR", {
@@ -36,14 +42,20 @@ const FORMATO = new Intl.DateTimeFormat("pt-BR", {
 export default function GerenciadorUsuarios({
   itens,
   meuId,
+  meuPapel,
 }: {
   itens: UsuarioDaLista[];
   /** Para marcar a própria linha e evitar que alguém se exclua. */
   meuId: string;
+  /** Decide quais botões aparecem. Quem barra de verdade é o acoes.ts. */
+  meuPapel: Papel;
 }) {
   const [emEdicao, setEmEdicao] = useState<UsuarioDaLista | null>(null);
   const [criando, setCriando] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);
+
+  const podeExcluir = pode(meuPapel, "usuarios.excluir");
+  const papeisQuePossoDar = papeisAtribuiveisPor(meuPapel);
 
   function fechar() {
     setCriando(false);
@@ -61,6 +73,20 @@ export default function GerenciadorUsuarios({
       {recado && (
         <div className="px-5 pt-3">
           <Alerta tom="sucesso">{recado}</Alerta>
+        </div>
+      )}
+
+      {/* Sem este recado, a ausência do botão de excluir pareceria defeito.
+          Dito assim, vira instrução: desativar resolve o caso comum (alguém
+          que saiu da equipe) sem depender de ninguém. */}
+      {!podeExcluir && (
+        <div className="px-5 pt-3">
+          <Alerta>
+            Você cadastra e edita, mas excluir cadastro é do padre ou do
+            administrador geral. Para tirar o acesso de alguém agora, edite a
+            pessoa e desmarque “Acesso liberado” — isso bloqueia a entrada na
+            hora, sem apagar o histórico.
+          </Alerta>
         </div>
       )}
 
@@ -88,6 +114,9 @@ export default function GerenciadorUsuarios({
             ) : (
               itens.map((usuario) => {
                 const souEu = usuario.id === meuId;
+                // Cadastro de nível acima do meu eu nem edito: mostrar o
+                // lápis só para o serviço recusar seria uma armadilha.
+                const alcanco = papeisQuePossoDar.includes(usuario.papel);
                 return (
                   <TabelaLinha key={usuario.id}>
                     <TabelaCelula>
@@ -103,7 +132,11 @@ export default function GerenciadorUsuarios({
                     </TabelaCelula>
                     <TabelaCelula>
                       <Selo
-                        tom={usuario.papel === "SUPER_ADMIN" ? "info" : "neutro"}
+                        tom={
+                          PAPEIS_DE_ACESSO_TOTAL.includes(usuario.papel)
+                            ? "info"
+                            : "neutro"
+                        }
                       >
                         {NOME_DO_PAPEL[usuario.papel]}
                       </Selo>
@@ -119,16 +152,23 @@ export default function GerenciadorUsuarios({
                         : "Nunca entrou"}
                     </TabelaCelula>
                     <TabelaCelula alinhamento="direita">
-                      <div className="flex justify-end gap-1">
-                        <BotaoIcone
-                          icone={Pencil}
-                          rotulo={`Editar ${usuario.nome}`}
-                          onClick={() => setEmEdicao(usuario)}
-                        />
+                      <div className="flex items-center justify-end gap-1">
+                        {alcanco || souEu ? (
+                          <BotaoIcone
+                            icone={Pencil}
+                            rotulo={`Editar ${usuario.nome}`}
+                            onClick={() => setEmEdicao(usuario)}
+                          />
+                        ) : (
+                          <span className="text-xs text-texto-suave">
+                            Acima do seu nível
+                          </span>
+                        )}
                         {/* Sem botão de excluir na própria linha: o serviço
                             recusa de qualquer forma, e oferecer o botão só
-                            para dar erro seria uma armadilha. */}
-                        {!souEu && (
+                            para dar erro seria uma armadilha. O mesmo vale
+                            para quem não tem a permissão de excluir. */}
+                        {!souEu && podeExcluir && alcanco && (
                           <DialogoDeExclusao
                             nome={usuario.nome}
                             descricao="As notícias publicadas por essa pessoa continuam no site, sem autor."
@@ -149,6 +189,7 @@ export default function GerenciadorUsuarios({
         <FormularioDeUsuario
           usuario={emEdicao}
           souEu={emEdicao?.id === meuId}
+          papeisDisponiveis={papeisQuePossoDar}
           aoFechar={fechar}
           aoConcluir={(mensagem) => {
             fechar();
@@ -163,15 +204,25 @@ export default function GerenciadorUsuarios({
 function FormularioDeUsuario({
   usuario,
   souEu,
+  papeisDisponiveis,
   aoFechar,
   aoConcluir,
 }: {
   usuario: UsuarioDaLista | null;
   souEu: boolean;
+  /** Só os níveis que quem está cadastrando tem autoridade para conceder. */
+  papeisDisponiveis: Papel[];
   aoFechar: () => void;
   aoConcluir: (mensagem: string) => void;
 }) {
   const [estado, enviar, pendente] = useActionState(salvarUsuario, ESTADO_INICIAL);
+
+  // O nível de acesso é controlado — e não `defaultValue` como os outros
+  // campos — só para que a dica embaixo do campo mude junto com a escolha.
+  // Quem cadastra pela primeira vez não sabe o que cada nome significa.
+  const [papelEscolhido, setPapelEscolhido] = useState<Papel>(
+    usuario?.papel ?? papeisDisponiveis[0]
+  );
 
   useEffect(() => {
     if (estado.ok) aoConcluir(estado.mensagem ?? "Usuário salvo.");
@@ -228,10 +279,11 @@ function FormularioDeUsuario({
           dica={
             souEu
               ? "Você não pode mudar o próprio nível de acesso."
-              : "Administrador também gerencia quem entra no painel."
+              : DESCRICAO_DO_PAPEL[papelEscolhido]
           }
-          defaultValue={estado.valores?.papel ?? usuario?.papel ?? "SECRETARIA"}
-          opcoes={PAPEIS.map((papel) => ({
+          value={papelEscolhido}
+          onChange={(evento) => setPapelEscolhido(evento.target.value as Papel)}
+          opcoes={papeisDisponiveis.map((papel) => ({
             valor: papel,
             texto: NOME_DO_PAPEL[papel],
           }))}

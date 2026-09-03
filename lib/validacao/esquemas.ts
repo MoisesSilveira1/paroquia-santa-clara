@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PAPEIS } from "@/lib/auth/papeis";
 
 /**
  * Formato de tudo que entra pelo painel.
@@ -13,7 +14,10 @@ import { z } from "zod";
 // Listas fechadas (o que seriam enums em Postgres)
 // ---------------------------------------------------------------------------
 
-export const PAPEIS = ["SECRETARIA", "SUPER_ADMIN"] as const;
+// Os papéis vêm de `lib/auth/papeis.ts`, e não de uma segunda lista aqui: a
+// mesma lista escrita em dois arquivos é a receita para um deles envelhecer.
+export { PAPEIS };
+
 export const CATEGORIAS_NOTICIA = ["NOTICIA", "EVENTO"] as const;
 export const STATUS_NOTICIA = ["RASCUNHO", "PUBLICADA", "ARQUIVADA"] as const;
 export const STATUS_MENSAGEM = ["NOVA", "LIDA", "RESPONDIDA", "ARQUIVADA"] as const;

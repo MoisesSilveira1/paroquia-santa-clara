@@ -4,7 +4,12 @@ import type { z } from "zod";
 import { db } from "@/lib/db";
 import { criarHashDeSenha } from "@/lib/auth/senha";
 import { ErroDeNegocio } from "./resultado";
-import type { Papel } from "@/components/admin/navegacao";
+import {
+  NOME_DO_PAPEL,
+  PAPEIS_DE_ACESSO_TOTAL,
+  papeisAtribuiveisPor,
+  type Papel,
+} from "@/lib/auth/papeis";
 import type { usuarioEdicaoSchema, usuarioSchema } from "@/lib/validacao/esquemas";
 
 export type UsuarioDaLista = {
@@ -35,7 +40,12 @@ export async function listarUsuarios(busca = ""): Promise<UsuarioDaLista[]> {
   return linhas as UsuarioDaLista[];
 }
 
-export async function criarUsuario(dados: z.infer<typeof usuarioSchema>) {
+export async function criarUsuario(
+  dados: z.infer<typeof usuarioSchema>,
+  quemCria: { papel: Papel }
+) {
+  garantirPapelPermitido(dados.papel, quemCria);
+
   const existente = await db.usuario.findUnique({
     where: { email: dados.email },
     select: { id: true },
@@ -56,10 +66,17 @@ export async function criarUsuario(dados: z.infer<typeof usuarioSchema>) {
 
 export async function atualizarUsuario(
   dados: z.infer<typeof usuarioEdicaoSchema>,
-  quemEdita: { id: string }
+  quemEdita: { id: string; papel: Papel }
 ) {
   const alvo = await db.usuario.findUnique({ where: { id: dados.id } });
   if (!alvo) throw new ErroDeNegocio("Usuário não encontrado.");
+
+  // As duas pontas são conferidas: o papel que a conta TEM hoje e o que ela
+  // passaria a ter. Sem a primeira, o administrador comum trocaria a senha da
+  // conta do padre e entraria por ela; sem a segunda, se promoveria pela
+  // edição de um coordenador qualquer.
+  garantirPapelPermitido(alvo.papel as Papel, quemEdita);
+  garantirPapelPermitido(dados.papel, quemEdita);
 
   const emailTomado = await db.usuario.findFirst({
     where: { email: dados.email, id: { not: dados.id } },
@@ -80,10 +97,9 @@ export async function atualizarUsuario(
     }
   }
 
-  if (alvo.papel === "SUPER_ADMIN" && dados.papel !== "SUPER_ADMIN") {
-    await garantirOutroAdministrador(alvo.id);
-  }
-  if (alvo.ativo && !dados.ativo && alvo.papel === "SUPER_ADMIN") {
+  const eraTotal = temAcessoTotal(alvo.papel);
+  const seraTotal = temAcessoTotal(dados.papel);
+  if ((eraTotal && !seraTotal) || (eraTotal && alvo.ativo && !dados.ativo)) {
     await garantirOutroAdministrador(alvo.id);
   }
 
@@ -105,32 +121,60 @@ export async function atualizarUsuario(
   }
 }
 
-export async function excluirUsuario(id: string, quemExclui: { id: string }) {
+export async function excluirUsuario(
+  id: string,
+  quemExclui: { id: string; papel: Papel }
+) {
   if (id === quemExclui.id) {
     throw new ErroDeNegocio("Você não pode excluir a si mesmo.");
   }
 
   const alvo = await db.usuario.findUnique({ where: { id }, select: { papel: true } });
   if (!alvo) throw new ErroDeNegocio("Usuário não encontrado.");
-  if (alvo.papel === "SUPER_ADMIN") await garantirOutroAdministrador(id);
+
+  garantirPapelPermitido(alvo.papel as Papel, quemExclui);
+  if (temAcessoTotal(alvo.papel)) await garantirOutroAdministrador(id);
 
   await db.usuario.delete({ where: { id } });
 }
 
+function temAcessoTotal(papel: string): boolean {
+  return PAPEIS_DE_ACESSO_TOTAL.includes(papel as Papel);
+}
+
 /**
- * Impede que a paróquia fique sem nenhum administrador ativo.
+ * Impede que alguém mexa num nível de acesso acima do seu.
  *
- * Sem esta checagem, rebaixar ou desativar o último administrador deixaria a
- * tela de usuários inacessível para todo mundo, e a única saída seria mexer no
+ * Vale tanto para o papel que a conta tem hoje quanto para o que ela receberia.
+ * É esta função que fecha a porta dos fundos: sem ela, o administrador comum
+ * pode criar ou promover uma conta de acesso total e usá-la para fazer o que o
+ * próprio papel dele proíbe — na prática, "não excluir" viraria letra morta.
+ */
+function garantirPapelPermitido(papel: Papel, quemMexe: { papel: Papel }) {
+  if (papeisAtribuiveisPor(quemMexe.papel).includes(papel)) return;
+  throw new ErroDeNegocio(
+    `Sua conta não pode mexer em cadastros de ${NOME_DO_PAPEL[papel].toLowerCase()}. Peça ao padre ou ao administrador geral.`
+  );
+}
+
+/**
+ * Impede que a paróquia fique sem nenhum acesso total ativo.
+ *
+ * Sem esta checagem, rebaixar ou desativar o último deles deixaria o painel
+ * sem ninguém capaz de excluir ou promover, e a única saída seria mexer no
  * banco na mão.
  */
 async function garantirOutroAdministrador(exceto: string) {
   const outros = await db.usuario.count({
-    where: { papel: "SUPER_ADMIN", ativo: true, id: { not: exceto } },
+    where: {
+      papel: { in: [...PAPEIS_DE_ACESSO_TOTAL] },
+      ativo: true,
+      id: { not: exceto },
+    },
   });
   if (outros === 0) {
     throw new ErroDeNegocio(
-      "É preciso haver ao menos um administrador ativo. Promova outra pessoa antes."
+      "É preciso haver ao menos um padre ou administrador geral ativo. Promova outra pessoa antes."
     );
   }
 }

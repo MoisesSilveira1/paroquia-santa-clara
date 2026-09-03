@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import type { Papel } from "@/components/admin/navegacao";
+import { pode, RECADO_SEM_PERMISSAO, type Permissao } from "./papeis";
 import { usuarioDaSessao, type UsuarioLogado } from "./sessao";
 
 /**
@@ -30,13 +30,20 @@ export async function exigirSessao(): Promise<UsuarioLogado> {
   return usuario;
 }
 
-/** Exige um dos papéis informados. */
-export async function exigirPapel(...papeis: Papel[]): Promise<UsuarioLogado> {
+/**
+ * Exige alguém logado que tenha a permissão pedida.
+ *
+ * Substituiu o antigo `exigirPapel`, que comparava o papel na mão em cada
+ * ação. A diferença importa quando os papéis mudam: com esta forma, criar um
+ * quarto papel é mexer só na tabela de `lib/auth/papeis.ts` — nenhuma ação
+ * precisa ser revisitada, e nenhuma fica para trás por esquecimento.
+ */
+export async function exigirPermissao(
+  permissao: Permissao
+): Promise<UsuarioLogado> {
   const usuario = await exigirSessao();
-  if (!papeis.includes(usuario.papel)) {
-    throw new SemPermissao(
-      "Esta área é restrita aos administradores da paróquia."
-    );
+  if (!pode(usuario.papel, permissao)) {
+    throw new SemPermissao(RECADO_SEM_PERMISSAO[permissao]);
   }
   return usuario;
 }

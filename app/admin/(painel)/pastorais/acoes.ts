@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirSessao } from "@/lib/auth/guardas";
+import { exigirPermissao } from "@/lib/auth/guardas";
 import {
   atualizarPastoral,
   criarPastoral,
@@ -27,7 +27,7 @@ export async function salvarPastoral(
   const digitado = apenasTexto(Object.fromEntries(formulario));
 
   const resultado = await executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
 
     const id = formulario.get("id");
     const editando = typeof id === "string" && id !== "";
@@ -59,7 +59,7 @@ export async function salvarPastoral(
 
 export async function excluirPastoralAcao(id: string): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.excluir");
     await excluirPastoral(id);
     revalidar();
     return { ok: true, mensagem: "Pastoral excluída." };

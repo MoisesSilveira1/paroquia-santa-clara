@@ -9,22 +9,25 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { pode, type Papel, type Permissao } from "@/lib/auth/papeis";
 
-/** Papéis de quem usa o painel, do mais restrito ao mais amplo. */
-export const PAPEIS = ["SECRETARIA", "SUPER_ADMIN"] as const;
-export type Papel = (typeof PAPEIS)[number];
-
-export const NOME_DO_PAPEL: Record<Papel, string> = {
-  SECRETARIA: "Secretaria",
-  SUPER_ADMIN: "Administrador",
-};
+// Os papéis moraram aqui até 02/09/2026. Saíram para `lib/auth/papeis.ts`,
+// junto com as permissões: menu é assunto de tela, permissão é assunto de
+// regra, e o painel inteiro precisa da regra. O reexporte evita quebrar quem
+// já importava daqui.
+export {
+  PAPEIS,
+  NOME_DO_PAPEL,
+  DESCRICAO_DO_PAPEL,
+  type Papel,
+} from "@/lib/auth/papeis";
 
 export type ItemDeMenu = {
   href: string;
   rotulo: string;
   icone: LucideIcon;
-  /** Quando presente, só estes papéis enxergam o item. */
-  restrito?: Papel[];
+  /** Quando presente, só enxerga o item quem tem esta permissão. */
+  exige?: Permissao;
 };
 
 export const MENU: ItemDeMenu[] = [
@@ -39,13 +42,13 @@ export const MENU: ItemDeMenu[] = [
     href: "/admin/usuarios",
     rotulo: "Usuários",
     icone: ShieldCheck,
-    restrito: ["SUPER_ADMIN"],
+    exige: "usuarios.gerenciar",
   },
 ];
 
 /** Filtra o menu pelo papel de quem está logado. */
 export function menuDoPapel(papel: Papel): ItemDeMenu[] {
-  return MENU.filter((item) => !item.restrito || item.restrito.includes(papel));
+  return MENU.filter((item) => !item.exige || pode(papel, item.exige));
 }
 
 /**

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirSessao } from "@/lib/auth/guardas";
+import { exigirPermissao } from "@/lib/auth/guardas";
 import {
   alternarAviso,
   atualizarAviso,
@@ -36,7 +36,7 @@ export async function salvarAviso(
   const digitado = apenasTexto(Object.fromEntries(formulario));
 
   const resultado = await executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
 
     const id = formulario.get("id");
     const editando = typeof id === "string" && id !== "";
@@ -72,7 +72,7 @@ export async function alternarAvisoAcao(
   ativo: boolean
 ): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
     await alternarAviso(id, ativo);
     revalidar();
     return { ok: true, mensagem: ativo ? "Aviso publicado." : "Aviso ocultado." };
@@ -81,7 +81,7 @@ export async function alternarAvisoAcao(
 
 export async function excluirAvisoAcao(id: string): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.excluir");
     await excluirAviso(id);
     revalidar();
     return { ok: true, mensagem: "Aviso excluído." };

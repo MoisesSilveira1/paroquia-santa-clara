@@ -4,7 +4,7 @@ import { createHmac, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { db } from "@/lib/db";
-import type { Papel } from "@/components/admin/navegacao";
+import type { Papel } from "./papeis";
 
 const COOKIE = "paroquia_sessao";
 const DURACAO_DIAS = 7;

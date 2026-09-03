@@ -25,8 +25,10 @@ model Usuario {
   email        String   @unique
   /// Nunca guarda a senha em si — ver lib/auth/senha.ts.
   senhaHash    String
-  /// "SECRETARIA" | "SUPER_ADMIN"
-  papel        String   @default("SECRETARIA")
+  /// "ADMIN_COMUM" | "PADRE" | "SUPER_ADMIN" — quem pode o quê está em
+  /// lib/auth/papeis.ts. O padrão é o mais restrito de propósito: um cadastro
+  /// que chegue sem papel definido não deve nascer podendo tudo.
+  papel        String   @default("ADMIN_COMUM")
   /// Desligar o acesso sem apagar o histórico de quem publicou o quê.
   ativo        Boolean  @default(true)
   ultimoAcesso DateTime?

@@ -3,6 +3,7 @@ import Cartao, { CartaoCabecalho } from "@/components/ui/Cartao";
 import BarraDeFiltros from "@/components/ui/BarraDeFiltros";
 import SemPermissaoAviso from "@/components/admin/SemPermissaoAviso";
 import { exigirSessao } from "@/lib/auth/guardas";
+import { pode } from "@/lib/auth/papeis";
 import { listarUsuarios } from "@/lib/servicos/usuarios";
 import { listagemSchema } from "@/lib/validacao/esquemas";
 import GerenciadorUsuarios from "./GerenciadorUsuarios";
@@ -19,7 +20,7 @@ export default async function PaginaUsuarios({
   // A tela avisa em vez de estourar. Isto NÃO é a proteção: quem manda são as
   // checagens dentro de acoes.ts, que barram a requisição mesmo que alguém
   // chegue nela sem passar por aqui.
-  if (eu.papel !== "SUPER_ADMIN") return <SemPermissaoAviso />;
+  if (!pode(eu.papel, "usuarios.gerenciar")) return <SemPermissaoAviso />;
 
   const filtros = listagemSchema.parse(await searchParams);
 
@@ -35,7 +36,7 @@ export default async function PaginaUsuarios({
 
       <BarraDeFiltros placeholder="Buscar por nome ou e-mail..." />
 
-      <GerenciadorUsuarios itens={usuarios} meuId={eu.id} />
+      <GerenciadorUsuarios itens={usuarios} meuId={eu.id} meuPapel={eu.papel} />
     </Cartao>
   );
 }

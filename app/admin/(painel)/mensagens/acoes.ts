@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirSessao } from "@/lib/auth/guardas";
+import { exigirPermissao } from "@/lib/auth/guardas";
 import { excluirMensagem, mudarStatusMensagem } from "@/lib/servicos/mensagens";
 import { executar, type EstadoFormulario } from "@/lib/servicos/resultado";
 import {
@@ -20,7 +20,7 @@ export async function mudarStatusAcao(
   status: string
 ): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.editar");
 
     // O status vem de um `<select>` da tela, mas chega pela rede: confere
     // contra a lista fechada antes de gravar.
@@ -41,7 +41,7 @@ export async function mudarStatusAcao(
 
 export async function excluirMensagemAcao(id: string): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.excluir");
     await excluirMensagem(id);
     revalidar();
     return { ok: true, mensagem: "Mensagem excluída." };

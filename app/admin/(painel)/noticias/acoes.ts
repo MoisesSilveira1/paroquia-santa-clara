@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirSessao } from "@/lib/auth/guardas";
+import { exigirPermissao } from "@/lib/auth/guardas";
 import {
   atualizarNoticia,
   criarNoticia,
@@ -28,7 +28,7 @@ export async function salvarNoticia(
   const digitado = apenasTexto(Object.fromEntries(formulario));
 
   const resultado = await executar(async () => {
-    const usuario = await exigirSessao();
+    const usuario = await exigirPermissao("conteudo.editar");
 
     const id = formulario.get("id");
     const editando = typeof id === "string" && id !== "";
@@ -60,7 +60,7 @@ export async function salvarNoticia(
 
 export async function excluirNoticiaAcao(id: string): Promise<EstadoFormulario> {
   return executar(async () => {
-    await exigirSessao();
+    await exigirPermissao("conteudo.excluir");
     await excluirNoticia(id);
     revalidar();
     return { ok: true, mensagem: "Notícia excluída." };
