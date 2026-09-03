@@ -25,9 +25,18 @@ from PIL import Image, ImageFilter
 ORIGEM = Path(r"C:\Users\msilv\Documents\PASCOM\fotos site\brasão sem fundo.png")
 DESTINO = Path("public/fotos")
 
-# Recorte do escudo sozinho (sem a fita nem a cruz), calibrado visualmente
-# como fração do brasão completo já aparado.
-ESCUDO_CAIXA = (0.218, 0.223, 0.782, 0.795)  # esquerda, topo, direita, base
+# Recorte do escudo sozinho (sem a fita nem a cruz), como fração do brasão
+# completo já aparado.
+#
+# A base saiu de 0,795 para 0,823 em 02/09/2026: o valor antigo decepava a
+# ponta de baixo do escudo, e como a metade inferior dele é branca, contra o
+# azul do cabeçalho aquilo virava um retângulo branco.
+#
+# O 0,823 foi medido, não estimado: varrendo a largura opaca linha a linha, o
+# escudo afina até 37 px em y=910 (a ponta) e volta a alargar logo abaixo — o
+# que já é a fita. Descer até a ponta traz lascas da fita nos cantos, que
+# `manter_maior_peca` remove depois.
+ESCUDO_CAIXA = (0.218, 0.223, 0.782, 0.823)  # esquerda, topo, direita, base
 
 
 def eh_fundo(r: int, g: int, b: int) -> bool:
@@ -153,6 +162,51 @@ def remover_bolsas_de_xadrez(px, ap, w: int, h: int) -> None:
         print("  nenhuma bolsa de xadrez encontrada")
 
 
+def manter_maior_peca(imagem: Image.Image) -> Image.Image:
+    """Apaga pedaços soltos, deixando só a maior figura conectada.
+
+    O recorte do escudo precisa descer até a ponta de baixo, e nessa altura a
+    fita já subiu pelas laterais — então sobram lascas dela nos cantos. Como a
+    fita passa POR TRÁS do escudo, essas lascas não encostam nele: saem por
+    aqui, sem precisar cortar mais a imagem e mutilar a ponta de novo.
+    """
+    largura, altura = imagem.size
+    alfa = imagem.getchannel("A").load()
+    visitado = bytearray(largura * altura)
+    maior: list[tuple[int, int]] = []
+
+    for inicio_y in range(altura):
+        for inicio_x in range(largura):
+            if visitado[inicio_y * largura + inicio_x] or alfa[inicio_x, inicio_y] <= 12:
+                continue
+            fila = deque([(inicio_x, inicio_y)])
+            visitado[inicio_y * largura + inicio_x] = 1
+            peca = []
+            while fila:
+                x, y = fila.popleft()
+                peca.append((x, y))
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < largura and 0 <= ny < altura:
+                        i = ny * largura + nx
+                        if not visitado[i] and alfa[nx, ny] > 12:
+                            visitado[i] = 1
+                            fila.append((nx, ny))
+            if len(peca) > len(maior):
+                maior = peca
+
+    manter = set(maior)
+    pixels = imagem.load()
+    apagados = 0
+    for y in range(altura):
+        for x in range(largura):
+            if alfa[x, y] > 12 and (x, y) not in manter:
+                pixels[x, y] = (255, 255, 255, 0)
+                apagados += 1
+    print(f"  lascas da fita removidas: {apagados} px soltos")
+    return imagem
+
+
 def recortar_conteudo(imagem: Image.Image, margem: int = 8) -> Image.Image:
     caixa = imagem.getchannel("A").point(lambda v: 255 if v > 12 else 0).getbbox()
     esq, topo, dir_, base = caixa
@@ -186,4 +240,4 @@ salvar(completo, "brasao.webp", 900)
 l, a = completo.size
 esq, topo, dir_, base = ESCUDO_CAIXA
 escudo = completo.crop((round(l * esq), round(a * topo), round(l * dir_), round(a * base)))
-salvar(recortar_conteudo(escudo, margem=4), "brasao-escudo.webp", 480)
+salvar(recortar_conteudo(manter_maior_peca(escudo), margem=4), "brasao-escudo.webp", 480)

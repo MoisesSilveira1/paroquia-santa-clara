@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
@@ -25,36 +24,10 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-principal text-fundo shadow-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link
-          href="/"
-          className="flex items-center gap-3"
-          aria-label="Paróquia Santa Clara e São Francisco de Assis — ir para o início"
-          onClick={() => setAberto(false)}
-        >
-          {/* Escudo do brasão oficial. O nome vem escrito ao lado, então a
-              imagem é decorativa (alt vazio) para não repetir no leitor de tela. */}
-          <Image
-            src="/fotos/brasao-escudo.webp"
-            alt=""
-            width={480}
-            height={600}
-            priority
-            className="h-11 w-auto drop-shadow-sm sm:h-12"
-          />
-          {/* O nome completo cabe enquanto o menu está escondido. A partir de
-              xl o menu ocupa a linha, então mostramos a versão curta — o nome
-              inteiro continua no rodapé, no título da aba e no aria-label. */}
-          <span aria-hidden className="font-serif text-lg leading-tight sm:text-xl">
-            <span className="xl:hidden">
-              Paróquia Santa Clara e<br className="sm:hidden" /> São Francisco de Assis
-            </span>
-            <span className="hidden whitespace-nowrap xl:inline">
-              Santa Clara e São Francisco
-            </span>
-          </span>
-        </Link>
-
+      {/* Só o menu: o brasão e o nome da paróquia ficam no topo da página
+          inicial, em tamanho que dá para ler. Repeti-los aqui em miniatura
+          roubava a linha inteira do menu — e "Início" já leva para a home. */}
+      <div className="mx-auto flex max-w-6xl items-center justify-end px-4 py-3 xl:justify-center">
         <nav className="hidden xl:block" aria-label="Navegação principal">
           <ul className="flex items-center gap-0.5">
             {links.map((link) => (
