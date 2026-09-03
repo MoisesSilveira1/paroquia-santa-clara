@@ -38,8 +38,8 @@ export async function listarCoordenadores({
   pagina?: number;
 }): Promise<Pagina<Coordenador>> {
   const onde = {
-    // `insensitive` só passou a valer com a mudança para Postgres: no SQLite
-    // o Prisma não expunha o modo, e buscar "joao" não achava "João".
+    // Mesma busca por texto do `contem` em ./listagem, aberta aqui porque
+    // percorre três campos, um deles na pastoral relacionada.
     ...(busca
       ? {
           OR: [

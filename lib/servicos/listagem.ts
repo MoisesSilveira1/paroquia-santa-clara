@@ -44,13 +44,15 @@ export function montarPagina<T>(
 }
 
 /**
- * Trecho de busca para o Prisma sobre SQLite.
+ * Trecho de busca por texto para o Prisma.
  *
- * O SQLite compara texto sem diferenciar maiúsculas apenas em caracteres
- * ASCII, e o Prisma não expõe `mode: "insensitive"` para este provider. Na
- * prática isso significa que buscar "Sao" não acha "São" — aceitável para o
- * volume desta paróquia, e resolvido de vez ao migrar para Postgres.
+ * `mode: "insensitive"` vira um ILIKE no Postgres, então "pascom" acha
+ * "PASCOM". O acento continua pesando — "gracas" não acha "Graças" —, porque
+ * ignorá-lo exigiria a extensão `unaccent` no banco. Fica assim enquanto o
+ * volume da paróquia não justificar a migração extra.
  */
 export function contem(campo: string, busca: string) {
-  return busca ? { [campo]: { contains: busca } } : {};
+  return busca
+    ? { [campo]: { contains: busca, mode: "insensitive" as const } }
+    : {};
 }

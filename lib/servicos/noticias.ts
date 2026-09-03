@@ -68,7 +68,12 @@ export async function listarNoticias({
 }): Promise<Pagina<NoticiaDaLista>> {
   const onde = {
     ...(busca
-      ? { OR: [{ titulo: { contains: busca } }, { resumo: { contains: busca } }] }
+      ? {
+          OR: [
+            { titulo: { contains: busca, mode: "insensitive" as const } },
+            { resumo: { contains: busca, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
     ...(STATUS_NOTICIA.includes(status as StatusNoticia) ? { status } : {}),
     ...(CATEGORIAS_NOTICIA.includes(categoria as CategoriaNoticia)

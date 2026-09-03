@@ -33,10 +33,10 @@ export async function listarMensagens({
     ...(busca
       ? {
           OR: [
-            { nome: { contains: busca } },
-            { email: { contains: busca } },
-            { assunto: { contains: busca } },
-            { corpo: { contains: busca } },
+            { nome: { contains: busca, mode: "insensitive" as const } },
+            { email: { contains: busca, mode: "insensitive" as const } },
+            { assunto: { contains: busca, mode: "insensitive" as const } },
+            { corpo: { contains: busca, mode: "insensitive" as const } },
           ],
         }
       : {}),

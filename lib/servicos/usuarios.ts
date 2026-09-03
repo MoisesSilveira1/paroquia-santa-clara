@@ -24,7 +24,12 @@ export type UsuarioDaLista = {
 export async function listarUsuarios(busca = ""): Promise<UsuarioDaLista[]> {
   const linhas = await db.usuario.findMany({
     where: busca
-      ? { OR: [{ nome: { contains: busca } }, { email: { contains: busca } }] }
+      ? {
+          OR: [
+            { nome: { contains: busca, mode: "insensitive" as const } },
+            { email: { contains: busca, mode: "insensitive" as const } },
+          ],
+        }
       : {},
     select: {
       id: true,

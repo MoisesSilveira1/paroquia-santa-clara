@@ -31,7 +31,12 @@ export async function listarCelebracoes({
 }): Promise<Pagina<Celebracao>> {
   const onde = {
     ...(busca
-      ? { OR: [{ nome: { contains: busca } }, { local: { contains: busca } }] }
+      ? {
+          OR: [
+            { nome: { contains: busca, mode: "insensitive" as const } },
+            { local: { contains: busca, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
     ...(diaSemana === undefined ? {} : { diaSemana }),
   };

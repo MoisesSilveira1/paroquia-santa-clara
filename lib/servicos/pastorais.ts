@@ -29,7 +29,12 @@ export async function listarPastorais({
 }): Promise<Pagina<Pastoral>> {
   const onde = {
     ...(busca
-      ? { OR: [{ nome: { contains: busca } }, { descricao: { contains: busca } }] }
+      ? {
+          OR: [
+            { nome: { contains: busca, mode: "insensitive" as const } },
+            { descricao: { contains: busca, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
     ...(ativa === undefined ? {} : { ativa }),
   };
