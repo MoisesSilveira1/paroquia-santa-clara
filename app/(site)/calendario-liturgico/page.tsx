@@ -26,9 +26,11 @@ export const metadata: Metadata = {
 /** Reconferido a cada hora, junto com o folheto: o dia vira à meia-noite. */
 export const revalidate = 3600;
 
+// O branco precisa de contorno cheio: sobre o cartão branco, uma borda fraca
+// vira uma bolinha vazia que parece defeito, e não a cor litúrgica.
 const AMOSTRA: Record<Cor, string> = {
   ROXO: "bg-[#6b3fa0]",
-  BRANCO: "bg-white border border-texto-suave/40",
+  BRANCO: "bg-white border border-texto-suave",
   VERDE: "bg-[#2f7d4f]",
   VERMELHO: "bg-[#b3312c]",
   ROSA: "bg-[#e8a2b8]",
