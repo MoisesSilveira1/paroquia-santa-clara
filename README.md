@@ -16,6 +16,7 @@ gerenciado por um painel simples, sem mexer em código.
 | `/aviso-paroquial` | O comunicado em destaque, que também abre numa janela ao entrar no site |
 | `/horarios` | Missas, confissões e adoração por dia da semana |
 | `/povo-de-deus` | Folheto litúrgico da semana, lido do site da Arquidiocese |
+| `/calendario-liturgico` | Tempo, cor e celebração de cada dia, com o folheto das leituras |
 | `/sobre` | História, padroeiros, pároco e equipe |
 | `/pastorais` | Pastorais e movimentos, com quem coordena cada um |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
@@ -114,6 +115,33 @@ hospedagem serverless o disco é descartado a cada publicação, então um arqui
 gravado em `public/` sumiria. De quebra, o backup do banco já leva as fotos
 junto. As fotos fixas do site (capa, brasão) continuam em `public/fotos/`,
 porque essas vêm com o código.
+
+### Sobre o calendário litúrgico
+
+A página `/calendario-liturgico` diz o tempo litúrgico, a cor e a celebração de
+cada dia. Tudo sai de **uma conta**, em [`lib/liturgia/`](lib/liturgia): a data
+da Páscoa (cômputo gregoriano) define o ano inteiro, e o resto se apoia nela.
+Não há tabela digitada nem consulta pela internet — vale para qualquer ano e
+não deixa de funcionar se algum site sair do ar.
+
+Duas regras que costumam ser feitas errado e estão explicadas no código:
+
+- **As semanas do Tempo Comum vêm em dois pedaços.** O segundo conta *para
+  trás* a partir de Cristo Rei, que é sempre a 34ª semana — é assim que as
+  semanas comidas pela Quaresma e pela Páscoa somem do meio, e não do fim.
+- **Ajustes do Brasil.** A Epifania vai para o domingo entre 2 e 8 de janeiro,
+  a Ascensão para o 7º Domingo da Páscoa, e Corpus Christi fica na quinta-feira.
+
+O que a página **não** faz é dizer o santo de cada dia do ano: o santoral tem
+centenas de memórias com regras de precedência, e errar isso num site de
+paróquia é pior do que não ter. Ficaram as solenidades e festas, mais os
+padroeiros da casa (Santa Clara em 11/08, São Francisco em 04/10).
+
+As leituras não estão aqui: cada domingo e solenidade leva ao folheto da
+Arquidiocese, que é onde elas são publicadas. O link só aparece em domingo ou
+solenidade — em 03/09/2026 o calendário deles trazia "Assunção de Nossa
+Senhora" numa quinta-feira comum, com os arquivos do dia 16/08, e sem essa
+peneira a página ofereceria o folheto errado.
 
 ### Sobre o folheto O Povo de Deus
 

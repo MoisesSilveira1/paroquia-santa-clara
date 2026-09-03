@@ -51,6 +51,7 @@ export default function Footer() {
             <li><Link className="hover:text-destaque" href="/aviso-paroquial">Aviso Paroquial</Link></li>
             <li><Link className="hover:text-destaque" href="/horarios">Horários de Missas</Link></li>
             <li><Link className="hover:text-destaque" href="/povo-de-deus">Folheto O Povo de Deus</Link></li>
+            <li><Link className="hover:text-destaque" href="/calendario-liturgico">Calendário Litúrgico</Link></li>
             <li><Link className="hover:text-destaque" href="/sobre">A Paróquia</Link></li>
             <li><Link className="hover:text-destaque" href="/pastorais">Pastorais</Link></li>
             <li><Link className="hover:text-destaque" href="/catequese">Catequese</Link></li>
