@@ -59,9 +59,17 @@ O passo a passo detalhado está em [publicar.md](publicar.md).
 - [ ] Substituir todos os itens `DEMO` em `lib/dados.ts` pelos dados reais.
 - [ ] Apontar `DATABASE_URL` para o banco hospedado e rodar
       `npx prisma migrate deploy` para criar as tabelas.
+- [ ] **APAGAR A CONTA `mano@santaclara.local`.** Criada em 03/09/2026 a pedido
+      do Moisés para ele testar o site inteiro; a senha é `123456` e o nível é
+      administrador geral. Enquanto ela existir, quem adivinhar esse endereço
+      entra no painel com acesso total. Não é conta de ninguém — é ferramenta
+      de obra, e sai antes de a obra abrir.
 - [ ] Cadastrar as pessoas da secretaria em **Usuários** no painel e **excluir
-      os dois acessos de exemplo do seed** — as senhas deles estão no
-      repositório, à vista de qualquer um.
+      os acessos de exemplo** (`admin@`, `secretaria@`, `padre@`,
+      `coordenador@`, `dizimo@`) — as senhas deles estão no repositório, à
+      vista de qualquer um.
+- [ ] Apagar os cadastros marcados `(exemplo)` em **Coordenadores e equipes**
+      e os compromissos de teste na **Agenda**.
 - [ ] Criar `.env` e configurar as mesmas variáveis na hospedagem:
       `DATABASE_URL`, `SEGREDO_SESSAO` (32+ caracteres, gerada ao acaso) e
       **`NEXT_PUBLIC_SITE_URL`** (sem esta última, o cartão de compartilhamento
