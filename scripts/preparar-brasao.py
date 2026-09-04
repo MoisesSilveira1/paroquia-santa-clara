@@ -28,15 +28,34 @@ DESTINO = Path("public/fotos")
 # Recorte do escudo sozinho (sem a fita nem a cruz), como fração do brasão
 # completo já aparado.
 #
-# A base saiu de 0,795 para 0,823 em 02/09/2026: o valor antigo decepava a
-# ponta de baixo do escudo, e como a metade inferior dele é branca, contra o
-# azul do cabeçalho aquilo virava um retângulo branco.
+# Os quatro valores foram MEDIDOS no brasão de 900x1109, não estimados
+# (03/09/2026):
 #
-# O 0,823 foi medido, não estimado: varrendo a largura opaca linha a linha, o
-# escudo afina até 37 px em y=910 (a ponta) e volta a alargar logo abaixo — o
-# que já é a fita. Descer até a ponta traz lascas da fita nos cantos, que
-# `manter_maior_peca` remove depois.
-ESCUDO_CAIXA = (0.218, 0.223, 0.782, 0.823)  # esquerda, topo, direita, base
+#   topo    y=301  — primeira linha com mais de 150 px de largura, ou seja,
+#                    onde as abas do escudo começam. Acima disso só há a haste
+#                    da cruz, com seus ~35 px no centro.
+#   base    y=912  — a ponta. Varrendo o miolo linha a linha, o escudo afina
+#                    até 38 px em y=910 e a linha seguinte já alarga para 300:
+#                    isso é a fita, não o escudo.
+#   lados   x=203 a 695 na altura mais larga (y=420), varrendo do centro para
+#                    fora até achar transparência.
+#
+# A caixa é folgada nas laterais de propósito: com folga entram lascas da
+# fita, que `manter_maior_peca` remove por não estarem grudadas no escudo.
+# Sem folga, o recorte come a borda dourada.
+#
+# O valor anterior (0,218 / 0,223 / 0,782 / 0,823) começava 54 px ACIMA do
+# escudo, o que trazia junto um toco da haste da cruz, e terminava em cima da
+# ponta, sem sobra nenhuma.
+ESCUDO_CAIXA = (0.200, 0.270, 0.800, 0.8235)  # esquerda, topo, direita, base
+
+# Margem transparente ao redor da figura, em fração do maior lado.
+#
+# Precisa ser acrescentada, e não apenas "não cortada": `recortar_conteudo`
+# recorta DENTRO da imagem, então quando o desenho encosta na borda não há de
+# onde tirar respiro. Sem isso o escudo fica espremido contra o azul do rodapé
+# e a borda serrilhada some.
+MARGEM_AO_REDOR = 0.03
 
 
 def eh_fundo(r: int, g: int, b: int) -> bool:
@@ -162,6 +181,46 @@ def remover_bolsas_de_xadrez(px, ap, w: int, h: int) -> None:
         print("  nenhuma bolsa de xadrez encontrada")
 
 
+def manter_trecho_central(imagem: Image.Image) -> Image.Image:
+    """Em cada linha, fica só com o trecho contínuo que passa pelo centro.
+
+    A fita passa POR TRÁS do escudo e reaparece nos cantos de baixo. Nesses
+    pontos ela ENCOSTA no escudo, então `manter_maior_peca` sozinha não
+    resolve: as duas viram uma peça só, e o pedaço da fita com as letras
+    "…TA CLARA…" ficava no canto inferior esquerdo.
+
+    O escudo, porém, é uma figura cheia em volta do centro. Varrendo cada
+    linha do meio para fora até achar transparência, sai exatamente ele — e o
+    que estiver separado por qualquer vão some. Onde a fita encosta de fato
+    sobram lascas soltas, que `manter_maior_peca` remove logo depois.
+    """
+    largura, altura = imagem.size
+    alfa = imagem.getchannel("A").load()
+    pixels = imagem.load()
+    meio = largura // 2
+    apagados = 0
+
+    for y in range(altura):
+        if alfa[meio, y] <= 12:
+            # Linha sem escudo no centro: o que houver ali é outra coisa.
+            limite_esquerdo, limite_direito = -1, largura
+        else:
+            limite_esquerdo = meio
+            while limite_esquerdo > 0 and alfa[limite_esquerdo - 1, y] > 12:
+                limite_esquerdo -= 1
+            limite_direito = meio
+            while limite_direito < largura - 1 and alfa[limite_direito + 1, y] > 12:
+                limite_direito += 1
+
+        for x in range(largura):
+            if alfa[x, y] > 12 and (x < limite_esquerdo or x > limite_direito):
+                pixels[x, y] = (255, 255, 255, 0)
+                apagados += 1
+
+    print(f"  fita fora do escudo removida: {apagados} px")
+    return imagem
+
+
 def manter_maior_peca(imagem: Image.Image) -> Image.Image:
     """Apaga pedaços soltos, deixando só a maior figura conectada.
 
@@ -220,6 +279,14 @@ def recortar_conteudo(imagem: Image.Image, margem: int = 8) -> Image.Image:
     )
 
 
+def com_margem(imagem: Image.Image, fracao: float = MARGEM_AO_REDOR) -> Image.Image:
+    """Cola a figura no meio de uma tela transparente um pouco maior."""
+    folga = round(max(imagem.size) * fracao)
+    tela = Image.new("RGBA", (imagem.width + folga * 2, imagem.height + folga * 2), (255, 255, 255, 0))
+    tela.paste(imagem, (folga, folga), imagem)
+    return tela
+
+
 def salvar(imagem: Image.Image, nome: str, largura_maxima: int):
     if imagem.width > largura_maxima:
         altura = round(imagem.height * largura_maxima / imagem.width)
@@ -234,10 +301,11 @@ DESTINO.mkdir(parents=True, exist_ok=True)
 fonte = Image.open(ORIGEM).convert("RGB")
 sem_fundo = remover_fundo(fonte)
 completo = recortar_conteudo(sem_fundo)
-salvar(completo, "brasao.webp", 900)
+salvar(com_margem(completo), "brasao.webp", 900)
 
 # O escudo ocupa a faixa central; a fita e a haste da cruz somem em miniatura.
 l, a = completo.size
 esq, topo, dir_, base = ESCUDO_CAIXA
 escudo = completo.crop((round(l * esq), round(a * topo), round(l * dir_), round(a * base)))
-salvar(recortar_conteudo(manter_maior_peca(escudo), margem=4), "brasao-escudo.webp", 480)
+escudo = manter_maior_peca(manter_trecho_central(escudo))
+salvar(com_margem(recortar_conteudo(escudo, margem=4)), "brasao-escudo.webp", 480)
