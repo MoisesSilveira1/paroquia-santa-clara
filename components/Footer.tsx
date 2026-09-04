@@ -66,11 +66,15 @@ export default function Footer() {
                 height={542}
                 className="h-16 w-auto shrink-0 drop-shadow"
               />
+              {/* "Paróquia" sozinho na primeira linha, como no topo da
+                  página inicial: o nome é longo, e quebrá-lo onde o sentido
+                  quebra lê melhor do que deixar a caixa decidir. */}
               <div>
                 <p className="font-serif text-lg leading-tight">
-                  {paroquia.nome}
+                  <span className="block">Paróquia</span>
+                  <span className="block">Santa Clara e São Francisco de Assis</span>
                 </p>
-                <p className="mt-1 text-sm text-fundo-suave">
+                <p className="mt-1.5 text-sm text-fundo-suave">
                   Jardim Botânico · Brasília-DF
                 </p>
               </div>
@@ -80,11 +84,14 @@ export default function Footer() {
               “Senhor, fazei-me instrumento de vossa paz.”
             </p>
 
+            {/* O único elemento colorido do rodapé, de propósito: chamariz
+                que compete com outros deixa de ser chamariz. A classe `pulsa`
+                está em globals.css e explica lá por que a pulsação é lenta. */}
             <a
               href={youtube.canalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded-lg border border-principal-claro px-3 py-2 text-sm transition-colors hover:border-destaque hover:text-destaque"
+              className="pulsa mt-5 inline-flex items-center gap-2 rounded-lg bg-[#c4302b] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#a52722] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               <MonitorPlay className="h-4 w-4" aria-hidden />
               Canal no YouTube

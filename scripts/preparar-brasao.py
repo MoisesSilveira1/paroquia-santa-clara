@@ -13,6 +13,16 @@ a base do escudo e a fita, fechada pelo contorno dourado em cima e pela fita
 embaixo, onde o preenchimento vindo da borda nunca chega. Uma segunda passada
 cuida delas (ver `remover_bolsas_de_xadrez`).
 
+⚠️ DEPOIS DE RODAR ESTE SCRIPT, LIMPE O CACHE DE IMAGENS DO NEXT:
+
+    rm -rf .next/dev/cache/images     (e reinicie o servidor)
+
+O otimizador do Next guarda a imagem processada com a URL como chave, e a URL
+não muda quando o arquivo muda. Sem limpar, o navegador continua recebendo a
+versão ANTIGA — foi o que aconteceu em 03/09/2026: o arquivo no disco já
+estava certo e a tela ainda mostrava o escudo cortado. Conferir o arquivo não
+prova nada; o que vale é conferir o que a rota `/_next/image` devolve.
+
 Gera duas versões em public/fotos/:
   brasao.webp        — brasão completo (página "A Paróquia")
   brasao-escudo.webp — só o escudo, que continua legível em tamanho pequeno

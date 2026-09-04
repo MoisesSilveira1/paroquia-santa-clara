@@ -107,3 +107,22 @@ h4 {
     transition: background-color 200ms ease, color 200ms ease;
   }
 }
+
+/* Chamariz do canal no YouTube, no rodapé.
+ *
+ * É uma pulsação lenta (2 s por ciclo), e não um pisca-pisca. A diferença
+ * importa: piscar rápido é regra de acessibilidade, não gosto — acima de três
+ * flashes por segundo há risco real para quem tem epilepsia fotossensível.
+ * Dois segundos chamam a atenção do mesmo jeito e não machucam ninguém.
+ *
+ * Some inteiramente para quem pediu menos animação no sistema. */
+@keyframes pulsar-destaque {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulsa {
+    animation: pulsar-destaque 2s ease-in-out infinite;
+  }
+}
