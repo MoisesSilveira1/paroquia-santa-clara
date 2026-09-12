@@ -96,14 +96,29 @@ const texto = (min: number, max: number, nome: string) =>
     .min(min, `${nome} precisa de pelo menos ${min} caractere(s).`)
     .max(max, `${nome} passa de ${max} caracteres.`);
 
-/** Campo opcional de formulário: `""` vira `null`, não string vazia. */
+/**
+ * Campo opcional de formulário: `""` vira `null`, não string vazia.
+ *
+ * Aceita as três formas de "não veio nada": string vazia, `null` e AUSENTE.
+ *
+ * A terceira faltava até 12/09/2026, e o efeito era desproporcional: um campo
+ * que a tela só desenha às vezes — como o padrinho, escondido atrás de um
+ * botão no formulário da catequese — simplesmente não vai no envio. O esquema
+ * então recusava o formulário INTEIRO com "expected string, received
+ * undefined", uma mensagem que não é para ninguém ler e que apontava para um
+ * campo que a pessoa nem viu na tela.
+ *
+ * Nos formulários do painel nunca apareceu porque lá todos os campos estão
+ * sempre desenhados. Bastava um campo condicional para o problema surgir.
+ */
 const opcional = (max: number, nome: string) =>
   z
     .string()
     .trim()
     .max(max, `${nome} passa de ${max} caracteres.`)
-    .transform((v) => v || null)
-    .nullable();
+    .optional()
+    .nullable()
+    .transform((v) => v || null);
 
 const id = z.string().min(1, "Identificador ausente.");
 
