@@ -1,6 +1,6 @@
 // Converte as fotos de public/fotos para WebP (menor sem perda visível).
 // Uso: node scripts/otimizar-fotos.mjs
-import { readdir, readFile, writeFile, stat, unlink } from "node:fs/promises";
+import { readdir, readFile, writeFile, unlink } from "node:fs/promises";
 import { join, extname } from "node:path";
 import sharp from "sharp";
 
