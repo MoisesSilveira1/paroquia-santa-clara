@@ -21,11 +21,20 @@ import { instanteNaParoquia } from "@/lib/agenda/fuso";
 export { PAPEIS };
 
 export const CATEGORIAS_NOTICIA = ["NOTICIA", "EVENTO"] as const;
+export const TIPOS_DE_INSCRICAO = ["NOVA", "RENOVACAO"] as const;
+export const STATUS_INSCRICAO = [
+  "RECEBIDA",
+  "EM_ANALISE",
+  "CONFIRMADA",
+  "RECUSADA",
+] as const;
 export const TIPOS_DE_EVENTO = ["REUNIAO", "ESCALA"] as const;
 export const STATUS_NOTICIA = ["RASCUNHO", "PUBLICADA", "ARQUIVADA"] as const;
 export const STATUS_MENSAGEM = ["NOVA", "LIDA", "RESPONDIDA", "ARQUIVADA"] as const;
 
 export type CategoriaNoticia = (typeof CATEGORIAS_NOTICIA)[number];
+export type TipoDeInscricao = (typeof TIPOS_DE_INSCRICAO)[number];
+export type StatusInscricao = (typeof STATUS_INSCRICAO)[number];
 export type TipoDeEvento = (typeof TIPOS_DE_EVENTO)[number];
 export type StatusNoticia = (typeof STATUS_NOTICIA)[number];
 export type StatusMensagem = (typeof STATUS_MENSAGEM)[number];
@@ -45,6 +54,18 @@ export const ROTULO_TIPO_DE_EVENTO: Record<TipoDeEvento, string> = {
 export const ROTULO_CATEGORIA: Record<CategoriaNoticia, string> = {
   NOTICIA: "Notícia",
   EVENTO: "Evento",
+};
+
+export const ROTULO_TIPO_DE_INSCRICAO: Record<TipoDeInscricao, string> = {
+  NOVA: "Primeira inscrição",
+  RENOVACAO: "Renovação de matrícula",
+};
+
+export const ROTULO_STATUS_INSCRICAO: Record<StatusInscricao, string> = {
+  RECEBIDA: "Recebida",
+  EM_ANALISE: "Em análise",
+  CONFIRMADA: "Confirmada",
+  RECUSADA: "Não aceita",
 };
 
 export const ROTULO_STATUS_MENSAGEM: Record<StatusMensagem, string> = {
@@ -300,6 +321,119 @@ export const eventoDaPastoralSchema = z
 export const eventoDaPastoralEdicaoSchema = z
   .object({ id })
   .and(eventoDaPastoralSchema);
+
+// ---------------------------------------------------------------------------
+// Catequese
+// ---------------------------------------------------------------------------
+
+/** "2027" — o ano da caminhada, não uma data. */
+const anoLetivo = z
+  .string()
+  .trim()
+  .regex(/^\d{4}$/, "Informe o ano com quatro dígitos (ex.: 2027).");
+
+export const configuracaoCatequeseSchema = z.object({
+  inscricoesAbertas: caixaDeMarcar,
+  anoLetivo,
+  aviso: opcional(2000, "O aviso"),
+});
+
+export const turmaDeCatequeseSchema = z.object({
+  nome: texto(3, 120, "O nome da turma"),
+  etapa: texto(2, 60, "A etapa"),
+  diaSemana: z.coerce
+    .number()
+    .int()
+    .min(0, "Dia da semana inválido.")
+    .max(6, "Dia da semana inválido."),
+  hora: z
+    .string()
+    .trim()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use o formato HH:MM (ex.: 09:00)."),
+  local: opcional(120, "O local"),
+  vagas: z.coerce.number().int().min(0).max(500).default(0),
+  catequistas: opcional(300, "Os catequistas"),
+  anoLetivo,
+  ativa: caixaDeMarcar,
+  ordem: z.coerce.number().int().min(0).max(999).default(0),
+});
+
+export const turmaDeCatequeseEdicaoSchema = turmaDeCatequeseSchema.extend({ id });
+
+/**
+ * O pedido de inscrição, como a família preenche no site.
+ *
+ * Este é o ÚNICO formulário do site que recebe dado de criança. Três decisões
+ * que valem ser lidas antes de mexer:
+ *
+ * - A data de nascimento é conferida contra o calendário de verdade
+ *   (`new Date` aceita "2026-02-31" e devolve 3 de março). Data trocada num
+ *   cadastro de catequese manda a criança para a turma errada.
+ * - O consentimento é obrigatório e não tem valor padrão: uma caixa ausente é
+ *   ausente, e o envio é recusado. Ver `caixaDeMarcar`.
+ * - A turma é opcional: muita gente se inscreve sem saber ainda qual horário
+ *   dá, e obrigar a escolha faria a família chutar.
+ */
+const dataDeNascimento = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a data de nascimento.")
+  .refine((v) => {
+    const [ano, mes, dia] = v.split("-").map(Number);
+    const data = new Date(Date.UTC(ano!, mes! - 1, dia!));
+    return (
+      data.getUTCFullYear() === ano &&
+      data.getUTCMonth() === mes! - 1 &&
+      data.getUTCDate() === dia
+    );
+  }, "Essa data não existe no calendário.")
+  .transform((v) => new Date(`${v}T12:00:00Z`))
+  .refine((d) => d <= new Date(), "A data de nascimento está no futuro.")
+  .refine(
+    (d) => d >= new Date("1900-01-01T00:00:00Z"),
+    "Confira o ano de nascimento."
+  );
+
+export const inscricaoNaCatequeseSchema = z.object({
+  tipo: z.enum(TIPOS_DE_INSCRICAO),
+  turmaId: z
+    .string()
+    .trim()
+    .max(40)
+    .optional()
+    .transform((v) => v || null),
+
+  nome: texto(3, 120, "O nome do catequizando"),
+  dataNascimento: dataDeNascimento,
+  batizado: caixaDeMarcar,
+  paroquiaBatismo: opcional(160, "A paróquia do batismo"),
+
+  responsavel: texto(3, 120, "O nome do responsável"),
+  parentesco: texto(2, 40, "O parentesco"),
+  telefone: texto(8, 40, "O telefone"),
+  email: z
+    .union([z.literal(""), z.email("Informe um e-mail válido.")])
+    .optional()
+    .transform((v) => v || null),
+
+  padrinho: opcional(160, "O padrinho ou madrinha"),
+  observacao: opcional(1000, "A observação"),
+
+  /**
+   * Sem isto marcado, não há envio. É recusa de formulário, e não uma nota de
+   * rodapé: a paróquia passa a guardar o nome e a data de nascimento de uma
+   * criança, e precisa poder mostrar quando alguém autorizou isso.
+   */
+  consentimento: caixaDeMarcar.refine(
+    (v) => v === true,
+    "Para enviar, é preciso concordar com o uso dos dados da inscrição."
+  ),
+});
+
+export const statusInscricaoSchema = z.object({
+  id,
+  status: z.enum(STATUS_INSCRICAO),
+});
 
 // ---------------------------------------------------------------------------
 // Galeria
