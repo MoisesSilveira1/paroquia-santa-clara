@@ -29,11 +29,15 @@ export default function Hero() {
 
       <div className="relative mx-auto max-w-6xl px-4 py-14 sm:py-20">
         <div className="flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-12">
+          {/* 900x1095 são as medidas REAIS do arquivo. O Next usa esses
+              números para reservar o espaço antes de a imagem chegar; um
+              valor chutado faz a página pular quando ela carrega. */}
           <Image
             src="/fotos/brasao.webp"
             alt="Brasão da Paróquia Santa Clara e São Francisco de Assis"
             width={900}
-            height={1109}
+            height={1095}
+            sizes="(min-width: 1024px) 256px, (min-width: 640px) 208px, 160px"
             priority
             className="h-40 w-auto shrink-0 drop-shadow-2xl sm:h-52 lg:h-64"
           />

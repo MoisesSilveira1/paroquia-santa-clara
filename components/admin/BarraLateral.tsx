@@ -57,12 +57,20 @@ export default function BarraLateral({
             className="flex min-w-0 items-center gap-2.5"
             title="Ver o site da paróquia"
           >
+            {/* Aqui é o ESCUDO, e não o brasão completo como no rodapé: a 32
+                px a cruz e a fita do brasão inteiro somem, e sobra um borrão.
+                O escudo sozinho ainda guarda a silhueta reconhecível.
+
+                As medidas declaradas são as do arquivo (480x542) — declarar
+                32x32 anunciava uma proporção que o desenho não tem. Quem
+                define o tamanho na tela é o CSS. */}
             <Image
               src="/fotos/brasao-escudo.webp"
               alt=""
-              width={32}
-              height={32}
-              className="h-8 w-8 shrink-0 object-contain"
+              width={480}
+              height={542}
+              sizes="32px"
+              className="h-8 w-auto shrink-0"
             />
             {!recolhida && (
               <span className="truncate font-serif text-sm leading-tight text-texto">

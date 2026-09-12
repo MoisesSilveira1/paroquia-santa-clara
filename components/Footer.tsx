@@ -58,27 +58,40 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-12">
           {/* Identidade */}
           <div className="lg:col-span-4">
-            <div className="flex items-start gap-4">
-              <Image
-                src="/fotos/brasao-escudo.webp"
-                alt=""
-                width={480}
-                height={542}
-                className="h-16 w-auto shrink-0 drop-shadow"
-              />
-              {/* "Paróquia" sozinho na primeira linha, como no topo da
-                  página inicial: o nome é longo, e quebrá-lo onde o sentido
-                  quebra lê melhor do que deixar a caixa decidir. */}
-              <div>
-                <p className="font-serif text-lg leading-tight">
-                  <span className="block">Paróquia</span>
-                  <span className="block">Santa Clara e São Francisco de Assis</span>
-                </p>
-                <p className="mt-1.5 text-sm text-fundo-suave">
-                  Jardim Botânico · Brasília-DF
-                </p>
-              </div>
-            </div>
+            {/*
+              O brasão COMPLETO — com a cruz em cima e a fita com o nome da
+              paróquia —, e não só o escudo. É o emblema oficial, e é assim
+              que a paróquia se reconhece.
+
+              Ele fica ACIMA do nome, e não ao lado, porque o completo é mais
+              alto que largo e precisa de altura para o desenho não sumir: ao
+              lado do nome sobrava a largura de uma coluna, e nela o brasão
+              cabia com 64 px — tamanho em que o IHS, a cruz e as estrelas
+              viram um borrão marrom e a fita vira um risco cinza. Empilhado,
+              ele cabe em 144 px, onde o desenho inteiro se lê.
+
+              A fita continua ilegível neste tamanho, e tudo bem: o nome está
+              escrito logo abaixo, em texto de verdade.
+            */}
+            <Image
+              src="/fotos/brasao.webp"
+              alt=""
+              width={900}
+              height={1095}
+              sizes="(min-width: 640px) 144px, 128px"
+              className="h-32 w-auto drop-shadow-lg sm:h-36"
+            />
+
+            {/* "Paróquia" sozinho na primeira linha, como no topo da página
+                inicial: o nome é longo, e quebrá-lo onde o sentido quebra lê
+                melhor do que deixar a caixa decidir. */}
+            <p className="mt-4 font-serif text-lg leading-snug">
+              <span className="block">Paróquia</span>
+              <span className="block">Santa Clara e São Francisco de Assis</span>
+            </p>
+            <p className="mt-1.5 text-sm text-fundo-suave">
+              Jardim Botânico · Brasília-DF
+            </p>
 
             <p className="mt-5 border-l-2 border-destaque pl-3 text-sm italic leading-relaxed text-destaque-claro">
               “Senhor, fazei-me instrumento de vossa paz.”
