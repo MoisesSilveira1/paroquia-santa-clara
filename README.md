@@ -20,12 +20,13 @@ gerenciado por um painel simples, sem mexer em código.
 | `/sobre` | História, padroeiros, pároco e equipe |
 | `/pastorais` | Pastorais e movimentos; cada cartão abre a página da pastoral |
 | `/pastorais/<pastoral>` | Informações e coordenação da pastoral, com os contatos autorizados |
+| `/catequese` | Turmas, horários e o formulário de inscrição — quando a coordenação abre o período |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
 | `/noticias` | Mural de notícias e agenda de eventos |
 | `/galeria` | Álbuns de fotos dos eventos |
 | `/dizimo` | Orientações sobre o dízimo, Pix e dados bancários |
 | `/contato` | Formulário, mapa, WhatsApp e telefones |
-| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, agenda, coordenadores, galeria, mensagens e usuários |
+| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, catequese, agenda, coordenadores, galeria, mensagens e usuários |
 
 ## Tecnologia
 
@@ -77,6 +78,7 @@ publicar o site.**
 | A janela que abre o site | Painel `/admin` → Aviso paroquial |
 | Quem coordena e quem serve em cada pastoral | Painel `/admin` → Coordenadores e equipes |
 | Reuniões e escalas de uma pastoral | Painel `/admin` → Agenda |
+| Abrir ou fechar as inscrições da catequese, e as turmas | Painel `/admin` → Catequese |
 | Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
@@ -272,13 +274,17 @@ confirmados com a secretaria antes da publicação.
 
 ## Quem pode entrar no painel
 
-São três níveis de acesso:
+São quatro níveis de acesso:
 
 | Nível | Pode |
 | --- | --- |
+| Coordenador de pastoral | Só a pastoral que ele coordena: a equipe e a agenda dela. Não mexe no site nem nas outras pastorais. Quem coordena a Catequese cuida também das turmas e das inscrições |
 | Administrador comum | Avisos, notícias, horários, pastorais, galeria e mensagens de contato. Cadastra e edita coordenadores das pastorais. **Não exclui cadastro de pessoa** — nem de coordenador, nem de usuário. |
 | Padre | Tudo, sem restrição |
 | Administrador geral | Tudo, sem restrição. É quem mantém o site funcionando |
+
+A matriz completa, com a diferença entre **permissão** ("pode mexer em equipe")
+e **alcance** ("nesta equipe"), está em [docs/permissoes.md](docs/permissoes.md).
 
 O administrador comum tira o acesso de alguém desmarcando **Acesso liberado**
 na edição da pessoa: bloqueia a entrada na hora e não apaga o histórico. Só
@@ -300,7 +306,16 @@ quarto nível, é lá.
 
 ## Documentação
 
-- [docs/continuidade.md](docs/continuidade.md) — governança, contas
-  institucionais e como passar o site para outra pessoa
-- [docs/email-google-workspace.md](docs/email-google-workspace.md) — plano do
-  e-mail personalizado (@dominio da paróquia)
+Tudo em **[docs/README.md](docs/README.md)**, que é o índice e diz por onde
+começar conforme quem você é. Os principais:
+
+| | |
+| --- | --- |
+| [docs/continuidade.md](docs/continuidade.md) | **Comece por aqui** se vai manter o site: governança, contas institucionais e como passar adiante |
+| [docs/checklist-publicacao.md](docs/checklist-publicacao.md) | O que ainda falta para o site entrar no ar |
+| [docs/arquitetura.md](docs/arquitetura.md) | Como o código é organizado, e por quê |
+| [docs/permissoes.md](docs/permissoes.md) | Quem pode o quê, em detalhe |
+| [docs/seguranca.md](docs/seguranca.md) | O que protege o site e os riscos em aberto |
+| [docs/privacidade.md](docs/privacidade.md) | Dados pessoais, LGPD e o dado de criança da catequese |
+| [docs/auditoria-2026-09.md](docs/auditoria-2026-09.md) | A varredura de setembro de 2026 |
+| [docs/email-google-workspace.md](docs/email-google-workspace.md) | Plano do e-mail personalizado (@dominio da paróquia) |
