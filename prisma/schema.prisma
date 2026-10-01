@@ -57,6 +57,23 @@ model Sessao {
   @@map("sessoes")
 }
 
+/// Contagem de erros na tela de entrada, para frear quem tenta adivinhar senha.
+///
+/// Fica no banco, e não na memória do servidor, porque em hospedagem
+/// serverless cada requisição pode cair numa cópia diferente do servidor — uma
+/// contagem na memória seria zerada o tempo todo. Ver lib/auth/tentativas.ts.
+///
+/// A `chave` é um resumo de e-mail + endereço de rede: o banco não guarda nem
+/// um nem outro em claro, e as linhas são apagadas 15 minutos depois.
+model TentativaDeEntrada {
+  id       String   @id @default(cuid())
+  chave    String
+  criadoEm DateTime @default(now())
+
+  @@index([chave, criadoEm])
+  @@map("tentativas_de_entrada")
+}
+
 // ---------------------------------------------------------------------------
 // Conteúdo publicado
 // ---------------------------------------------------------------------------
@@ -381,6 +398,144 @@ model Imagem {
   criadoEm DateTime @default(now())
 
   @@map("imagens")
+}
+
+// ---------------------------------------------------------------------------
+// Catequese
+// ---------------------------------------------------------------------------
+
+/// Como a catequese está funcionando neste momento.
+///
+/// É uma tabela de uma linha só (`id` fixo em "unica"). Parece estranho, mas a
+/// alternativa seria um arquivo de configuração no código — e aí a coordenação
+/// da catequese dependeria de um programador para abrir as inscrições, que é
+/// exatamente o que este painel existe para evitar.
+///
+/// `inscricoesAbertas` é o interruptor que a comunidade sente: fechado, o
+/// formulário de inscrição some do site e a rota recusa envio. As duas coisas,
+/// e não só a primeira — esconder o botão não fecha a porta.
+model ConfiguracaoDaCatequese {
+  id String @id @default("unica")
+
+  /// Enquanto falso, ninguém se inscreve pelo site.
+  inscricoesAbertas Boolean @default(false)
+  /// "2027" — aparece no formulário e marca cada inscrição recebida.
+  anoLetivo         String
+  /// Texto livre da coordenação: prazo, documentos, onde entregar.
+  /// Aparece na página da catequese, aberto ou fechado o período.
+  aviso             String?
+
+  atualizadoEm DateTime @updatedAt
+
+  @@map("configuracao_da_catequese")
+}
+
+/// Uma turma da catequese: dia, hora, lugar e quem ensina.
+///
+/// A etapa é texto livre de propósito. Cada paróquia nomeia as suas de um
+/// jeito — "Eucaristia I", "IVC 2", "Crisma Jovens" — e engessar isso numa
+/// lista fechada no código obrigaria a mexer no sistema para acompanhar a
+/// caminhada da comunidade. Quem nomeia é a coordenação da catequese.
+model TurmaDeCatequese {
+  id   String @id @default(cuid())
+  nome String
+  /// "Eucaristia I", "Crisma", "Catequese de adultos"...
+  etapa String
+
+  /// 0 = domingo ... 6 = sábado. Número para ordenar sem depender do idioma.
+  diaSemana Int
+  /// "09:00" — hora do calendário, não instante no tempo.
+  hora      String
+  /// Um dos espaços de lib/paroquia/espacos.ts, mas sem lista fechada.
+  local     String?
+
+  /// Quantas crianças cabem. Zero = sem limite declarado.
+  ///
+  /// Não bloqueia a inscrição: quem decide se abre exceção é a coordenação,
+  /// olhando caso a caso. O número serve para o painel avisar que a turma
+  /// encheu, e para o site não oferecer o que não tem.
+  vagas Int @default(0)
+
+  /// Nomes de quem dá a turma, como a coordenação quer que apareça.
+  /// Texto, e não ligação com `Coordenador`, porque catequista nem sempre está
+  /// cadastrado na equipe — e obrigar o cadastro travaria a abertura da turma.
+  catequistas String?
+
+  anoLetivo String
+  ativa     Boolean @default(true)
+  ordem     Int     @default(0)
+
+  inscricoes InscricaoNaCatequese[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([anoLetivo, ativa, ordem])
+  @@map("turmas_de_catequese")
+}
+
+/// Um pedido de inscrição feito pelo site.
+///
+/// ATENÇÃO — esta tabela guarda DADO PESSOAL DE CRIANÇA: nome, data de
+/// nascimento e o telefone de quem responde por ela. Isso tem três
+/// consequências que valem para qualquer código que a toque:
+///
+///   1. Nada daqui vai para o site. Não há consulta pública a esta tabela, e
+///      não deve haver. Quem lê é a coordenação da catequese e a secretaria.
+///   2. O envio exige consentimento explícito de quem preenche
+///      (`consentimentoEm`), guardado com a data. Sem ele o formulário não
+///      passa — ver lib/validacao/esquemas.ts.
+///   3. Inscrição é papel de um ano. Passado o ano letivo, não há motivo para
+///      guardar — ver docs/privacidade.md.
+///
+/// É um PEDIDO, não uma matrícula: quem confirma é a coordenação, depois de
+/// conferir documento e conversar com a família. Por isso o `status` nasce
+/// como "RECEBIDA" e a turma escolhida é apenas a preferida.
+model InscricaoNaCatequese {
+  id String @id @default(cuid())
+
+  /// "NOVA" | "RENOVACAO" — ver lib/validacao/esquemas.ts.
+  tipo String @default("NOVA")
+  /// "RECEBIDA" | "EM_ANALISE" | "CONFIRMADA" | "RECUSADA"
+  status String @default("RECEBIDA")
+
+  /// A turma que a família prefere. Fica nula se a turma for apagada: o
+  /// pedido continua valendo, só perde a preferência.
+  turma   TurmaDeCatequese? @relation(fields: [turmaId], references: [id], onDelete: SetNull)
+  turmaId String?
+
+  // ----- quem vai ser catequizado -----
+  nome            String
+  dataNascimento  DateTime
+  /// Se já foi batizado, e onde. A catequese precisa saber para encaminhar
+  /// quem ainda não foi.
+  batizado        Boolean @default(false)
+  paroquiaBatismo String?
+
+  // ----- quem responde por ele -----
+  responsavel  String
+  /// "Mãe", "Pai", "Avó", "O próprio" (adulto se inscrevendo).
+  parentesco   String
+  telefone     String
+  email        String?
+
+  /// Padrinho e madrinha, quando a etapa pede (Crisma).
+  padrinho String?
+
+  observacao String?
+
+  anoLetivo String
+
+  /// Quando a pessoa marcou o aceite de uso dos dados. Guardar a data, e não
+  /// só "sim", é o que permite provar depois QUANDO o consentimento foi dado.
+  consentimentoEm DateTime
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([anoLetivo, status, criadoEm])
+  @@index([turmaId])
+  @@map("inscricoes_na_catequese")
 }
 
 // ---------------------------------------------------------------------------

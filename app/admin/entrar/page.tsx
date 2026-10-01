@@ -18,12 +18,21 @@ export default async function PaginaEntrar() {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-fundo px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center text-center">
+          {/* O brasão completo, o mesmo do rodapé e da página inicial: é o
+              emblema da paróquia, e quem entra no painel entra na casa dela.
+
+              As medidas declaradas são as do ARQUIVO (900x1095), não as da
+              caixa onde ele aparece — o tamanho na tela é do CSS. Antes estava
+              declarado 64x64, que achatava o desenho numa proporção que ele
+              não tem. 112 px é o menor tamanho em que o brasão inteiro ainda
+              se lê. */}
           <Image
-            src="/fotos/brasao-escudo.webp"
+            src="/fotos/brasao.webp"
             alt="Brasão da Paróquia Santa Clara e São Francisco de Assis"
-            width={64}
-            height={64}
-            className="h-16 w-16 object-contain"
+            width={900}
+            height={1095}
+            sizes="112px"
+            className="h-28 w-auto"
             priority
           />
           <h1 className="mt-4 text-2xl text-texto">Painel da secretaria</h1>

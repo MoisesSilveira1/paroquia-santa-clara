@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePreferenciaLocal } from "@/lib/preferencias";
 import BarraLateral from "./BarraLateral";
 import CabecalhoAdmin, { type UsuarioDaSessao } from "./CabecalhoAdmin";
-import { menuDoPapel } from "./navegacao";
+import { menuDoPapel, type Alcance } from "./navegacao";
 
 const CHAVE_RECOLHIDA = "paroquia:menu-recolhido";
 
@@ -16,14 +16,21 @@ const CHAVE_RECOLHIDA = "paroquia:menu-recolhido";
  */
 export default function CascaAdmin({
   usuario,
+  alcances = [],
   aoSair,
   children,
 }: {
   usuario: UsuarioDaSessao;
+  /**
+   * Alcances que dependem de consulta ao banco (a que pastoral a conta está
+   * ligada). Vêm prontos do layout, que é servidor — este componente é do
+   * navegador e não pode perguntar isso.
+   */
+  alcances?: readonly Alcance[];
   aoSair?: () => void;
   children: React.ReactNode;
 }) {
-  const itens = menuDoPapel(usuario.papel);
+  const itens = menuDoPapel(usuario.papel, alcances);
 
   const [preferencia, definirPreferencia] = usePreferenciaLocal(
     CHAVE_RECOLHIDA,

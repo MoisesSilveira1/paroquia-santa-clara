@@ -70,14 +70,19 @@ export function TabelaLinha({ children }: { children: React.ReactNode }) {
 export function TabelaCelula({
   children,
   alinhamento = "esquerda",
+  colunas,
   className,
 }: {
   children?: React.ReactNode;
   alinhamento?: "esquerda" | "direita";
+  /** Quantas colunas a célula ocupa — para linhas de detalhe que usam a
+      largura inteira da tabela. */
+  colunas?: number;
   className?: string;
 }) {
   return (
     <td
+      colSpan={colunas}
       className={cx(
         "px-4 py-3 align-middle text-texto",
         alinhamento === "direita" && "text-right",

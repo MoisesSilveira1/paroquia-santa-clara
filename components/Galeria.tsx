@@ -43,11 +43,15 @@ export default async function Galeria() {
             </p>
           )}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {album.fotos.map((foto) => (
+            {album.fotos.map((foto, indice) => (
               <Miniatura
                 key={foto.id}
                 foto={foto}
-                descricaoPadrao={`Foto do álbum ${album.titulo}`}
+                // Numerada porque, sem legenda própria, seis fotos do mesmo
+                // álbum teriam a MESMA descrição — e quem navega por leitor de
+                // tela ouviria a mesma frase seis vezes, sem saber em qual
+                // está. O número não descreve a foto, mas ao menos distingue.
+                descricaoPadrao={`Foto ${indice + 1} de ${album.fotos.length} do álbum ${album.titulo}`}
               />
             ))}
           </div>

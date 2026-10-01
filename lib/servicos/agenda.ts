@@ -4,6 +4,8 @@ import type { z } from "zod";
 import { db } from "@/lib/db";
 import { ErroDeNegocio } from "./resultado";
 import { pode } from "@/lib/auth/papeis";
+import { formatador } from "@/lib/agenda/fuso";
+import { disputaEspaco, mesmoEspaco } from "@/lib/paroquia/espacos";
 import {
   alcancaPastoral,
   pastoraisQueCoordena,
@@ -140,11 +142,83 @@ export async function equipesParaEscalar(
   return mapa;
 }
 
+/**
+ * Recusa dois compromissos no mesmo espaço e na mesma hora.
+ *
+ * A conferência é aqui, no serviço, e não na tela: o choque acontece entre
+ * pastorais diferentes, e cada coordenador só enxerga a agenda da sua. Quem
+ * marca uma reunião no Auditório não tem como ver que a Liturgia já o reservou
+ * — só o banco sabe disso.
+ *
+ * Por isso a busca ignora o alcance de quem está marcando, e a mensagem diz o
+ * horário e o grupo, mas nada mais: saber que "a Catequese está no Auditório
+ * das 19h às 21h" é o necessário para remarcar, e é o que qualquer pessoa
+ * saberia olhando a porta da sala.
+ *
+ * Dois compromissos se chocam quando um começa antes de o outro terminar.
+ * Sem hora de término declarada, contamos uma hora — o padrão de uma reunião
+ * de pastoral; supor "o dia inteiro" travaria a sala sem necessidade.
+ */
+const DURACAO_PADRAO_MS = 60 * 60 * 1000;
+
+async function garantirEspacoLivre(
+  dados: { local: string | null; inicio: Date; fim: Date | null },
+  ignorarEventoId?: string
+): Promise<void> {
+  if (!disputaEspaco(dados.local)) return;
+
+  const fim = dados.fim ?? new Date(dados.inicio.getTime() + DURACAO_PADRAO_MS);
+
+  // Traz só o que acontece no mesmo dia; a comparação fina de horário e de
+  // nome do espaço é feita aqui, porque o banco não sabe que "Auditório" e
+  // "auditorio" são o mesmo lugar.
+  const inicioDoDia = new Date(dados.inicio);
+  inicioDoDia.setHours(0, 0, 0, 0);
+  const fimDoDia = new Date(inicioDoDia.getTime() + 24 * 60 * 60 * 1000);
+
+  const doDia = await db.eventoDaPastoral.findMany({
+    where: {
+      inicio: { gte: inicioDoDia, lt: fimDoDia },
+      local: { not: null },
+      ...(ignorarEventoId ? { id: { not: ignorarEventoId } } : {}),
+    },
+    select: {
+      inicio: true,
+      fim: true,
+      local: true,
+      titulo: true,
+      pastoral: { select: { nome: true } },
+    },
+  });
+
+  for (const outro of doDia) {
+    if (!outro.local || !mesmoEspaco(outro.local, dados.local!)) continue;
+
+    const fimDoOutro =
+      outro.fim ?? new Date(outro.inicio.getTime() + DURACAO_PADRAO_MS);
+
+    // Encostar não é chocar: uma reunião que termina às 20h e outra que começa
+    // às 20h convivem bem. Por isso as comparações são estritas.
+    if (dados.inicio < fimDoOutro && outro.inicio < fim) {
+      throw new ErroDeNegocio(
+        `${outro.local} já está reservado nesse horário: "${outro.titulo}" ` +
+          `(${outro.pastoral.nome}), das ${horaCurta(outro.inicio)} às ` +
+          `${horaCurta(fimDoOutro)}. Escolha outro horário ou outro espaço.`
+      );
+    }
+  }
+}
+
+// Hora de Brasília, e não a do servidor — o mesmo cuidado de lib/agenda/fuso.
+const HORA_CURTA = formatador({ hour: "2-digit", minute: "2-digit" });
+const horaCurta = (quando: Date) => HORA_CURTA.format(quando);
+
 export async function criarEvento(
   dados: z.infer<typeof eventoDaPastoralSchema>,
   quem: QuemMexe
 ) {
   await garantirAlcance(quem, dados.pastoralId);
+  await garantirEspacoLivre(dados);
   const escalados = await escaladosValidos(dados.pastoralId, dados.escalados);
 
   await db.eventoDaPastoral.create({
@@ -175,6 +249,10 @@ export async function atualizarEvento(
   // onde ele iria.
   await garantirAlcance(quem, atual.pastoralId);
   await garantirAlcance(quem, dados.pastoralId);
+
+  // Ignora o próprio evento na conferência: senão ele se acusaria de chocar
+  // consigo mesmo em qualquer edição que não mudasse o horário.
+  await garantirEspacoLivre(dados, dados.id);
 
   const escalados = await escaladosValidos(dados.pastoralId, dados.escalados);
 

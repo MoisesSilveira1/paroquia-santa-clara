@@ -26,6 +26,7 @@ import {
   mesVizinho,
   type Mes,
 } from "@/lib/agenda/mes";
+import { ESPACOS_DA_PAROQUIA } from "@/lib/paroquia/espacos";
 import { excluirEventoAcao, salvarEvento } from "./acoes";
 
 // Sempre a hora de Brasília: quem abre o painel de outro fuso precisa ver o
@@ -36,15 +37,9 @@ const HORA = formatador({ hour: "2-digit", minute: "2-digit" });
 
 const CABECALHO = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
-/** Sugestões de lugar. Texto livre — ver o comentário do modelo no schema. */
-const LOCAIS = [
-  "Salão paroquial",
-  "Quiosque",
-  "Sala 1",
-  "Sala 2",
-  "Igreja Matriz",
-  "Capela Rainha da Paz",
-];
+// Os espaços vêm de lib/paroquia/espacos.ts, que é também quem o serviço
+// consulta para avisar de choque de horário. Duas listas separadas dariam o
+// absurdo de o formulário sugerir um lugar que o servidor não sabe conferir.
 
 export default function Calendario({
   mes,
@@ -340,7 +335,7 @@ function FormularioDeEvento({
           erro={estado.erros?.local?.[0]}
         />
         <datalist id="locais-da-paroquia">
-          {LOCAIS.map((l) => (
+          {ESPACOS_DA_PAROQUIA.map((l) => (
             <option key={l} value={l} />
           ))}
         </datalist>

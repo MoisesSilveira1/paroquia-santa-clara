@@ -38,26 +38,27 @@ DESTINO = Path("public/fotos")
 # Recorte do escudo sozinho (sem a fita nem a cruz), como fração do brasão
 # completo já aparado.
 #
-# Os quatro valores foram MEDIDOS no brasão de 900x1109, não estimados
-# (03/09/2026):
+# ⚠️ Se você mudar o arquivo de origem, MEÇA DE NOVO. Estes valores são
+# frações, mas foram deduzidos de medidas em pixels de UM desenho específico.
 #
-#   topo    y=301  — primeira linha com mais de 150 px de largura, ou seja,
-#                    onde as abas do escudo começam. Acima disso só há a haste
-#                    da cruz, com seus ~35 px no centro.
-#   base    y=912  — a ponta. Varrendo o miolo linha a linha, o escudo afina
-#                    até 38 px em y=910 e a linha seguinte já alarga para 300:
-#                    isso é a fita, não o escudo.
-#   lados   x=203 a 695 na altura mais larga (y=420), varrendo do centro para
-#                    fora até achar transparência.
+# Medidas do brasão atual, já sem fundo e aparado — 1564 x 1932 (11/09/2026).
+# Varrendo a coluna central (x=782) de cima para baixo:
 #
-# A caixa é folgada nas laterais de propósito: com folga entram lascas da
-# fita, que `manter_maior_peca` remove por não estarem grudadas no escudo.
-# Sem folga, o recorte come a borda dourada.
+#   topo   y≈530   — onde as abas do escudo começam a alargar. Acima disso só
+#                    há a haste da cruz, com seus ~58 px no centro.
+#   ponta  y=1680  — o fim da borda dourada de baixo, que ocupa y=1584..1680.
+#                    Abaixo dela vem a fita (cinza, y≈1680..1830) e depois o
+#                    remate da haste (dourado de novo, y≈1840 até o fim).
+#   lados  x=321 a 1238 na altura mais larga (y≈672).
 #
-# O valor anterior (0,218 / 0,223 / 0,782 / 0,823) começava 54 px ACIMA do
-# escudo, o que trazia junto um toco da haste da cruz, e terminava em cima da
-# ponta, sem sobra nenhuma.
-ESCUDO_CAIXA = (0.200, 0.270, 0.800, 0.8235)  # esquerda, topo, direita, base
+# A base de 0,875 (y≈1690) cai no vão entre a ponta e a fita.
+#
+# O valor anterior era 0,8235 — ou seja, y=1591, DENTRO da borda dourada de
+# baixo. Era isso que deixava a ponta do escudo cortada reta, como se alguém
+# tivesse serrado o brasão. O comentário que estava aqui citava medidas de um
+# brasão de 900x1109 que já não é o arquivo de origem: as frações vinham de
+# uma régua antiga aplicada a um desenho novo.
+ESCUDO_CAIXA = (0.200, 0.270, 0.800, 0.875)  # esquerda, topo, direita, base
 
 # Margem transparente ao redor da figura, em fração do maior lado.
 #
@@ -231,6 +232,75 @@ def manter_trecho_central(imagem: Image.Image) -> Image.Image:
     return imagem
 
 
+def larguras_centrais(imagem: Image.Image) -> list[int]:
+    """Para cada linha, a largura do trecho contínuo que passa pelo centro."""
+    largura, altura = imagem.size
+    alfa = imagem.getchannel("A").load()
+    meio = largura // 2
+    perfil = []
+
+    for y in range(altura):
+        if alfa[meio, y] <= 12:
+            perfil.append(0)
+            continue
+        esq = meio
+        while esq > 0 and alfa[esq - 1, y] > 12:
+            esq -= 1
+        dir_ = meio
+        while dir_ < largura - 1 and alfa[dir_ + 1, y] > 12:
+            dir_ += 1
+        perfil.append(dir_ - esq + 1)
+
+    return perfil
+
+
+# Quantas linhas seguidas de largura idêntica bastam para dizer "isto é haste,
+# não escudo". Cinco: menos que isso confunde com um trecho onde a curva do
+# escudo passa quase na horizontal.
+LINHAS_PARA_DIZER_QUE_E_HASTE = 5
+# Abaixo desta fração da largura máxima é fino o bastante para ser haste.
+FRACAO_DE_HASTE = 0.20
+
+
+def cortar_na_ponta(imagem: Image.Image) -> Image.Image:
+    """Corta tudo o que sai por baixo da ponta do escudo.
+
+    Por baixo do escudo passa a haste da cruz, e depois dela vem a fita. As
+    duas encostam no escudo, então nem `manter_trecho_central` nem
+    `manter_maior_peca` as separam — para ambas é tudo uma peça só.
+
+    O que separa é a FORMA, não a posição: o escudo AFINA continuamente até a
+    ponta, enquanto a haste é um bastão reto, de largura constante. Medido no
+    brasão atual, o escudo vai afinando 73, 69, 67… 31, 29 e então trava em 28
+    por 35 linhas seguidas — ali começa a haste.
+
+    Antes disto o corte era um número fixo (0,8235 da altura), medido à mão num
+    arquivo de origem que depois mudou. O número envelheceu junto com o
+    desenho e passou a cortar a ponta do escudo ao meio, deixando-o com a base
+    reta, como se tivesse sido serrado. Uma regra que se mede sozinha não
+    envelhece assim.
+    """
+    perfil = larguras_centrais(imagem)
+    if not perfil or max(perfil) == 0:
+        return imagem
+
+    mais_largo = perfil.index(max(perfil))
+    limite_fino = max(perfil) * FRACAO_DE_HASTE
+
+    for y in range(mais_largo + 1, len(perfil) - LINHAS_PARA_DIZER_QUE_E_HASTE):
+        largura = perfil[y]
+        if largura == 0 or largura >= limite_fino:
+            continue
+        # Largura repetida por várias linhas = bastão reto.
+        seguintes = perfil[y : y + LINHAS_PARA_DIZER_QUE_E_HASTE]
+        if all(l == largura for l in seguintes):
+            print(f"  ponta do escudo em y={y} (haste reta de {largura} px abaixo)")
+            return imagem.crop((0, 0, imagem.width, y))
+
+    print("  ponta do escudo não localizada — nada cortado por baixo")
+    return imagem
+
+
 def manter_maior_peca(imagem: Image.Image) -> Image.Image:
     """Apaga pedaços soltos, deixando só a maior figura conectada.
 
@@ -317,5 +387,10 @@ salvar(com_margem(completo), "brasao.webp", 900)
 l, a = completo.size
 esq, topo, dir_, base = ESCUDO_CAIXA
 escudo = completo.crop((round(l * esq), round(a * topo), round(l * dir_), round(a * base)))
-escudo = manter_maior_peca(manter_trecho_central(escudo))
+# A ordem importa: primeiro tira o que está SOLTO ao lado (a fita nos cantos),
+# depois corta o que continua POR BAIXO (haste e fita), e só então limpa as
+# lascas que sobraram sem encostar em nada.
+escudo = manter_trecho_central(escudo)
+escudo = cortar_na_ponta(escudo)
+escudo = manter_maior_peca(escudo)
 salvar(com_margem(recortar_conteudo(escudo, margem=4)), "brasao-escudo.webp", 480)

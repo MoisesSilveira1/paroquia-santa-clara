@@ -37,40 +37,28 @@ export const youtube = {
 };
 
 /**
- * A catequese da paróquia tem sistema próprio, mantido pelos catequistas, com
- * área de login para as famílias. Aqui guardamos apenas o endereço e o resumo
- * dos serviços: quem manda no conteúdo é o sistema deles.
+ * O que da catequese ainda mora FORA do nosso sistema.
  *
- * De propósito NÃO repetimos aqui informações que mudam a cada ano — se as
- * inscrições estão abertas, o valor da contribuição, as turmas disponíveis.
- * Repetir isso criaria duas versões da verdade e a nossa envelheceria calada.
+ * As inscrições, as turmas e o período aberto/fechado passaram para cá em
+ * 11/09/2026 — vêm do banco e a coordenação cuida deles pelo painel. Ver
+ * lib/servicos/catequese.ts.
+ *
+ * O que sobrou nesta lista continua no sistema próprio dos catequistas e é
+ * ligado por link. NÃO foi copiado de propósito: são telas que nunca vimos por
+ * dentro, e um palpite com cara de sistema pronto seria pior que não ter.
+ *
+ * De propósito também NÃO repetimos aqui nada que mude a cada ano — prazo de
+ * inscrição, valor de contribuição, turmas. Repetir criaria duas versões da
+ * verdade, e a nossa envelheceria calada.
  */
 export const catequese = {
   url: "https://catequeseparoquiasantaclara.com/",
   servicos: [
     {
-      icone: "renovacao" as const,
-      titulo: "Renovação de matrícula",
+      icone: "capela" as const,
+      titulo: "Capela virtual",
       descricao:
-        "Para quem já é catequizando: confirme os dados e escolha a turma do próximo ano.",
-    },
-    {
-      icone: "inscricao" as const,
-      titulo: "Nova inscrição",
-      descricao:
-        "Primeira vez na catequese? O formulário completo de inscrição fica no sistema.",
-    },
-    {
-      icone: "ivc" as const,
-      titulo: "Iniciação à Vida Cristã (IVC)",
-      descricao:
-        "O novo modelo de catequese, organizado por etapas de fé, para crianças, jovens e adultos.",
-    },
-    {
-      icone: "padrinhos" as const,
-      titulo: "Cadastro de padrinhos",
-      descricao:
-        "Padrinhos e madrinhas da Crisma e dos demais sacramentos se cadastram por aqui.",
+        "Envie uma intenção de oração, com a opção de permanecer anônimo. Os catequistas rezam por ela nos encontros.",
     },
     {
       icone: "camiseta" as const,
@@ -78,10 +66,10 @@ export const catequese = {
       descricao: "Escolha do modelo e do tamanho da camiseta dos crismandos.",
     },
     {
-      icone: "capela" as const,
-      titulo: "Capela virtual",
+      icone: "padrinhos" as const,
+      titulo: "Cadastro de padrinhos",
       descricao:
-        "Envie uma intenção de oração — com a opção de permanecer anônimo. Os catequistas rezam por ela nos encontros.",
+        "Padrinhos e madrinhas da Crisma completam o cadastro por lá.",
     },
   ],
 };

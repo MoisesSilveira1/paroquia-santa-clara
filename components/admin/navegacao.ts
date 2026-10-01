@@ -1,5 +1,6 @@
 import {
   BellRing,
+  BookOpenText,
   CalendarRange,
   CalendarDays,
   Images,
@@ -25,12 +26,27 @@ export {
   type Papel,
 } from "@/lib/auth/papeis";
 
+/**
+ * Alcances que não se deduzem do papel.
+ *
+ * Papel responde "esta conta pode mexer em equipe de pastoral?"; alcance
+ * responde "em QUAL". A diferença só o banco sabe — é preciso olhar a que
+ * pastoral a conta está ligada. Por isso o alcance é calculado no servidor
+ * (ver o layout do painel) e chega aqui pronto, como uma lista.
+ *
+ * Sem isto, o item da Catequese apareceria para o coordenador da Liturgia, que
+ * tem a mesma permissão e clicaria num "Área restrita".
+ */
+export type Alcance = "catequese";
+
 export type ItemDeMenu = {
   href: string;
   rotulo: string;
   icone: LucideIcon;
   /** Quando presente, só enxerga o item quem tem esta permissão. */
   exige?: Permissao;
+  /** Quando presente, só enxerga quem tiver este alcance concedido. */
+  exigeAlcance?: Alcance;
 };
 
 export const MENU: ItemDeMenu[] = [
@@ -40,6 +56,16 @@ export const MENU: ItemDeMenu[] = [
   { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper, exige: "conteudo.editar" },
   { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays, exige: "conteudo.editar" },
   { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users, exige: "conteudo.editar" },
+  {
+    href: "/admin/catequese",
+    rotulo: "Catequese",
+    icone: BookOpenText,
+    // A mesma permissão de equipe: a catequese É uma pastoral, e quem cuida
+    // dela é a secretaria ou o coordenador ligado a ela. O `exigeAlcance` é o
+    // que impede o item de aparecer para o coordenador de outro grupo.
+    exige: "equipe.propria",
+    exigeAlcance: "catequese",
+  },
   {
     href: "/admin/agenda",
     rotulo: "Agenda",
@@ -64,9 +90,22 @@ export const MENU: ItemDeMenu[] = [
   },
 ];
 
-/** Filtra o menu pelo papel de quem está logado. */
-export function menuDoPapel(papel: Papel): ItemDeMenu[] {
-  return MENU.filter((item) => !item.exige || pode(papel, item.exige));
+/**
+ * Filtra o menu pelo papel de quem está logado e pelos alcances concedidos.
+ *
+ * Esconder o item NÃO é proteção — quem protege é o `exigirPermissao` das
+ * ações e o `alcanca…` dos serviços. É cortesia: menu que leva a porta
+ * trancada faz a pessoa pensar que o site quebrou.
+ */
+export function menuDoPapel(
+  papel: Papel,
+  alcances: readonly Alcance[] = []
+): ItemDeMenu[] {
+  return MENU.filter((item) => {
+    if (item.exige && !pode(papel, item.exige)) return false;
+    if (item.exigeAlcance && !alcances.includes(item.exigeAlcance)) return false;
+    return true;
+  });
 }
 
 /**
