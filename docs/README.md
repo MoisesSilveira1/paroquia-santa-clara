@@ -40,7 +40,7 @@ comece por [continuidade.md](continuidade.md).
 
 | | |
 | --- | --- |
-| [catequese.md](catequese.md) | O módulo da catequese: o que é nosso e o que continua no sistema dos catequistas |
+| [catequese.md](catequese.md) | Por que a catequese é só um link — e o módulo dormente que ficou atrás disso |
 
 ### Qualidade
 

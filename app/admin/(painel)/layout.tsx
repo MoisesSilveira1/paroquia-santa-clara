@@ -1,7 +1,5 @@
 import CascaAdmin from "@/components/admin/CascaAdmin";
-import type { Alcance } from "@/components/admin/navegacao";
 import { exigirSessao } from "@/lib/auth/guardas";
-import { alcancaCatequese } from "@/lib/servicos/catequese";
 import { acaoSair } from "../acoes";
 
 /**
@@ -18,16 +16,10 @@ export default async function LayoutPainel({
 }) {
   const usuario = await exigirSessao();
 
-  // Os alcances que o papel sozinho não responde. São calculados aqui, no
-  // servidor, porque dependem de consulta ao banco — e o menu, que roda no
-  // navegador, não pode perguntar isso. Ver `Alcance` em navegacao.ts.
-  const alcances: Alcance[] = [];
-  if (await alcancaCatequese({ id: usuario.id, papel: usuario.papel })) {
-    alcances.push("catequese");
-  }
-
+  // Nenhum item do menu depende de alcance hoje — ver `Alcance` em
+  // navegacao.ts. Quando voltar a depender, o cálculo é aqui, no servidor.
   return (
-    <CascaAdmin usuario={usuario} alcances={alcances} aoSair={acaoSair}>
+    <CascaAdmin usuario={usuario} aoSair={acaoSair}>
       {children}
     </CascaAdmin>
   );

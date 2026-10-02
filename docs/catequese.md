@@ -1,9 +1,27 @@
 # Catequese
 
-O módulo da catequese: o que é nosso, o que continua no sistema dos
-catequistas, e por quê.
-
-Feito em **11 e 12 de setembro de 2026**.
+> ## ⚠️ Decisão de 01/10/2026 — leia antes do resto
+>
+> **A catequese do site é só um link.** O coordenador da catequese (Jailson
+> Cabral de Lima) autorizou que o nosso site apenas aponte para o sistema
+> dele, que já está estruturado e em uso. Não vamos refazê-lo aqui.
+>
+> A página `/catequese` explica o que se resolve por lá e manda a pessoa para
+> o lugar certo. **Não há tela de catequese no painel.**
+>
+> O módulo descrito deste ponto em diante foi construído em 11-12/09/2026 e
+> está **dormente**: o código do serviço (`lib/servicos/catequese.ts`) e as
+> três tabelas continuam no projeto, testados e vazios, mas nenhuma tela os
+> usa. Ficam de pé em vez de apagados porque, se o arranjo com os catequistas
+> mudar, voltam só as telas:
+>
+> ```bash
+> git checkout 0fec910 -- "app/admin/(painel)/catequese"
+> git checkout 20a344e -- "app/(site)/catequese"
+> ```
+>
+> O resto deste documento descreve esse módulo dormente — vale como registro
+> do que existe e do porquê, não como descrição do site de hoje.
 
 ---
 

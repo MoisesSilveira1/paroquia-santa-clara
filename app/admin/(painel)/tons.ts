@@ -1,9 +1,5 @@
 import type { Tom } from "@/components/ui/tema";
-import type {
-  StatusInscricao,
-  StatusMensagem,
-  StatusNoticia,
-} from "@/lib/validacao/esquemas";
+import type { StatusMensagem, StatusNoticia } from "@/lib/validacao/esquemas";
 
 /**
  * De qual cor cada situação se veste.
@@ -23,19 +19,4 @@ export const TOM_DO_STATUS_MENSAGEM: Record<StatusMensagem, Tom> = {
   LIDA: "info",
   RESPONDIDA: "sucesso",
   ARQUIVADA: "neutro",
-};
-
-/**
- * "Não aceita" é neutro, e não vermelho, de propósito.
- *
- * Do outro lado da tela há a ficha de uma criança. Vermelho é a cor de erro e
- * de perigo no resto do painel; usá-la aqui faria uma família recusada parecer
- * um defeito do sistema. Recusar uma inscrição é uma decisão da coordenação,
- * quase sempre por falta de vaga ou de documento — não é um problema.
- */
-export const TOM_DO_STATUS_INSCRICAO: Record<StatusInscricao, Tom> = {
-  RECEBIDA: "atencao",
-  EM_ANALISE: "info",
-  CONFIRMADA: "sucesso",
-  RECUSADA: "neutro",
 };

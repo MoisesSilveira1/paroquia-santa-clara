@@ -1,6 +1,5 @@
 import {
   BellRing,
-  BookOpenText,
   CalendarRange,
   CalendarDays,
   Images,
@@ -30,14 +29,15 @@ export {
  * Alcances que não se deduzem do papel.
  *
  * Papel responde "esta conta pode mexer em equipe de pastoral?"; alcance
- * responde "em QUAL". A diferença só o banco sabe — é preciso olhar a que
- * pastoral a conta está ligada. Por isso o alcance é calculado no servidor
- * (ver o layout do painel) e chega aqui pronto, como uma lista.
+ * responde "em QUAL" — e isso só o banco sabe. O mecanismo foi criado em
+ * 11/09/2026 para o item da Catequese e ficou SEM USO em 01/10, quando a
+ * catequese passou a ser apenas um link para o sistema dos catequistas.
  *
- * Sem isto, o item da Catequese apareceria para o coordenador da Liturgia, que
- * tem a mesma permissão e clicaria num "Área restrita".
+ * Fica de pé, e não apagado, porque o problema volta na primeira tela que
+ * valha só para o coordenador de um grupo específico. A lista vazia não
+ * esconde nem libera nada hoje.
  */
-export type Alcance = "catequese";
+export type Alcance = never;
 
 export type ItemDeMenu = {
   href: string;
@@ -56,16 +56,6 @@ export const MENU: ItemDeMenu[] = [
   { href: "/admin/noticias", rotulo: "Notícias e eventos", icone: Newspaper, exige: "conteudo.editar" },
   { href: "/admin/celebracoes", rotulo: "Horários", icone: CalendarDays, exige: "conteudo.editar" },
   { href: "/admin/pastorais", rotulo: "Pastorais", icone: Users, exige: "conteudo.editar" },
-  {
-    href: "/admin/catequese",
-    rotulo: "Catequese",
-    icone: BookOpenText,
-    // A mesma permissão de equipe: a catequese É uma pastoral, e quem cuida
-    // dela é a secretaria ou o coordenador ligado a ela. O `exigeAlcance` é o
-    // que impede o item de aparecer para o coordenador de outro grupo.
-    exige: "equipe.propria",
-    exigeAlcance: "catequese",
-  },
   {
     href: "/admin/agenda",
     rotulo: "Agenda",

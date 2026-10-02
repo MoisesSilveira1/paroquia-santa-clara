@@ -37,28 +37,45 @@ export const youtube = {
 };
 
 /**
- * O que da catequese ainda mora FORA do nosso sistema.
+ * A catequese tem sistema próprio, mantido pelos catequistas, com área de
+ * login para as famílias: renovação, inscrição, IVC, padrinhos, camiseta da
+ * crisma e capela virtual.
  *
- * As inscrições, as turmas e o período aberto/fechado passaram para cá em
- * 11/09/2026 — vêm do banco e a coordenação cuida deles pelo painel. Ver
- * lib/servicos/catequese.ts.
+ * Em 01/10/2026 o coordenador da catequese (Jailson Cabral de Lima) autorizou
+ * que o site apenas APONTE para o sistema dele, em vez de refazê-lo aqui — o
+ * de lá já está estruturado e em uso. Nossa página explica o que se resolve
+ * por lá e manda a pessoa para o lugar certo.
  *
- * O que sobrou nesta lista continua no sistema próprio dos catequistas e é
- * ligado por link. NÃO foi copiado de propósito: são telas que nunca vimos por
- * dentro, e um palpite com cara de sistema pronto seria pior que não ter.
- *
- * De propósito também NÃO repetimos aqui nada que mude a cada ano — prazo de
- * inscrição, valor de contribuição, turmas. Repetir criaria duas versões da
- * verdade, e a nossa envelheceria calada.
+ * De propósito NÃO repetimos aqui nada que mude a cada ano: se as inscrições
+ * estão abertas, o valor da contribuição, as turmas. Repetir criaria duas
+ * versões da verdade, e a nossa envelheceria calada enquanto a de lá muda.
  */
 export const catequese = {
   url: "https://catequeseparoquiasantaclara.com/",
   servicos: [
     {
-      icone: "capela" as const,
-      titulo: "Capela virtual",
+      icone: "renovacao" as const,
+      titulo: "Renovação de matrícula",
       descricao:
-        "Envie uma intenção de oração, com a opção de permanecer anônimo. Os catequistas rezam por ela nos encontros.",
+        "Para quem já é catequizando: confirme os dados e escolha a turma do próximo ano.",
+    },
+    {
+      icone: "inscricao" as const,
+      titulo: "Nova inscrição",
+      descricao:
+        "Primeira vez na catequese? O formulário completo de inscrição fica no sistema.",
+    },
+    {
+      icone: "ivc" as const,
+      titulo: "Iniciação à Vida Cristã (IVC)",
+      descricao:
+        "O modelo de catequese organizado por etapas de fé, para crianças, jovens e adultos.",
+    },
+    {
+      icone: "padrinhos" as const,
+      titulo: "Cadastro de padrinhos",
+      descricao:
+        "Padrinhos e madrinhas da Crisma e dos demais sacramentos se cadastram por aqui.",
     },
     {
       icone: "camiseta" as const,
@@ -66,10 +83,10 @@ export const catequese = {
       descricao: "Escolha do modelo e do tamanho da camiseta dos crismandos.",
     },
     {
-      icone: "padrinhos" as const,
-      titulo: "Cadastro de padrinhos",
+      icone: "capela" as const,
+      titulo: "Capela virtual",
       descricao:
-        "Padrinhos e madrinhas da Crisma completam o cadastro por lá.",
+        "Envie uma intenção de oração, com a opção de permanecer anônimo. Os catequistas rezam por ela nos encontros.",
     },
   ],
 };

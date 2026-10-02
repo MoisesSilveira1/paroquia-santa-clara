@@ -1,5 +1,21 @@
 import "server-only";
 
+/* ===========================================================================
+ * ⚠️  MÓDULO DORMENTE — NENHUMA TELA USA ESTE ARQUIVO HOJE (01/10/2026)
+ *
+ * Foi construído em 11-12/09/2026 para trazer a catequese (turmas, período de
+ * inscrição e os pedidos) para dentro do nosso sistema. Em 01/10 o coordenador
+ * da catequese autorizou que o site apenas APONTE para o sistema dele, que já
+ * está estruturado e em uso — então as telas foram removidas e a página
+ * /catequese voltou a ser um link.
+ *
+ * O código fica de pé, testado, em vez de apagado: se o arranjo com os
+ * catequistas mudar, voltam só as telas. As tabelas continuam no banco, vazias.
+ *
+ * As telas removidas estão no commit 0fec910 e podem ser recuperadas com:
+ *     git checkout 0fec910 -- "app/admin/(painel)/catequese"
+ * =========================================================================== */
+
 import type { z } from "zod";
 import { db } from "@/lib/db";
 import { ErroDeNegocio } from "./resultado";

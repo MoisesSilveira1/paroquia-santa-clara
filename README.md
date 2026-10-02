@@ -20,13 +20,13 @@ gerenciado por um painel simples, sem mexer em código.
 | `/sobre` | História, padroeiros, pároco e equipe |
 | `/pastorais` | Pastorais e movimentos; cada cartão abre a página da pastoral |
 | `/pastorais/<pastoral>` | Informações e coordenação da pastoral, com os contatos autorizados |
-| `/catequese` | Turmas, horários e o formulário de inscrição — quando a coordenação abre o período |
+| `/catequese` | O que a catequese oferece, com link para o sistema próprio dos catequistas |
 | `/missa-online` | Transmissão ao vivo do YouTube + últimas missas |
 | `/noticias` | Mural de notícias e agenda de eventos |
 | `/galeria` | Álbuns de fotos dos eventos |
 | `/dizimo` | Orientações sobre o dízimo, Pix e dados bancários |
 | `/contato` | Formulário, mapa, WhatsApp e telefones |
-| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, catequese, agenda, coordenadores, galeria, mensagens e usuários |
+| `/admin` | **Painel da secretaria** (exige login): aviso paroquial, avisos da semana, notícias, horários, pastorais, agenda, coordenadores, galeria, mensagens e usuários |
 
 ## Tecnologia
 
@@ -78,7 +78,6 @@ publicar o site.**
 | A janela que abre o site | Painel `/admin` → Aviso paroquial |
 | Quem coordena e quem serve em cada pastoral | Painel `/admin` → Coordenadores e equipes |
 | Reuniões e escalas de uma pastoral | Painel `/admin` → Agenda |
-| Abrir ou fechar as inscrições da catequese, e as turmas | Painel `/admin` → Catequese |
 | Telefones, endereço, dízimo, textos institucionais | [`lib/dados.ts`](lib/dados.ts) |
 | Aparência (cores, fontes) | [`app/globals.css`](app/globals.css) |
 | Classes repetidas de formulário/botão | [`components/ui/estilos.ts`](components/ui/estilos.ts) |
@@ -278,7 +277,7 @@ São quatro níveis de acesso:
 
 | Nível | Pode |
 | --- | --- |
-| Coordenador de pastoral | Só a pastoral que ele coordena: a equipe e a agenda dela. Não mexe no site nem nas outras pastorais. Quem coordena a Catequese cuida também das turmas e das inscrições |
+| Coordenador de pastoral | Só a pastoral que ele coordena: a equipe e a agenda dela. Não mexe no site nem nas outras pastorais |
 | Administrador comum | Avisos, notícias, horários, pastorais, galeria e mensagens de contato. Cadastra e edita coordenadores das pastorais. **Não exclui cadastro de pessoa** — nem de coordenador, nem de usuário. |
 | Padre | Tudo, sem restrição |
 | Administrador geral | Tudo, sem restrição. É quem mantém o site funcionando |

@@ -402,6 +402,11 @@ model Imagem {
 
 // ---------------------------------------------------------------------------
 // Catequese
+//
+// ⚠️ TABELAS SEM USO desde 01/10/2026. Foram criadas para o módulo da
+// catequese; o coordenador autorizou que o site apenas aponte para o sistema
+// dele, e as telas saíram. Ficam aqui, vazias, porque apagá-las exigiria uma
+// migração destrutiva e o módulo pode voltar — ver lib/servicos/catequese.ts.
 // ---------------------------------------------------------------------------
 
 /// Como a catequese está funcionando neste momento.

@@ -25,9 +25,9 @@ Sem isto o site não pode ser publicado (há dados fictícios no ar hoje).
       identificáveis, inclusive de crianças; confirmar com a PASCOM/pároco
       antes de as fotos ficarem públicas (LGPD). É a pendência de privacidade
       mais séria — ver [privacidade.md](privacidade.md) §6.
-- [ ] **Dados da catequese**: turmas reais (etapa, dia, hora, local,
-      catequistas) e a conta do coordenador da catequese, para ligá-la à
-      pastoral — ver [catequese.md](catequese.md) §10.
+- [x] ~~Dados da catequese~~ — **resolvido em 01/10/2026**: o coordenador
+      autorizou que o site apenas aponte para o sistema dele. Nada a cadastrar
+      aqui; a página `/catequese` é um link. Ver [catequese.md](catequese.md).
 - [ ] **Prazos de guarda dos dados** aprovados pelo pároco: por quanto tempo
       guardar inscrições da catequese e mensagens de contato. É o que falta
       para escrever a Política de Privacidade — ver
@@ -79,9 +79,9 @@ O passo a passo detalhado está em [publicar.md](publicar.md).
       vista de qualquer um.
 - [ ] Apagar os cadastros marcados `(exemplo)` em **Coordenadores e equipes**
       e os compromissos de teste na **Agenda**.
-- [ ] **Limpar a demonstração da Catequese**: apagar a turma "Eucaristia I —
-      sábado de manhã", fechar o período de inscrição (ou ajustar o ano e o
-      recado) e cadastrar as turmas reais.
+- [x] ~~Limpar a demonstração da Catequese~~ — **feito em 01/10/2026**: a
+      turma e a configuração de demonstração foram apagadas do banco junto com
+      a retirada das telas.
 - [ ] **Escrever a página de Política de Privacidade** e ligá-la no rodapé.
       Depende dos prazos de guarda da Etapa 1. Um site institucional com
       formulário de contato e inscrição de criança deveria ter uma.
